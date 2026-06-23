@@ -1,6 +1,10 @@
 import { buildSchema, type GraphQLSchema } from "graphql";
 
+import { fixtureResolvers } from "./fixtureData.js";
+
 const typeDefs = `
+  scalar DateTime
+
   type ApolloPoc {
     framework: String!
     runtime: String!
@@ -9,8 +13,71 @@ const typeDefs = `
     notes: [String!]!
   }
 
+  type User {
+    id: Int!
+    email: String!
+    fullName: String!
+    roles: String
+    posts: [Post]!
+  }
+
+  type Post {
+    id: Int!
+    title: String!
+    body: String!
+    authorId: Int!
+    author: User!
+    createdAt: DateTime!
+  }
+
+  type Contact {
+    id: Int!
+    name: String!
+    email: String!
+    message: String!
+    createdAt: DateTime!
+  }
+
+  input CreatePostInput {
+    title: String!
+    body: String!
+    authorId: Int!
+  }
+
+  input UpdatePostInput {
+    title: String
+    body: String
+    authorId: Int
+  }
+
+  input CreateContactInput {
+    name: String!
+    email: String!
+    message: String!
+  }
+
+  input UpdateContactInput {
+    name: String
+    email: String
+    message: String
+  }
+
   type Query {
     redwoodApolloPoc: ApolloPoc!
+    posts: [Post!]!
+    post(id: Int!): Post
+    user(id: Int!): User
+    contacts: [Contact!]!
+    contact(id: Int!): Contact
+  }
+
+  type Mutation {
+    createPost(input: CreatePostInput!): Post!
+    updatePost(id: Int!, input: UpdatePostInput!): Post!
+    deletePost(id: Int!): Post!
+    createContact(input: CreateContactInput!): Contact!
+    updateContact(id: Int!, input: UpdateContactInput!): Contact!
+    deleteContact(id: Int!): Contact!
   }
 `;
 
@@ -35,4 +102,5 @@ const apolloPoc = {
 
 export const rootValue = {
   redwoodApolloPoc: () => apolloPoc,
+  ...fixtureResolvers,
 } as const;
