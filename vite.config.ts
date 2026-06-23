@@ -22,7 +22,7 @@ export default defineConfig({
     cache: true,
     tasks: {
       dev: {
-        command: "vp run rwsdk#dev",
+        command: "vp run --parallel --filter rwsdk --filter @rw-sdk-plus/graphql dev",
         cache: false,
       },
     },
