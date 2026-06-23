@@ -7,7 +7,7 @@ catalogMode: prefer
 
 catalog:
   "@types/node": ^24
-  typescript: ^5
+  typescript: 7.0.1-rc
   vite: npm:@voidzero-dev/vite-plus-core@latest
   vitest: 4.1.9
   vite-plus: latest
@@ -19,6 +19,7 @@ peerDependencyRules:
     - vite
     - vitest
   allowedVersions:
+    typescript: "7.0.1-rc"
     vite: "*"
     vitest: "*"
 allowBuilds:

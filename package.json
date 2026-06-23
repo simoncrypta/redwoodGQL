@@ -8,6 +8,7 @@
     "prepare": "vp config"
   },
   "devDependencies": {
+    "typescript": "catalog:",
     "vite-plus": "catalog:"
   },
   "devEngines": {
