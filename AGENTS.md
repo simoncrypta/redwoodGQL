@@ -1,3 +1,6 @@
+You can find doc for @redwoodjs/ packages online at https://cedarjs.com/docs/8.x/introduction
+You can find doc for RedwoodSDK (@rwsdk/ packages) online at https://docs.rwsdk.com/
+
 <!--VITE PLUS START-->
 
 # Using Vite+, the Unified Toolchain for the Web
