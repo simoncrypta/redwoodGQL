@@ -1,0 +1,15 @@
+export const welcomeStyles = {
+  code: "welcomeCode",
+  codeBlock: "welcomeCodeBlock",
+  codePrompt: "welcomeCodePrompt",
+  container: "welcomeContainer",
+  copyButton: "welcomeCopyButton",
+  details: "welcomeDetails",
+  header: "welcomeHeader",
+  link: "welcomeLink",
+  list: "welcomeList",
+  section: "welcomeSection",
+  sectionTitle: "welcomeSectionTitle",
+  subtitle: "welcomeSubtitle",
+  title: "welcomeTitle",
+} as const;
