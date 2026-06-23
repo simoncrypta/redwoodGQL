@@ -5,7 +5,6 @@ import { createApolloRwsdkTransportId, renderApolloRwsdkStream } from "@rwsdk/ap
 
 import { ApolloShell } from "@/app/apollo/ApolloShell";
 import { Document } from "@/app/document";
-import { handleGraphqlPost } from "@/app/graphql/route";
 import { setCommonHeaders } from "@/app/headers";
 import BlogLayout from "@/app/layouts/BlogLayout/BlogLayout";
 import ScaffoldLayout from "@/app/layouts/ScaffoldLayout/ScaffoldLayout";
@@ -36,11 +35,17 @@ type IdParams = {
   readonly id: string;
 };
 
+const defaultDevGraphqlUrl = "http://localhost:8911/graphql";
+
+const resolveGraphqlUrl = (requestUrl: string) =>
+  import.meta.env.VITE_GRAPHQL_URL ??
+  (import.meta.env.DEV ? defaultDevGraphqlUrl : new URL("/graphql", requestUrl).toString());
+
 const routeId = ({ params }: RequestInfo<IdParams>) => Number.parseInt(params.id, 10);
 
 const renderPage = async (requestInfo: RequestInfo, children: ReactNode) => {
   const apolloTransportId = createApolloRwsdkTransportId();
-  const graphqlUrl = new URL("/graphql", requestInfo.request.url).toString();
+  const graphqlUrl = resolveGraphqlUrl(requestInfo.request.url);
   const stream = await renderApolloRwsdkStream(
     <ApolloShell
       graphqlUrl={graphqlUrl}
@@ -89,7 +94,6 @@ const renderPostsPage = (requestInfo: RequestInfo, children: ReactNode) =>
 
 export default defineApp([
   setCommonHeaders(),
-  route("/graphql", { post: handleGraphqlPost }),
   route("/double", (requestInfo) => renderPage(requestInfo, <DoublePage />)),
   route("/login", (requestInfo) => renderPage(requestInfo, <LoginPage />)),
   route("/signup", (requestInfo) => renderPage(requestInfo, <SignupPage />)),

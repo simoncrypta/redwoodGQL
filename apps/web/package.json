@@ -10,7 +10,7 @@
   "main": "index.js",
   "scripts": {
     "build": "vp run @rwsdk/apollo#build && vp run @rwsdk/cell#build && vp build",
-    "dev": "vp run @rwsdk/apollo#build && vp run @rwsdk/cell#build && vp dev",
+    "dev": "vp run @rwsdk/apollo#build && vp run @rwsdk/cell#build && vp dev --port 8910",
     "dev:init": "rw-scripts dev-init",
     "preview": "vp preview",
     "worker:run": "rw-scripts worker-run",
@@ -45,7 +45,7 @@
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17",
-    "typescript": "6.0.3",
+    "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plus": "catalog:",
     "wrangler": "4.85.0"
