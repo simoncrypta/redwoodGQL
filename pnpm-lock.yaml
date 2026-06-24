@@ -220,6 +220,9 @@ importers:
 
   .:
     devDependencies:
+      '@rwgql/dbauth':
+        specifier: workspace:*
+        version: link:packages/dbauth
       db:
         specifier: workspace:*
         version: link:apps/db
@@ -254,12 +257,21 @@ importers:
 
   apps/graphql:
     dependencies:
+      '@fastify/cors':
+        specifier: ^11.0.1
+        version: 11.2.0
       '@graphql-tools/merge':
         specifier: ^9.1.9
         version: 9.1.9(graphql@16.14.2)
       '@graphql-tools/schema':
         specifier: ^10.0.33
         version: 10.0.33(graphql@16.14.2)
+      '@rwgql/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
+      '@rwgql/dbauth':
+        specifier: workspace:*
+        version: link:../../packages/dbauth
       db:
         specifier: workspace:*
         version: link:../db
@@ -297,9 +309,15 @@ importers:
       '@apollo/client-react-streaming':
         specifier: 0.14.5
         version: 0.14.5(@apollo/client@4.2.3(graphql@17.0.1)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(rxjs@7.8.2))(@types/react@19.2.14)(graphql@17.0.1)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(rxjs@7.8.2)
+      '@rwgql/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
       '@rwgql/cell':
         specifier: workspace:*
         version: link:../../packages/cell
+      '@rwgql/dbauth':
+        specifier: workspace:*
+        version: link:../../packages/dbauth
       '@rwgql/rwsdk-apollo-client':
         specifier: workspace:*
         version: link:../../packages/rwsdk-apollo-client
@@ -368,6 +386,49 @@ importers:
         specifier: 4.85.0
         version: 4.85.0(@cloudflare/workers-types@4.20260426.1)
 
+  packages/auth:
+    dependencies:
+      '@graphql-tools/utils':
+        specifier: ^10.11.0
+        version: 10.11.0(graphql@16.14.2)
+    devDependencies:
+      '@testing-library/jest-dom':
+        specifier: ^6.9.1
+        version: 6.9.1
+      '@testing-library/react':
+        specifier: ^16.3.0
+        version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+      '@types/node':
+        specifier: ^25.6.2
+        version: 25.6.2
+      '@types/react':
+        specifier: 19.2.14
+        version: 19.2.14
+      '@types/react-dom':
+        specifier: 19.2.3
+        version: 19.2.3(@types/react@19.2.14)
+      graphql:
+        specifier: ^16.14.2
+        version: 16.14.2
+      graphql-yoga:
+        specifier: ^5.21.2
+        version: 5.21.2(graphql@16.14.2)
+      jsdom:
+        specifier: ^27.3.0
+        version: 27.4.0
+      react:
+        specifier: 19.2.6
+        version: 19.2.6
+      react-dom:
+        specifier: 19.2.6
+        version: 19.2.6(react@19.2.6)
+      typescript:
+        specifier: 'catalog:'
+        version: 7.0.1-rc
+      vite-plus:
+        specifier: 'catalog:'
+        version: 0.2.1(@types/node@25.6.2)(esbuild@0.27.3)(jiti@2.7.0)(jsdom@27.4.0)(terser@5.48.0)(typescript@7.0.1-rc)(vite@8.0.16(@types/node@25.6.2)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))(yaml@2.9.0)
+
   packages/cell:
     dependencies:
       '@apollo/client':
@@ -401,6 +462,25 @@ importers:
       react-dom:
         specifier: 19.2.6
         version: 19.2.6(react@19.2.6)
+      typescript:
+        specifier: 'catalog:'
+        version: 7.0.1-rc
+      vite-plus:
+        specifier: 'catalog:'
+        version: 0.2.1(@types/node@25.6.2)(esbuild@0.27.3)(jiti@2.7.0)(jsdom@27.4.0)(terser@5.48.0)(typescript@7.0.1-rc)(vite@8.0.16(@types/node@25.6.2)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))(yaml@2.9.0)
+
+  packages/dbauth:
+    dependencies:
+      '@rwgql/auth':
+        specifier: workspace:*
+        version: link:../auth
+    devDependencies:
+      '@types/node':
+        specifier: ^25.6.2
+        version: 25.6.2
+      fastify:
+        specifier: ^5.8.5
+        version: 5.8.5
       typescript:
         specifier: 'catalog:'
         version: 7.0.1-rc
@@ -977,6 +1057,9 @@ packages:
 
   '@fastify/busboy@3.2.0':
     resolution: {integrity: sha512-m9FVDXU3GT2ITSe0UaMA5rU3QkfC/UXtCU8y0gSN/GugTqtVldOBWIB5V6V3sbmenVZUIpU6f+mPEO2+m5iTaA==}
+
+  '@fastify/cors@11.2.0':
+    resolution: {integrity: sha512-LbLHBuSAdGdSFZYTLVA3+Ch2t+sA6nq3Ejc6XLAKiQ6ViS2qFnvicpj0htsx03FyYeLs04HfRNBsz/a8SvbcUw==}
 
   '@fastify/error@4.2.0':
     resolution: {integrity: sha512-RSo3sVDXfHskiBZKBPRgnQTtIqpi/7zhJOEmAxCiBcM7d0uwdGdxLlsCaLzGs8v8NnxIRlfG0N51p5yFaOentQ==}
@@ -3127,6 +3210,9 @@ packages:
 
   fast-uri@3.1.2:
     resolution: {integrity: sha512-rVjf7ArG3LTk+FS6Yw81V1DLuZl1bRbNrev6Tmd/9RaroeeRRJhAt7jg/6YFxbvAQXUCavSoZhPPj6oOx+5KjQ==}
+
+  fastify-plugin@5.1.0:
+    resolution: {integrity: sha512-FAIDA8eovSt5qcDgcBvDuX/v0Cjz0ohGhENZ/wpc3y+oZCY2afZ9Baqql3g/lC+OHRnciQol4ww7tuthOb9idw==}
 
   fastify@5.8.5:
     resolution: {integrity: sha512-Yqptv59pQzPgQUSIm87hMqHJmdkb1+GPxdE6vW6FRyVE9G86mt7rOghitiU4JHRaTyDUk9pfeKmDeu70lAwM4Q==}
@@ -5557,6 +5643,11 @@ snapshots:
 
   '@fastify/busboy@3.2.0': {}
 
+  '@fastify/cors@11.2.0':
+    dependencies:
+      fastify-plugin: 5.1.0
+      toad-cache: 3.7.1
+
   '@fastify/error@4.2.0': {}
 
   '@fastify/fast-json-stringify-compiler@5.0.3':
@@ -7546,6 +7637,8 @@ snapshots:
       fast-decode-uri-component: 1.0.1
 
   fast-uri@3.1.2: {}
+
+  fastify-plugin@5.1.0: {}
 
   fastify@5.8.5:
     dependencies:

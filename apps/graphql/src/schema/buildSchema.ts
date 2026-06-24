@@ -2,6 +2,9 @@ import { mergeTypeDefs } from "@graphql-tools/merge";
 import { makeExecutableSchema } from "@graphql-tools/schema";
 import type { GraphQLSchema } from "graphql";
 
+import { createAuthDirectiveTransformers } from "@rwgql/auth/graphql";
+
+import { requireAuth, skipAuth, type AuthContext } from "../lib/auth.js";
 import type { Post, User } from "../types.js";
 import { rootResolvers, services, typeDefs } from "./registry.js";
 
@@ -54,17 +57,24 @@ const serviceResolvers = {
 
 let schema: GraphQLSchema | undefined;
 
+const applyAuthDirectives = createAuthDirectiveTransformers({
+  requireAuth: (context, options) => requireAuth(context as AuthContext, options),
+  skipAuth: (context) => skipAuth(context as AuthContext),
+});
+
 export const getSchema = (): GraphQLSchema => {
-  schema ??= makeExecutableSchema({
-    resolvers: {
-      ...dateTimeScalar,
-      ...rootResolvers,
-      ...serviceResolvers,
-    },
-    typeDefs: mergeTypeDefs([...typeDefs], {
-      throwOnConflict: true,
+  schema ??= applyAuthDirectives(
+    makeExecutableSchema({
+      resolvers: {
+        ...dateTimeScalar,
+        ...rootResolvers,
+        ...serviceResolvers,
+      },
+      typeDefs: mergeTypeDefs([...typeDefs], {
+        throwOnConflict: true,
+      }),
     }),
-  });
+  );
 
   return schema;
 };

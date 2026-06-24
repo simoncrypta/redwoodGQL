@@ -1,11 +1,21 @@
+import cors from "@fastify/cors";
 import Fastify from "fastify";
+import { registerDbAuthRoutes } from "@rwgql/dbauth/server";
 
-import { db } from "db";
+import { dbAuthOptions } from "./src/auth/dbAuthConfig.js";
 import { createGraphqlYoga } from "./src/functions/graphql.js";
+import { db } from "db";
 
 const app = Fastify({
   logger: true,
 });
+
+await app.register(cors, {
+  credentials: true,
+  origin: process.env.WEB_ORIGIN ?? "http://localhost:8910",
+});
+
+registerDbAuthRoutes(app, dbAuthOptions);
 
 const yoga = createGraphqlYoga(app.log);
 

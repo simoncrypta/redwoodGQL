@@ -9,6 +9,7 @@
     "prepare": "vp config"
   },
   "devDependencies": {
+    "@rwgql/dbauth": "workspace:*",
     "db": "workspace:*",
     "typescript": "catalog:",
     "vite-plus": "catalog:"

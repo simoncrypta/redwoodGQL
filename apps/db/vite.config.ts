@@ -27,7 +27,7 @@ export default defineConfig({
         cache: false,
       },
       prepare: {
-        command: "bash -lc 'node ../../scripts/wait-for-pg.ts'",
+        command: "node --experimental-strip-types ../../scripts/wait-for-pg.ts",
       },
       "migrate-deploy": {
         command: "vp exec prisma migrate deploy",

@@ -62,6 +62,8 @@ redwoodGQL/
 │   ├── domain/       # Business logic shared across delivery mechanisms
 │   └── jobs/         # Background workers and queues
 ├── packages/
+│   ├── auth/         # @rwgql/auth — pluggable auth abstraction
+│   ├── dbauth/       # @rwgql/dbauth — self-hosted dbAuth provider
 │   ├── cell/         # @rwgql/cell — Redwood-style Cells for Apollo
 │   ├── rwsdk-apollo-client/ # @rwgql/rwsdk-apollo-client — Apollo integration for RedwoodSDK
 │   └── utils/        # Shared utilities
@@ -87,6 +89,8 @@ Prisma → PostgreSQL
 
 | Package                      | Description                                                                                  |
 | ---------------------------- | -------------------------------------------------------------------------------------------- |
+| `@rwgql/auth`                | Pluggable auth abstraction — `createAuthentication`, Yoga plugins, directive transformers    |
+| `@rwgql/dbauth`              | Self-hosted dbAuth provider for Fastify/Yoga and RWSDK web                                   |
 | `@rwgql/cell`                | `createCell` — declarative query components with Loading, Empty, Failure, and Success states |
 | `@rwgql/rwsdk-apollo-client` | Apollo Client provider and streaming integration for RedwoodSDK (browser, RSC, worker)       |
 
@@ -134,6 +138,17 @@ vp run dev
 ```
 
 This starts pgserve, applies migrations, seeds the database, and runs the web app and GraphQL server in parallel. The web app runs on [http://localhost:8910](http://localhost:8910); GraphQL Yoga runs on [http://localhost:8911/graphql](http://localhost:8911/graphql).
+
+### Demo login
+
+After seeding, you can log in with these accounts (password for both is `password`):
+
+| Email               | Role  |
+| ------------------- | ----- |
+| `ada@example.com`   | ADMIN |
+| `grace@example.com` | USER  |
+
+Auth runs on the GraphQL server at [http://localhost:8911/auth](http://localhost:8911/auth) using `@rwgql/dbauth`. No extra environment variables are required for local development.
 
 ## Development
 

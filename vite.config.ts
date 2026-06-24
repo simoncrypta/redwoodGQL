@@ -22,8 +22,8 @@ export default defineConfig({
     cache: true,
     tasks: {
       seed: {
-        command: "bash -lc 'node --experimental-strip-types scripts/seed.ts'",
-        dependsOn: ["db#migrate-deploy"],
+        command: "node --experimental-strip-types scripts/seed.ts",
+        dependsOn: ["db#migrate-deploy", "@rwgql/dbauth#build"],
         cache: false,
       },
     },

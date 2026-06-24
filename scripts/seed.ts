@@ -1,22 +1,28 @@
+import { hashPassword } from "@rwgql/dbauth/server";
 import { db } from "db";
 
+const demoPassword = "password";
+
 const seedUsers = async () => {
+  const adaPassword = hashPassword(demoPassword);
+  const gracePassword = hashPassword(demoPassword);
+
   const users = [
     {
       email: "ada@example.com",
       fullName: "Ada Lovelace",
-      hashedPassword: "fake_hash",
+      hashedPassword: adaPassword.hashedPassword,
       id: 1,
       roles: "ADMIN",
-      salt: "fake_salt",
+      salt: adaPassword.salt,
     },
     {
       email: "grace@example.com",
       fullName: "Grace Hopper",
-      hashedPassword: "fake_hash",
+      hashedPassword: gracePassword.hashedPassword,
       id: 2,
       roles: "USER",
-      salt: "fake_salt",
+      salt: gracePassword.salt,
     },
   ] as const;
 

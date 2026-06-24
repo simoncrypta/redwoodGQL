@@ -10,7 +10,10 @@ for port in 8910 8911 8912 8913; do
 done
 pkill -9 -f "pgserve postmaster --port 8432" 2>/dev/null || true
 pkill -9 -f "postgres.*apps/db/.pgserve" 2>/dev/null || true
+sleep 1
 rm -rf apps/db/.pgserve
+
+bash scripts/setup-db-env.sh
 
 vp run db#pgserve &
 pgserve_pid=$!
@@ -23,7 +26,7 @@ cleanup() {
 
 trap cleanup EXIT INT TERM
 
-sleep 3
+node --experimental-strip-types scripts/wait-for-pg.ts
 
 vp run rwgql#seed
 

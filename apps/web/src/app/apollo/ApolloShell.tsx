@@ -5,6 +5,8 @@ import { ApolloClient, ApolloRwsdkProvider, InMemoryCache } from "@rwgql/rwsdk-a
 import type { ReactNode } from "react";
 import { useMemo } from "react";
 
+import { AuthProvider } from "@/app/auth";
+
 export const ApolloShell = ({
   children,
   graphqlUrl,
@@ -20,14 +22,19 @@ export const ApolloShell = ({
     () => () =>
       new ApolloClient({
         cache: new InMemoryCache(),
-        link: new HttpLink({ uri: graphqlUrl }),
+        link: new HttpLink({
+          credentials: "include",
+          uri: graphqlUrl,
+        }),
       }),
     [graphqlUrl],
   );
 
   return (
-    <ApolloRwsdkProvider makeClient={makeClient} nonce={nonce} transportId={transportId}>
-      {children}
-    </ApolloRwsdkProvider>
+    <AuthProvider>
+      <ApolloRwsdkProvider makeClient={makeClient} nonce={nonce} transportId={transportId}>
+        {children}
+      </ApolloRwsdkProvider>
+    </AuthProvider>
   );
 };

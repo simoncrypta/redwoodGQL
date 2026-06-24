@@ -12,6 +12,13 @@ const ProfilePage = () => {
     return <p>Loading...</p>;
   }
 
+  if (!currentUser) {
+    return <p>Not logged in.</p>;
+  }
+
+  const roleValue = currentUser.roles;
+  const emailValue = currentUser.email;
+
   return (
     <>
       <Metadata title="Profile" description="Profile page" og />
@@ -28,15 +35,17 @@ const ProfilePage = () => {
         <tbody>
           <tr>
             <td>ID</td>
-            <td>{currentUser.id}</td>
+            <td>{String(currentUser.id)}</td>
           </tr>
           <tr>
             <td>ROLES</td>
-            <td>{currentUser.roles}</td>
+            <td>{typeof roleValue === "string" ? roleValue : JSON.stringify(roleValue ?? "")}</td>
           </tr>
           <tr>
             <td>EMAIL</td>
-            <td>{currentUser.email}</td>
+            <td>
+              {typeof emailValue === "string" ? emailValue : JSON.stringify(emailValue ?? "")}
+            </td>
           </tr>
 
           <tr key="isAuthenticated">

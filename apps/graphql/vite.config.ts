@@ -14,7 +14,7 @@ export default defineConfig({
   run: {
     tasks: {
       dev: {
-        command: "nitro dev",
+        command: "vp run @rwgql/auth#build && vp run @rwgql/dbauth#build && nitro dev",
         cache: false,
       },
     },
