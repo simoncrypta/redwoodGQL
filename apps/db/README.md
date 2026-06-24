@@ -1,2 +1,38 @@
-The database layer is built around a single PostgreSQL database with Prisma as the ORM, a monolithic schema, and two separate migration tracks (schema and data).
-Think of db/ as answering: "What exists, how is it stored, and how did it evolve?"
+# db
+
+PostgreSQL data layer with Prisma ORM for RedwoodGQL.
+
+## Prerequisites
+
+Install [pgserve/autopg](https://github.com/automagik-dev/autopg) for local PostgreSQL:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/automagik-dev/autopg/main/install.sh | bash
+```
+
+## Local development
+
+The dev stack starts pgserve, applies migrations, and seeds data automatically via `vp run dev` from the repo root.
+
+Manual db tasks:
+
+```bash
+vp run db#pgserve          # start PostgreSQL on port 8432 (data in .pgserve/)
+vp run db#generate         # generate Prisma client
+vp run db#migrate-deploy   # apply migrations (waits for pgserve)
+vp run seed                # seed dev data
+```
+
+Copy `.env.defaults` to `.env` to override `DATABASE_URL`.
+
+## Schema
+
+Models mirror [`test-project/api/db/schema.prisma`](../../test-project/api/db/schema.prisma): `UserExample`, `User`, `Post`, `Contact`.
+
+Initial migration:
+
+```bash
+vp run db#pgserve
+vp run db#generate
+cd apps/db && vp exec prisma migrate dev --name init
+```

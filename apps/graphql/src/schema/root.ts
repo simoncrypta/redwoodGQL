@@ -16,7 +16,7 @@ export const schema = `
 
 export const redwoodApolloPoc = {
   framework: "RedwoodSDK",
-  integration: "Standalone Fastify GraphQL Yoga endpoint with local fixture services",
+  integration: "Standalone Fastify GraphQL Yoga endpoint with PostgreSQL via Prisma",
   notes: [
     "The page shell remains a RedwoodSDK server component.",
     "ApolloRwsdkProvider uses Apollo's shared streaming transport primitives.",

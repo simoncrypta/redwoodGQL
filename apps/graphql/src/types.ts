@@ -1,26 +1,8 @@
-export type User = {
-  readonly email: string;
-  readonly fullName: string;
-  readonly id: number;
-  readonly roles?: string | null;
-};
+import type { Contact, Post, User } from "db";
 
-export type Post = {
-  readonly author?: User;
-  readonly authorId: number;
-  readonly body: string;
-  readonly createdAt: string;
-  readonly id: number;
-  readonly title: string;
-};
+export type { Contact, Post, User };
 
-export type Contact = {
-  readonly createdAt: string;
-  readonly email: string;
-  readonly id: number;
-  readonly message: string;
-  readonly name: string;
-};
+export type PublicUser = Pick<User, "email" | "fullName" | "id" | "roles">;
 
 export type CreatePostInput = Pick<Post, "authorId" | "body" | "title">;
 export type UpdatePostInput = Partial<CreatePostInput>;

@@ -4,7 +4,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "nitro dev",
     "build": "nitro build",
     "start": "node .output/server/index.mjs",
     "check": "vp check"
@@ -12,6 +11,7 @@
   "dependencies": {
     "@graphql-tools/merge": "^9.1.9",
     "@graphql-tools/schema": "^10.0.33",
+    "db": "workspace:*",
     "fastify": "^5.8.5",
     "graphql": "^16.14.2",
     "graphql-yoga": "^5.21.2"

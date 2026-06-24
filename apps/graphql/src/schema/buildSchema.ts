@@ -11,6 +11,13 @@ const isPostRoot = (root: unknown): root is Post =>
 const isUserRoot = (root: unknown): root is User =>
   typeof root === "object" && root !== null && "id" in root;
 
+const dateTimeScalar = {
+  DateTime: {
+    parseValue: (value: unknown) => new Date(value as string),
+    serialize: (value: unknown) => (value instanceof Date ? value.toISOString() : value),
+  },
+} as const;
+
 const serviceResolvers = {
   Mutation: {
     createContact: (_root: unknown, args: Parameters<typeof services.contacts.createContact>[0]) =>
@@ -50,6 +57,7 @@ let schema: GraphQLSchema | undefined;
 export const getSchema = (): GraphQLSchema => {
   schema ??= makeExecutableSchema({
     resolvers: {
+      ...dateTimeScalar,
       ...rootResolvers,
       ...serviceResolvers,
     },

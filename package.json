@@ -4,10 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "dev": "bash scripts/dev.sh",
     "ready": "vp check && vp run -r test && vp run -r build",
     "prepare": "vp config"
   },
   "devDependencies": {
+    "db": "workspace:*",
     "typescript": "catalog:",
     "vite-plus": "catalog:"
   },

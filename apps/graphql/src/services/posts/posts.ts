@@ -1,37 +1,43 @@
-import {
-  buildPost,
-  patchPost,
-  posts as fixturePosts,
-  resolvePostAuthor,
-  withAuthor,
-} from "../../data/fixtures.js";
+import { db, type Post } from "db";
+
 import type {
   CreatePostInput,
-  Post,
+  PublicUser,
   RelationResolver,
   ServiceResolver,
   UpdatePostInput,
-  User,
 } from "../../types.js";
 
-export const posts: ServiceResolver<readonly Post[]> = () => fixturePosts.map(withAuthor);
+export const posts: ServiceResolver<readonly Post[]> = () => db.post.findMany();
 
-export const post: ServiceResolver<Post | null, { readonly id: number }> = ({ id }) => {
-  const foundPost = fixturePosts.find((item) => item.id === id);
-  return foundPost ? withAuthor(foundPost) : null;
-};
+export const post: ServiceResolver<Post | null, { readonly id: number }> = ({ id }) =>
+  db.post.findUnique({
+    where: { id },
+  });
 
 export const createPost: ServiceResolver<Post, { readonly input: CreatePostInput }> = ({ input }) =>
-  buildPost(input);
+  db.post.create({
+    data: input,
+  });
 
 export const updatePost: ServiceResolver<
   Post,
   { readonly id: number; readonly input: UpdatePostInput }
-> = ({ id, input }) => patchPost(id, input);
+> = ({ id, input }) =>
+  db.post.update({
+    data: input,
+    where: { id },
+  });
 
 export const deletePost: ServiceResolver<Post, { readonly id: number }> = ({ id }) =>
-  withAuthor(fixturePosts.find((item) => item.id === id) ?? fixturePosts[0]);
+  db.post.delete({
+    where: { id },
+  });
 
 export const PostRelations = {
-  author: ((root) => resolvePostAuthor(root)) satisfies RelationResolver<Post, User>,
+  author: (async (root) =>
+    db.post.findUnique({ where: { id: root.id } }).author()) satisfies RelationResolver<
+    Post,
+    PublicUser | null
+  >,
 } as const;

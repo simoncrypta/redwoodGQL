@@ -21,8 +21,9 @@ export default defineConfig({
   run: {
     cache: true,
     tasks: {
-      dev: {
-        command: "vp run --parallel --filter rwsdk --filter graphql dev",
+      seed: {
+        command: "bash -lc 'node --experimental-strip-types scripts/seed.ts'",
+        dependsOn: ["db#migrate-deploy"],
         cache: false,
       },
     },

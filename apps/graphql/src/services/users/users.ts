@@ -1,9 +1,23 @@
-import { resolveUserPosts, users } from "../../data/fixtures.js";
-import type { Post, RelationResolver, ServiceResolver, User } from "../../types.js";
+import { db, type Post } from "db";
 
-export const user: ServiceResolver<User | null, { readonly id: number }> = ({ id }) =>
-  users.find((item) => item.id === id) ?? null;
+import type { PublicUser, RelationResolver, ServiceResolver } from "../../types.js";
+
+const publicUserSelect = {
+  email: true,
+  fullName: true,
+  id: true,
+  roles: true,
+} as const;
+
+export const user: ServiceResolver<PublicUser | null, { readonly id: number }> = ({ id }) =>
+  db.user.findUnique({
+    select: publicUserSelect,
+    where: { id },
+  });
 
 export const UserRelations = {
-  posts: ((root) => resolveUserPosts(root)) satisfies RelationResolver<User, readonly Post[]>,
+  posts: (async (root) => {
+    const posts = await db.user.findUnique({ where: { id: root.id } }).posts();
+    return posts ?? [];
+  }) satisfies RelationResolver<PublicUser, readonly Post[]>,
 } as const;

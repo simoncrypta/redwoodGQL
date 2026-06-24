@@ -11,4 +11,12 @@ export default defineConfig({
       typeCheck: true,
     },
   },
+  run: {
+    tasks: {
+      dev: {
+        command: "nitro dev",
+        cache: false,
+      },
+    },
+  },
 });

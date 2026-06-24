@@ -126,11 +126,14 @@ vp install
 
 ### 3. Start the dev server
 
+Install [pgserve/autopg](https://github.com/automagik-dev/autopg) for local PostgreSQL, or rely on the `pgserve` npm package (installed automatically via `vp install`).
+
 ```bash
+vp install
 vp run dev
 ```
 
-This starts the web app and GraphQL server in parallel. The web app runs on [http://localhost:8910](http://localhost:8910).
+This starts pgserve, applies migrations, seeds the database, and runs the web app and GraphQL server in parallel. The web app runs on [http://localhost:8910](http://localhost:8910); GraphQL Yoga runs on [http://localhost:8911/graphql](http://localhost:8911/graphql).
 
 ## Development
 

@@ -1,24 +1,31 @@
-import { buildContact, contacts as fixtureContacts, patchContact } from "../../data/fixtures.js";
-import type {
-  Contact,
-  CreateContactInput,
-  ServiceResolver,
-  UpdateContactInput,
-} from "../../types.js";
+import { db, type Contact } from "db";
 
-export const contacts: ServiceResolver<readonly Contact[]> = () => fixtureContacts;
+import type { CreateContactInput, ServiceResolver, UpdateContactInput } from "../../types.js";
+
+export const contacts: ServiceResolver<readonly Contact[]> = () => db.contact.findMany();
 
 export const contact: ServiceResolver<Contact | null, { readonly id: number }> = ({ id }) =>
-  fixtureContacts.find((item) => item.id === id) ?? null;
+  db.contact.findUnique({
+    where: { id },
+  });
 
 export const createContact: ServiceResolver<Contact, { readonly input: CreateContactInput }> = ({
   input,
-}) => buildContact(input);
+}) =>
+  db.contact.create({
+    data: input,
+  });
 
 export const updateContact: ServiceResolver<
   Contact,
   { readonly id: number; readonly input: UpdateContactInput }
-> = ({ id, input }) => patchContact(id, input);
+> = ({ id, input }) =>
+  db.contact.update({
+    data: input,
+    where: { id },
+  });
 
 export const deleteContact: ServiceResolver<Contact, { readonly id: number }> = ({ id }) =>
-  fixtureContacts.find((item) => item.id === id) ?? fixtureContacts[0];
+  db.contact.delete({
+    where: { id },
+  });

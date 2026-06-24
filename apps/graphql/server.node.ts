@@ -1,5 +1,6 @@
 import Fastify from "fastify";
 
+import { db } from "db";
 import { createGraphqlYoga } from "./src/functions/graphql.js";
 
 const app = Fastify({
@@ -16,6 +17,17 @@ app.route({
     }),
   method: ["GET", "POST", "OPTIONS"],
   url: yoga.graphqlEndpoint,
+});
+
+const disconnect = async () => {
+  await db.$disconnect();
+};
+
+process.on("SIGINT", () => {
+  void disconnect().finally(() => process.exit(0));
+});
+process.on("SIGTERM", () => {
+  void disconnect().finally(() => process.exit(0));
 });
 
 await app.ready();
