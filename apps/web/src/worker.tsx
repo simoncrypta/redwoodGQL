@@ -1,7 +1,10 @@
 import type { ReactNode } from "react";
 import { route } from "rwsdk/router";
 import { defineApp, type RequestInfo } from "rwsdk/worker";
-import { createApolloRwsdkTransportId, renderApolloRwsdkStream } from "@rwsdk/apollo/worker";
+import {
+  createApolloRwsdkTransportId,
+  renderApolloRwsdkStream,
+} from "@rwgql/rwsdk-apollo-client/worker";
 
 import { ApolloShell } from "@/app/apollo/ApolloShell";
 import { Document } from "@/app/document";

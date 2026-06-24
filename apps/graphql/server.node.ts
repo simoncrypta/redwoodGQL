@@ -1,6 +1,5 @@
+import { createGraphqlYoga } from "@rwgql/yoga-server";
 import Fastify from "fastify";
-
-import { createGraphqlYoga } from "./src/functions/graphql.js";
 
 const app = Fastify({
   logger: true,

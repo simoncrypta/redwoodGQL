@@ -8,12 +8,12 @@
     "types": ["node"],
     "strict": true,
     "noUnusedLocals": true,
+    "declaration": true,
     "noEmit": true,
     "allowImportingTsExtensions": true,
     "esModuleInterop": true,
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
     "skipLibCheck": true
-  },
-  "include": ["nitro.config.ts", "server.node.ts"]
+  }
 }

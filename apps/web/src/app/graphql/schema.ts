@@ -91,7 +91,7 @@ export const getSchema = (): GraphQLSchema => {
 const apolloPoc = {
   framework: "RedwoodSDK",
   runtime: "Cloudflare Workers with React Server Components",
-  integration: "Local @rwsdk/apollo streaming SSR provider",
+  integration: "Local @rwgql/rwsdk-apollo-client streaming SSR provider",
   transport: "RWSDK route handler at POST /graphql",
   notes: [
     "The page shell remains a RedwoodSDK server component.",

@@ -20,7 +20,7 @@ export const redwoodApolloPoc = {
   notes: [
     "The page shell remains a RedwoodSDK server component.",
     "ApolloRwsdkProvider uses Apollo's shared streaming transport primitives.",
-    "The web app fetches GraphQL over HTTP from apps/graphql.",
+    "The web app fetches GraphQL over HTTP from the GraphQL server app.",
   ],
   runtime: "Nitro server entry running Fastify on Node.js",
   transport: "GraphQL Yoga mounted at POST /graphql",

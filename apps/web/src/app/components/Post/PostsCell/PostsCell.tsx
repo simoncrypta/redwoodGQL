@@ -1,7 +1,7 @@
 "use client";
 
 import { gql } from "@apollo/client";
-import { createCell } from "@rwsdk/cell";
+import { createCell } from "@rwgql/cell";
 
 import type { FindPosts, FindPostsVariables } from "@/app/graphql/types";
 

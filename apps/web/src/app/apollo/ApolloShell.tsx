@@ -1,7 +1,7 @@
 "use client";
 
 import { HttpLink } from "@apollo/client";
-import { ApolloClient, ApolloRwsdkProvider, InMemoryCache } from "@rwsdk/apollo";
+import { ApolloClient, ApolloRwsdkProvider, InMemoryCache } from "@rwgql/rwsdk-apollo-client";
 import type { ReactNode } from "react";
 import { useMemo } from "react";
 

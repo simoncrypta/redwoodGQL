@@ -14,7 +14,7 @@ Over time, the term "framework" was adopted for clarity and discoverability. At 
 
 ## What RedwoodGQL Brings Back
 
-- **Cells** — declarative data-fetching components built on Apollo Client (`@rwsdk/cell`)
+- **Cells** — declarative data-fetching components built on Apollo Client (`@rwgql/cell`)
 - **Pluggable auth** — directive-based auth on the GraphQL server (`requireAuth`, `skipAuth`)
 - **Preconfigured GraphQL server** — Yoga on Fastify with SDL, resolvers, and directives
 - **Prisma ORM** — PostgreSQL data layer with a clear migration story
@@ -62,8 +62,9 @@ redwoodGQL/
 │   ├── domain/       # Business logic shared across delivery mechanisms
 │   └── jobs/         # Background workers and queues
 ├── packages/
-│   ├── cell/         # @rwsdk/cell — Redwood-style Cells for Apollo
-│   ├── rwsdk-apollo/ # @rwsdk/apollo — Apollo integration for RedwoodSDK
+│   ├── cell/         # @rwgql/cell — Redwood-style Cells for Apollo
+│   ├── rwsdk-apollo-client/ # @rwgql/rwsdk-apollo-client — Apollo integration for RedwoodSDK
+│   ├── yoga-server/  # @rwgql/yoga-server — GraphQL Yoga server on Fastify
 │   └── utils/        # Shared utilities
 └── test-project/     # Legacy RedwoodJS reference app for comparison
 ```
@@ -85,11 +86,11 @@ Prisma → PostgreSQL
 
 ## Packages
 
-| Package                | Description                                                                                  |
-| ---------------------- | -------------------------------------------------------------------------------------------- |
-| `@rwsdk/cell`          | `createCell` — declarative query components with Loading, Empty, Failure, and Success states |
-| `@rwsdk/apollo`        | Apollo Client provider and streaming integration for RedwoodSDK (browser, RSC, worker)       |
-| `@rw-sdk-plus/graphql` | GraphQL Yoga server with SDL modules, resolvers, directives, and services                    |
+| Package                      | Description                                                                                  |
+| ---------------------------- | -------------------------------------------------------------------------------------------- |
+| `@rwgql/cell`                | `createCell` — declarative query components with Loading, Empty, Failure, and Success states |
+| `@rwgql/rwsdk-apollo-client` | Apollo Client provider and streaming integration for RedwoodSDK (browser, RSC, worker)       |
+| `@rwgql/yoga-server`         | GraphQL Yoga server with SDL modules, resolvers, directives, and services                    |
 
 ## Getting Started
 
