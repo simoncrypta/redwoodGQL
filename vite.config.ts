@@ -22,8 +22,7 @@ export default defineConfig({
     cache: true,
     tasks: {
       dev: {
-        command:
-          "vp run --parallel --filter rwsdk --filter graphql --filter @rwgql/yoga-server dev",
+        command: "vp run --parallel --filter rwsdk --filter graphql dev",
         cache: false,
       },
     },

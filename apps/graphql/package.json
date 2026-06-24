@@ -4,14 +4,17 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vp run @rwgql/yoga-server#build && nitro dev",
-    "build": "vp run @rwgql/yoga-server#build && nitro build",
+    "dev": "nitro dev",
+    "build": "nitro build",
     "start": "node .output/server/index.mjs",
     "check": "vp check"
   },
   "dependencies": {
-    "@rwgql/yoga-server": "workspace:*",
-    "fastify": "^5.8.5"
+    "@graphql-tools/merge": "^9.1.9",
+    "@graphql-tools/schema": "^10.0.33",
+    "fastify": "^5.8.5",
+    "graphql": "^16.14.2",
+    "graphql-yoga": "^5.21.2"
   },
   "devDependencies": {
     "@types/node": "^25.6.2",

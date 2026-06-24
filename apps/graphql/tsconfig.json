@@ -15,5 +15,5 @@
     "verbatimModuleSyntax": true,
     "skipLibCheck": true
   },
-  "include": ["nitro.config.ts", "server.node.ts"]
+  "include": ["nitro.config.ts", "server.node.ts", "src"]
 }
