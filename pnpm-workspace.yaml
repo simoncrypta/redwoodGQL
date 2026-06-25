@@ -24,6 +24,7 @@ peerDependencyRules:
     vitest: "*"
 allowBuilds:
   "@embedded-postgres/linux-x64": true
+  "@parcel/watcher": set this to true or false
   "@prisma/client": true
   "@prisma/engines": true
   bun: true

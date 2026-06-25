@@ -1,33 +1,23 @@
 "use client";
 
-import { gql } from "@apollo/client";
-
-import type {
-  CreateContactMutation,
-  CreateContactInput,
-  CreateContactMutationVariables,
-} from "@/app/graphql/types";
-
 import { navigate, routes } from "@/app/redwood/router";
 import { useMutation } from "@/app/redwood/web";
-import type { TypedDocumentNode } from "@/app/redwood/web";
 import { toast } from "@/app/redwood/toast";
 
 import ContactForm from "@/app/components/Contact/ContactForm/ContactForm";
+import { graphql } from "@/gql";
+import type { CreateContactInput } from "@/gql/graphql";
 
-const createContactMutation = (): TypedDocumentNode<
-  CreateContactMutation,
-  CreateContactMutationVariables
-> => gql`
+const CreateContactMutationDocument = graphql(`
   mutation CreateContactMutation($input: CreateContactInput!) {
     createContact(input: $input) {
       id
     }
   }
-`;
+`);
 
 const NewContact = () => {
-  const [createContact, { loading, error }] = useMutation(createContactMutation(), {
+  const [createContact, { loading, error }] = useMutation(CreateContactMutationDocument, {
     onCompleted: () => {
       toast.success("Contact created");
       navigate(routes.contacts());

@@ -1,37 +1,30 @@
 "use client";
 
-import { gql } from "@apollo/client";
-
-import type {
-  DeleteContactMutation,
-  DeleteContactMutationVariables,
-  FindContactById,
-} from "@/app/graphql/types";
-
 import { Link, routes, navigate } from "@/app/redwood/router";
 import { useMutation } from "@/app/redwood/web";
-import type { TypedDocumentNode } from "@/app/redwood/web";
 import { toast } from "@/app/redwood/toast";
 
+import { FindContactByIdDocument } from "@/app/components/Contact/ContactCell/ContactCell";
 import { timeTag } from "@/app/lib/formatters";
+import { graphql } from "@/gql";
+import type { ResultOf, VariablesOf } from "@graphql-typed-document-node/core";
 
-const deleteContactMutation = (): TypedDocumentNode<
-  DeleteContactMutation,
-  DeleteContactMutationVariables
-> => gql`
+const DeleteContactMutationDocument = graphql(`
   mutation DeleteContactMutation($id: Int!) {
     deleteContact(id: $id) {
       id
     }
   }
-`;
+`);
+
+type ContactData = NonNullable<ResultOf<typeof FindContactByIdDocument>["contact"]>;
 
 interface Props {
-  contact: NonNullable<FindContactById["contact"]>;
+  contact: ContactData;
 }
 
 const Contact = ({ contact }: Props) => {
-  const [deleteContact] = useMutation(deleteContactMutation(), {
+  const [deleteContact] = useMutation(DeleteContactMutationDocument, {
     onCompleted: () => {
       toast.success("Contact deleted");
       navigate(routes.contacts());
@@ -41,7 +34,7 @@ const Contact = ({ contact }: Props) => {
     },
   });
 
-  const onDeleteClick = (id: DeleteContactMutationVariables["id"]) => {
+  const onDeleteClick = (id: VariablesOf<typeof DeleteContactMutationDocument>["id"]) => {
     if (confirm("Are you sure you want to delete contact " + id + "?")) {
       void deleteContact({ variables: { id } });
     }

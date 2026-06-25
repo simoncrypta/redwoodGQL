@@ -1,7 +1,5 @@
 "use client";
 
-import type { CreatePostInput, EditPostById } from "@/app/graphql/types";
-
 import type { RWGqlError } from "@/app/redwood/forms";
 import {
   Form,
@@ -13,10 +11,15 @@ import {
   Submit,
 } from "@/app/redwood/forms";
 
-type FormPost = NonNullable<EditPostById["post"]>;
+import type { ResultOf } from "@graphql-typed-document-node/core";
+import type { CreatePostInput } from "@/gql/graphql";
+
+import { EditPostByIdDocument } from "@/app/components/Post/EditPostCell/EditPostCell";
+
+type FormPost = NonNullable<ResultOf<typeof EditPostByIdDocument>["post"]>;
 
 interface PostFormProps {
-  post?: EditPostById["post"];
+  post?: ResultOf<typeof EditPostByIdDocument>["post"];
   onSave: (data: CreatePostInput, id?: FormPost["id"]) => void;
   error: RWGqlError;
   loading: boolean;

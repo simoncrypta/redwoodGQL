@@ -1,22 +1,18 @@
 "use client";
 
-import { gql } from "@apollo/client";
 import { createCell } from "@rwgql/cell";
 
-import type {
-  EditPostById,
-  UpdatePostInput,
-  UpdatePostMutationVariables,
-} from "@/app/graphql/types";
-
 import { navigate, routes } from "@/app/redwood/router";
-import type { CellSuccessProps, CellFailureProps, TypedDocumentNode } from "@/app/redwood/web";
+import type { CellSuccessProps, CellFailureProps } from "@/app/redwood/web";
 import { useMutation } from "@/app/redwood/web";
 import { toast } from "@/app/redwood/toast";
 
 import PostForm from "@/app/components/Post/PostForm/PostForm";
+import { graphql } from "@/gql";
+import type { ResultOf, VariablesOf } from "@graphql-typed-document-node/core";
+import type { UpdatePostInput } from "@/gql/graphql";
 
-export const QUERY = (): TypedDocumentNode<EditPostById> => gql`
+export const EditPostByIdDocument = graphql(`
   query EditPostById($id: Int!) {
     post: post(id: $id) {
       id
@@ -26,9 +22,9 @@ export const QUERY = (): TypedDocumentNode<EditPostById> => gql`
       createdAt
     }
   }
-`;
+`);
 
-const updatePostMutation = (): TypedDocumentNode<EditPostById, UpdatePostMutationVariables> => gql`
+const UpdatePostMutationDocument = graphql(`
   mutation UpdatePostMutation($id: Int!, $input: UpdatePostInput!) {
     updatePost(id: $id, input: $input) {
       id
@@ -38,7 +34,9 @@ const updatePostMutation = (): TypedDocumentNode<EditPostById, UpdatePostMutatio
       createdAt
     }
   }
-`;
+`);
+
+export const QUERY = EditPostByIdDocument;
 
 export const Loading = () => <div>Loading...</div>;
 
@@ -46,8 +44,8 @@ export const Failure = ({ error }: CellFailureProps) => (
   <div className="rw-cell-error">{error?.message}</div>
 );
 
-export const Success = ({ post }: CellSuccessProps<EditPostById>) => {
-  const [updatePost, { loading, error }] = useMutation(updatePostMutation(), {
+export const Success = ({ post }: CellSuccessProps<ResultOf<typeof EditPostByIdDocument>>) => {
+  const [updatePost, { loading, error }] = useMutation(UpdatePostMutationDocument, {
     onCompleted: () => {
       toast.success("Post updated");
       navigate(routes.posts());
@@ -57,7 +55,10 @@ export const Success = ({ post }: CellSuccessProps<EditPostById>) => {
     },
   });
 
-  const onSave = (input: UpdatePostInput, id?: NonNullable<EditPostById["post"]>["id"]) => {
+  const onSave = (
+    input: UpdatePostInput,
+    id?: NonNullable<ResultOf<typeof EditPostByIdDocument>["post"]>["id"],
+  ) => {
     if (id === undefined) {
       return;
     }
@@ -77,7 +78,10 @@ export const Success = ({ post }: CellSuccessProps<EditPostById>) => {
   );
 };
 
-export default createCell<EditPostById, { readonly id: number }>({
+export default createCell<
+  ResultOf<typeof EditPostByIdDocument>,
+  VariablesOf<typeof EditPostByIdDocument>
+>({
   QUERY,
   Loading,
   Failure,

@@ -1,12 +1,31 @@
-import type {
-  Contact,
-  CreateContactInput,
-  CreatePostInput,
-  Post,
-  UpdateContactInput,
-  UpdatePostInput,
-  User,
-} from "./types.js";
+type User = {
+  readonly email: string;
+  readonly fullName: string;
+  readonly id: number;
+  readonly roles?: string | null;
+};
+
+type Post = {
+  readonly author?: User;
+  readonly authorId: number;
+  readonly body: string;
+  readonly createdAt: string;
+  readonly id: number;
+  readonly title: string;
+};
+
+type Contact = {
+  readonly createdAt: string;
+  readonly email: string;
+  readonly id: number;
+  readonly message: string;
+  readonly name: string;
+};
+
+type CreatePostInput = Pick<Post, "authorId" | "body" | "title">;
+type UpdatePostInput = Partial<CreatePostInput>;
+type CreateContactInput = Pick<Contact, "email" | "message" | "name">;
+type UpdateContactInput = Partial<CreateContactInput>;
 
 const users = [
   {

@@ -1,48 +1,35 @@
 "use client";
 
-import { gql } from "@apollo/client";
-
-import type {
-  DeleteContactMutation,
-  DeleteContactMutationVariables,
-  FindContacts,
-} from "@/app/graphql/types";
-
 import { Link, routes } from "@/app/redwood/router";
 import { useMutation } from "@/app/redwood/web";
-import type { TypedDocumentNode } from "@/app/redwood/web";
 import { toast } from "@/app/redwood/toast";
 
-import { QUERY } from "@/app/components/Contact/ContactsCell/ContactsCell";
+import { FindContactsDocument, QUERY } from "@/app/components/Contact/ContactsCell/ContactsCell";
 import { timeTag, truncate } from "@/app/lib/formatters";
+import { graphql } from "@/gql";
+import type { ResultOf, VariablesOf } from "@graphql-typed-document-node/core";
 
-const deleteContactMutation = (): TypedDocumentNode<
-  DeleteContactMutation,
-  DeleteContactMutationVariables
-> => gql`
+const DeleteContactMutationDocument = graphql(`
   mutation DeleteContactMutation($id: Int!) {
     deleteContact(id: $id) {
       id
     }
   }
-`;
+`);
 
-const ContactsList = ({ contacts }: FindContacts) => {
-  const [deleteContact] = useMutation(deleteContactMutation(), {
+const ContactsList = ({ contacts }: ResultOf<typeof FindContactsDocument>) => {
+  const [deleteContact] = useMutation(DeleteContactMutationDocument, {
     onCompleted: () => {
       toast.success("Contact deleted");
     },
     onError: (error) => {
       toast.error(error.message);
     },
-    // This refetches the query on the list page. Read more about other ways to
-    // update the cache over here:
-    // https://www.apollographql.com/docs/react/data/mutations/#making-all-other-cache-updates
-    refetchQueries: [{ query: QUERY() }],
+    refetchQueries: [{ query: QUERY }],
     awaitRefetchQueries: true,
   });
 
-  const onDeleteClick = (id: DeleteContactMutationVariables["id"]) => {
+  const onDeleteClick = (id: VariablesOf<typeof DeleteContactMutationDocument>["id"]) => {
     if (confirm("Are you sure you want to delete contact " + id + "?")) {
       void deleteContact({ variables: { id } });
     }

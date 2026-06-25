@@ -1,21 +1,14 @@
 "use client";
 
-import { gql } from "@apollo/client";
 import { createCell } from "@rwgql/cell";
 
-import type {
-  FindWaterfallBlogPostQuery,
-  FindWaterfallBlogPostQueryVariables,
-} from "@/app/graphql/types";
-
-import type { CellSuccessProps, CellFailureProps, TypedDocumentNode } from "@/app/redwood/web";
+import type { CellSuccessProps, CellFailureProps } from "@/app/redwood/web";
 
 import AuthorCell from "@/app/components/AuthorCell/AuthorCell";
+import { graphql } from "@/gql";
+import type { ResultOf, VariablesOf } from "@graphql-typed-document-node/core";
 
-export const QUERY = (): TypedDocumentNode<
-  FindWaterfallBlogPostQuery,
-  FindWaterfallBlogPostQueryVariables
-> => gql`
+export const FindWaterfallBlogPostQueryDocument = graphql(`
   query FindWaterfallBlogPostQuery($id: Int!) {
     waterfallBlogPost: post(id: $id) {
       id
@@ -25,19 +18,26 @@ export const QUERY = (): TypedDocumentNode<
       createdAt
     }
   }
-`;
+`);
+
+export const QUERY = FindWaterfallBlogPostQueryDocument;
 
 export const Loading = () => <div>Loading...</div>;
 
 export const Empty = () => <div>Empty</div>;
 
-export const Failure = ({ error }: CellFailureProps<FindWaterfallBlogPostQueryVariables>) => (
+export const Failure = ({
+  error,
+}: CellFailureProps<VariablesOf<typeof FindWaterfallBlogPostQueryDocument>>) => (
   <div style={{ color: "red" }}>Error: {error?.message}</div>
 );
 
 export const Success = ({
   waterfallBlogPost,
-}: CellSuccessProps<FindWaterfallBlogPostQuery, FindWaterfallBlogPostQueryVariables>) => (
+}: CellSuccessProps<
+  ResultOf<typeof FindWaterfallBlogPostQueryDocument>,
+  VariablesOf<typeof FindWaterfallBlogPostQueryDocument>
+>) => (
   <article>
     {waterfallBlogPost && (
       <>
@@ -58,7 +58,10 @@ export const Success = ({
   </article>
 );
 
-export default createCell<FindWaterfallBlogPostQuery, FindWaterfallBlogPostQueryVariables>({
+export default createCell<
+  ResultOf<typeof FindWaterfallBlogPostQueryDocument>,
+  VariablesOf<typeof FindWaterfallBlogPostQueryDocument>
+>({
   QUERY,
   Loading,
   Empty,

@@ -1,16 +1,15 @@
 "use client";
 
-import { gql } from "@apollo/client";
 import { createCell } from "@rwgql/cell";
 
-import type { FindPosts, FindPostsVariables } from "@/app/graphql/types";
-
 import { Link, routes } from "@/app/redwood/router";
-import type { CellSuccessProps, CellFailureProps, TypedDocumentNode } from "@/app/redwood/web";
+import type { CellSuccessProps, CellFailureProps } from "@/app/redwood/web";
 
 import Posts from "@/app/components/Post/Posts/Posts";
+import { graphql } from "@/gql";
+import type { ResultOf, VariablesOf } from "@graphql-typed-document-node/core";
 
-export const QUERY = (): TypedDocumentNode<FindPosts, FindPostsVariables> => gql`
+export const FindPostsDocument = graphql(`
   query FindPosts {
     posts {
       id
@@ -20,7 +19,9 @@ export const QUERY = (): TypedDocumentNode<FindPosts, FindPostsVariables> => gql
       createdAt
     }
   }
-`;
+`);
+
+export const QUERY = FindPostsDocument;
 
 export const Loading = () => <div>Loading...</div>;
 
@@ -35,15 +36,20 @@ export const Empty = () => {
   );
 };
 
-export const Failure = ({ error }: CellFailureProps<FindPostsVariables>) => (
+export const Failure = ({ error }: CellFailureProps<VariablesOf<typeof FindPostsDocument>>) => (
   <div className="rw-cell-error">{error?.message}</div>
 );
 
-export const Success = ({ posts }: CellSuccessProps<FindPosts, FindPostsVariables>) => {
+export const Success = ({
+  posts,
+}: CellSuccessProps<ResultOf<typeof FindPostsDocument>, VariablesOf<typeof FindPostsDocument>>) => {
   return <Posts posts={posts} />;
 };
 
-export default createCell<FindPosts, FindPostsVariables>({
+export default createCell<
+  ResultOf<typeof FindPostsDocument>,
+  VariablesOf<typeof FindPostsDocument>
+>({
   QUERY,
   Loading,
   Empty,

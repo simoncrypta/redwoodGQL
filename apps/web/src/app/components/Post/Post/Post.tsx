@@ -1,37 +1,30 @@
 "use client";
 
-import { gql } from "@apollo/client";
-
-import type {
-  DeletePostMutation,
-  DeletePostMutationVariables,
-  FindPostById,
-} from "@/app/graphql/types";
-
 import { Link, routes, navigate } from "@/app/redwood/router";
 import { useMutation } from "@/app/redwood/web";
-import type { TypedDocumentNode } from "@/app/redwood/web";
 import { toast } from "@/app/redwood/toast";
 
+import { FindPostByIdDocument } from "@/app/components/Post/PostCell/PostCell";
 import { timeTag } from "@/app/lib/formatters";
+import { graphql } from "@/gql";
+import type { ResultOf, VariablesOf } from "@graphql-typed-document-node/core";
 
-const deletePostMutation = (): TypedDocumentNode<
-  DeletePostMutation,
-  DeletePostMutationVariables
-> => gql`
+const DeletePostMutationDocument = graphql(`
   mutation DeletePostMutation($id: Int!) {
     deletePost(id: $id) {
       id
     }
   }
-`;
+`);
+
+type PostData = NonNullable<ResultOf<typeof FindPostByIdDocument>["post"]>;
 
 interface Props {
-  post: NonNullable<FindPostById["post"]>;
+  post: PostData;
 }
 
 const Post = ({ post }: Props) => {
-  const [deletePost] = useMutation(deletePostMutation(), {
+  const [deletePost] = useMutation(DeletePostMutationDocument, {
     onCompleted: () => {
       toast.success("Post deleted");
       navigate(routes.posts());
@@ -41,7 +34,7 @@ const Post = ({ post }: Props) => {
     },
   });
 
-  const onDeleteClick = (id: DeletePostMutationVariables["id"]) => {
+  const onDeleteClick = (id: VariablesOf<typeof DeletePostMutationDocument>["id"]) => {
     if (confirm("Are you sure you want to delete post " + id + "?")) {
       void deletePost({ variables: { id } });
     }

@@ -1,22 +1,18 @@
 "use client";
 
-import { gql } from "@apollo/client";
 import { createCell } from "@rwgql/cell";
 
-import type {
-  EditContactById,
-  UpdateContactInput,
-  UpdateContactMutationVariables,
-} from "@/app/graphql/types";
-
 import { navigate, routes } from "@/app/redwood/router";
-import type { CellSuccessProps, CellFailureProps, TypedDocumentNode } from "@/app/redwood/web";
+import type { CellSuccessProps, CellFailureProps } from "@/app/redwood/web";
 import { useMutation } from "@/app/redwood/web";
 import { toast } from "@/app/redwood/toast";
 
 import ContactForm from "@/app/components/Contact/ContactForm/ContactForm";
+import { graphql } from "@/gql";
+import type { ResultOf, VariablesOf } from "@graphql-typed-document-node/core";
+import type { UpdateContactInput } from "@/gql/graphql";
 
-export const QUERY = (): TypedDocumentNode<EditContactById> => gql`
+export const EditContactByIdDocument = graphql(`
   query EditContactById($id: Int!) {
     contact: contact(id: $id) {
       id
@@ -26,12 +22,9 @@ export const QUERY = (): TypedDocumentNode<EditContactById> => gql`
       createdAt
     }
   }
-`;
+`);
 
-const updateContactMutation = (): TypedDocumentNode<
-  EditContactById,
-  UpdateContactMutationVariables
-> => gql`
+const UpdateContactMutationDocument = graphql(`
   mutation UpdateContactMutation($id: Int!, $input: UpdateContactInput!) {
     updateContact(id: $id, input: $input) {
       id
@@ -41,7 +34,9 @@ const updateContactMutation = (): TypedDocumentNode<
       createdAt
     }
   }
-`;
+`);
+
+export const QUERY = EditContactByIdDocument;
 
 export const Loading = () => <div>Loading...</div>;
 
@@ -49,8 +44,10 @@ export const Failure = ({ error }: CellFailureProps) => (
   <div className="rw-cell-error">{error?.message}</div>
 );
 
-export const Success = ({ contact }: CellSuccessProps<EditContactById>) => {
-  const [updateContact, { loading, error }] = useMutation(updateContactMutation(), {
+export const Success = ({
+  contact,
+}: CellSuccessProps<ResultOf<typeof EditContactByIdDocument>>) => {
+  const [updateContact, { loading, error }] = useMutation(UpdateContactMutationDocument, {
     onCompleted: () => {
       toast.success("Contact updated");
       navigate(routes.contacts());
@@ -62,7 +59,7 @@ export const Success = ({ contact }: CellSuccessProps<EditContactById>) => {
 
   const onSave = (
     input: UpdateContactInput,
-    id?: NonNullable<EditContactById["contact"]>["id"],
+    id?: NonNullable<ResultOf<typeof EditContactByIdDocument>["contact"]>["id"],
   ) => {
     if (id === undefined) {
       return;
@@ -83,7 +80,10 @@ export const Success = ({ contact }: CellSuccessProps<EditContactById>) => {
   );
 };
 
-export default createCell<EditContactById, { readonly id: number }>({
+export default createCell<
+  ResultOf<typeof EditContactByIdDocument>,
+  VariablesOf<typeof EditContactByIdDocument>
+>({
   QUERY,
   Loading,
   Failure,

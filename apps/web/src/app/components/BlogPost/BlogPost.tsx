@@ -1,12 +1,17 @@
 "use client";
 
-import { FindBlogPostQuery } from "@/app/graphql/types";
-
 import { Link, routes } from "@/app/redwood/router";
 
 import Author from "@/app/components/Author/Author";
+import type { ResultOf } from "@graphql-typed-document-node/core";
 
-interface Props extends FindBlogPostQuery {}
+import { BlogPostsQueryDocument } from "@/app/components/BlogPostsCell/BlogPostsCell";
+
+type BlogPostData = ResultOf<typeof BlogPostsQueryDocument>["blogPosts"][number];
+
+interface Props {
+  blogPost: BlogPostData | null | undefined;
+}
 
 const BlogPost = ({ blogPost }: Props) => {
   return (

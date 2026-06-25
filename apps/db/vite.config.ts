@@ -18,21 +18,22 @@ export default defineConfig({
         input: ["../../scripts/setup-db-env.sh"],
       },
       generate: {
-        command: "vp exec prisma generate",
+        command: "prisma generate",
         dependsOn: ["setup-env"],
         input: ["prisma/schema.prisma"],
       },
       pgserve: {
-        command: "vp exec pgserve postmaster --port 8432 --data .pgserve",
+        command: "pgserve postmaster --port 8432 --data .pgserve",
         cache: false,
       },
       prepare: {
         command: "node --experimental-strip-types ../../scripts/wait-for-pg.ts",
+        cache: false,
       },
       "migrate-deploy": {
-        command: "vp exec prisma migrate deploy",
+        command: "prisma migrate deploy",
         dependsOn: ["generate", "prepare"],
-        input: ["prisma/schema.prisma", "prisma/migrations/**"],
+        cache: false,
       },
     },
   },

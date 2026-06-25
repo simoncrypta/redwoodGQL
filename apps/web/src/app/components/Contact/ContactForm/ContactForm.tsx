@@ -1,14 +1,16 @@
 "use client";
 
-import type { CreateContactInput, EditContactById } from "@/app/graphql/types";
-
 import type { RWGqlError } from "@/app/redwood/forms";
 import { Form, FormError, FieldError, Label, TextField, Submit } from "@/app/redwood/forms";
 
-type FormContact = NonNullable<EditContactById["contact"]>;
+import { EditContactByIdDocument } from "@/app/components/Contact/EditContactCell/EditContactCell";
+import type { ResultOf } from "@graphql-typed-document-node/core";
+import type { CreateContactInput } from "@/gql/graphql";
+
+type FormContact = NonNullable<ResultOf<typeof EditContactByIdDocument>["contact"]>;
 
 interface ContactFormProps {
-  contact?: EditContactById["contact"];
+  contact?: ResultOf<typeof EditContactByIdDocument>["contact"];
   onSave: (data: CreateContactInput, id?: FormContact["id"]) => void;
   error: RWGqlError;
   loading: boolean;

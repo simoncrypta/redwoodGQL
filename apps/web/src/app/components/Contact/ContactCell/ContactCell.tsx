@@ -1,15 +1,14 @@
 "use client";
 
-import { gql } from "@apollo/client";
 import { createCell } from "@rwgql/cell";
 
-import type { FindContactById, FindContactByIdVariables } from "@/app/graphql/types";
-
-import type { CellSuccessProps, CellFailureProps, TypedDocumentNode } from "@/app/redwood/web";
+import type { CellSuccessProps, CellFailureProps } from "@/app/redwood/web";
 
 import Contact from "@/app/components/Contact/Contact/Contact";
+import { graphql } from "@/gql";
+import type { ResultOf, VariablesOf } from "@graphql-typed-document-node/core";
 
-export const QUERY = (): TypedDocumentNode<FindContactById, FindContactByIdVariables> => gql`
+export const FindContactByIdDocument = graphql(`
   query FindContactById($id: Int!) {
     contact: contact(id: $id) {
       id
@@ -19,19 +18,26 @@ export const QUERY = (): TypedDocumentNode<FindContactById, FindContactByIdVaria
       createdAt
     }
   }
-`;
+`);
+
+export const QUERY = FindContactByIdDocument;
 
 export const Loading = () => <div>Loading...</div>;
 
 export const Empty = () => <div>Contact not found</div>;
 
-export const Failure = ({ error }: CellFailureProps<FindContactByIdVariables>) => (
+export const Failure = ({
+  error,
+}: CellFailureProps<VariablesOf<typeof FindContactByIdDocument>>) => (
   <div className="rw-cell-error">{error?.message}</div>
 );
 
 export const Success = ({
   contact,
-}: CellSuccessProps<FindContactById, FindContactByIdVariables>) => {
+}: CellSuccessProps<
+  ResultOf<typeof FindContactByIdDocument>,
+  VariablesOf<typeof FindContactByIdDocument>
+>) => {
   if (!contact) {
     return <Empty />;
   }
@@ -39,7 +45,10 @@ export const Success = ({
   return <Contact contact={contact} />;
 };
 
-export default createCell<FindContactById, FindContactByIdVariables>({
+export default createCell<
+  ResultOf<typeof FindContactByIdDocument>,
+  VariablesOf<typeof FindContactByIdDocument>
+>({
   QUERY,
   Loading,
   Empty,

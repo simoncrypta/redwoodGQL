@@ -1,48 +1,35 @@
 "use client";
 
-import { gql } from "@apollo/client";
-
-import type {
-  DeletePostMutation,
-  DeletePostMutationVariables,
-  FindPosts,
-} from "@/app/graphql/types";
-
 import { Link, routes } from "@/app/redwood/router";
 import { useMutation } from "@/app/redwood/web";
-import type { TypedDocumentNode } from "@/app/redwood/web";
 import { toast } from "@/app/redwood/toast";
 
-import { QUERY } from "@/app/components/Post/PostsCell/PostsCell";
+import { FindPostsDocument, QUERY } from "@/app/components/Post/PostsCell/PostsCell";
 import { timeTag, truncate } from "@/app/lib/formatters";
+import { graphql } from "@/gql";
+import type { ResultOf, VariablesOf } from "@graphql-typed-document-node/core";
 
-const deletePostMutation = (): TypedDocumentNode<
-  DeletePostMutation,
-  DeletePostMutationVariables
-> => gql`
+const DeletePostMutationDocument = graphql(`
   mutation DeletePostMutation($id: Int!) {
     deletePost(id: $id) {
       id
     }
   }
-`;
+`);
 
-const PostsList = ({ posts }: FindPosts) => {
-  const [deletePost] = useMutation(deletePostMutation(), {
+const PostsList = ({ posts }: ResultOf<typeof FindPostsDocument>) => {
+  const [deletePost] = useMutation(DeletePostMutationDocument, {
     onCompleted: () => {
       toast.success("Post deleted");
     },
     onError: (error) => {
       toast.error(error.message);
     },
-    // This refetches the query on the list page. Read more about other ways to
-    // update the cache over here:
-    // https://www.apollographql.com/docs/react/data/mutations/#making-all-other-cache-updates
-    refetchQueries: [{ query: QUERY() }],
+    refetchQueries: [{ query: QUERY }],
     awaitRefetchQueries: true,
   });
 
-  const onDeleteClick = (id: DeletePostMutationVariables["id"]) => {
+  const onDeleteClick = (id: VariablesOf<typeof DeletePostMutationDocument>["id"]) => {
     if (confirm("Are you sure you want to delete post " + id + "?")) {
       void deletePost({ variables: { id } });
     }

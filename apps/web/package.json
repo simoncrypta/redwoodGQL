@@ -18,12 +18,13 @@
     "clean:vite": "rm -rf ./node_modules/.vite",
     "release": "rw-scripts ensure-deploy-env && vp run clean && vp run build && wrangler deploy",
     "generate": "rw-scripts ensure-env && wrangler types --include-runtime false",
-    "check": "vp run @rwgql/auth#build && vp run @rwgql/dbauth#build && vp run @rwgql/rwsdk-apollo-client#build && vp run @rwgql/cell#build && vp run generate && vp run types",
+    "check": "vp run @rwgql/auth#build && vp run @rwgql/dbauth#build && vp run @rwgql/rwsdk-apollo-client#build && vp run @rwgql/cell#build && vp run graphql#codegen && vp run generate && vp run types",
     "types": "tsc"
   },
   "dependencies": {
     "@apollo/client": "^4.2.3",
     "@apollo/client-react-streaming": "0.14.5",
+    "@graphql-typed-document-node/core": "^3.2.0",
     "@rwgql/auth": "workspace:*",
     "@rwgql/cell": "workspace:*",
     "@rwgql/dbauth": "workspace:*",
@@ -39,6 +40,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@0no-co/graphqlsp": "^1.15.0",
     "@cloudflare/vite-plugin": "1.33.2",
     "@cloudflare/workers-types": "4.20260426.1",
     "@types/node": "~25.6.0",

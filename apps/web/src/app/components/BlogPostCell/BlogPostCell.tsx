@@ -1,15 +1,14 @@
 "use client";
 
-import { gql } from "@apollo/client";
 import { createCell } from "@rwgql/cell";
 
-import type { FindBlogPostQuery, FindBlogPostQueryVariables } from "@/app/graphql/types";
-
-import type { CellSuccessProps, CellFailureProps, TypedDocumentNode } from "@/app/redwood/web";
+import type { CellSuccessProps, CellFailureProps } from "@/app/redwood/web";
 
 import BlogPost from "@/app/components/BlogPost/BlogPost";
+import { graphql } from "@/gql";
+import type { ResultOf, VariablesOf } from "@graphql-typed-document-node/core";
 
-export const QUERY = (): TypedDocumentNode<FindBlogPostQuery, FindBlogPostQueryVariables> => gql`
+export const FindBlogPostQueryDocument = graphql(`
   query FindBlogPostQuery($id: Int!) {
     blogPost: post(id: $id) {
       id
@@ -22,23 +21,31 @@ export const QUERY = (): TypedDocumentNode<FindBlogPostQuery, FindBlogPostQueryV
       createdAt
     }
   }
-`;
+`);
+
+export const QUERY = FindBlogPostQueryDocument;
 
 export const Loading = () => <div>Loading...</div>;
 
 export const Empty = () => <div>Empty</div>;
 
-export const Failure = ({ error }: CellFailureProps<FindBlogPostQueryVariables>) => (
+export const Failure = ({
+  error,
+}: CellFailureProps<VariablesOf<typeof FindBlogPostQueryDocument>>) => (
   <div style={{ color: "red" }}>Error: {error?.message}</div>
 );
 
 export const Success = ({
   blogPost,
-}: CellSuccessProps<FindBlogPostQuery, FindBlogPostQueryVariables>) => (
-  <BlogPost blogPost={blogPost} />
-);
+}: CellSuccessProps<
+  ResultOf<typeof FindBlogPostQueryDocument>,
+  VariablesOf<typeof FindBlogPostQueryDocument>
+>) => <BlogPost blogPost={blogPost} />;
 
-export default createCell<FindBlogPostQuery, FindBlogPostQueryVariables>({
+export default createCell<
+  ResultOf<typeof FindBlogPostQueryDocument>,
+  VariablesOf<typeof FindBlogPostQueryDocument>
+>({
   QUERY,
   Loading,
   Empty,

@@ -1,7 +1,5 @@
 "use client";
 
-import { gql } from "@apollo/client";
-
 import { useState } from "react";
 
 import { useForm } from "react-hook-form";
@@ -11,22 +9,25 @@ import { useBlocker } from "@/app/redwood/router";
 import { useMutation } from "@/app/redwood/web";
 import { toast, Toaster } from "@/app/redwood/toast";
 
-const createContactMutation = () => gql`
+import { graphql } from "@/gql";
+import type { CreateContactInput } from "@/gql/graphql";
+
+const CreateContactMutationDocument = graphql(`
   mutation CreateContactMutation($input: CreateContactInput!) {
     createContact(input: $input) {
       id
     }
   }
-`;
+`);
 
 const ContactUsPage = () => {
-  const formMethods = useForm();
+  const formMethods = useForm<CreateContactInput>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const blocker = useBlocker({
     when: formMethods.formState.isDirty && !isSubmitting,
   });
 
-  const [create, { loading, error }] = useMutation(createContactMutation(), {
+  const [create, { loading, error }] = useMutation(CreateContactMutationDocument, {
     onCompleted: () => {
       toast.success("Thank you for your submission!");
     },
@@ -35,7 +36,7 @@ const ContactUsPage = () => {
     },
   });
 
-  const onSubmit = async (data: Record<string, string>) => {
+  const onSubmit = async (data: CreateContactInput) => {
     setIsSubmitting(true);
     try {
       await create({ variables: { input: data } });
