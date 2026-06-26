@@ -7,6 +7,7 @@
     "rwgql-pgserve-ensure": "./dist/cli/ensure.mjs",
     "rwgql-pgserve-setup-env": "./dist/cli/setup-env.mjs",
     "rwgql-pgserve-start": "./dist/cli/start.mjs",
+    "rwgql-pgserve-stop": "./dist/cli/stop.mjs",
     "rwgql-pgserve-wait": "./dist/cli/wait.mjs"
   },
   "files": [

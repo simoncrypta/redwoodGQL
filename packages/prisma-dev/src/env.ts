@@ -2,16 +2,26 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { PrismaClient } from "@prisma/client";
+export interface EnsurePrismaDatabaseUrlOptions {
+  levelsUp?: number;
+  envFiles?: string[];
+}
 
-const loadPrismaDatabaseUrl = () => {
+export function ensurePrismaDatabaseUrl(
+  moduleUrl: string,
+  options: EnsurePrismaDatabaseUrlOptions = {},
+): void {
   if (process.env.PRISMA_DATABASE_URL) {
     return;
   }
 
-  const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+  const levelsUp = options.levelsUp ?? 1;
+  const packageRoot = resolve(
+    dirname(fileURLToPath(moduleUrl)),
+    ...Array.from({ length: levelsUp }, () => ".."),
+  );
 
-  for (const fileName of [".env", ".env.defaults"]) {
+  for (const fileName of options.envFiles ?? [".env", ".env.defaults"]) {
     const envPath = resolve(packageRoot, fileName);
     if (!existsSync(envPath)) {
       continue;
@@ -32,8 +42,4 @@ const loadPrismaDatabaseUrl = () => {
       return;
     }
   }
-};
-
-loadPrismaDatabaseUrl();
-
-export const db = new PrismaClient();
+}

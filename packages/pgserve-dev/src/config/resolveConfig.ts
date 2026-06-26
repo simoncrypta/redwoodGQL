@@ -19,5 +19,6 @@ export function resolvePgserveConfig(config: PgserveDevConfig): ResolvedPgserveC
 }
 
 export function buildPgserveConfigArg(config: PgserveDevConfig): string {
-  return `--config=${config.configModule}`;
+  const configPath = path.join(path.resolve(config.workspaceRoot), config.configModule);
+  return `--config=${configPath}`;
 }

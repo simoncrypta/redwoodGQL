@@ -37,6 +37,7 @@ export function buildConnectionEnv({
   routerPort,
   postgresPort,
   socketDir,
+  wrapperPid,
 }: {
   connectionEnvPath: string;
   databaseUrl: string;
@@ -44,25 +45,33 @@ export function buildConnectionEnv({
   routerPort: number;
   postgresPort: number;
   socketDir: string;
+  wrapperPid?: number;
 }): PgserveConnectionEnv {
+  const env: NodeJS.ProcessEnv = {
+    ...process.env,
+    DATABASE_URL: databaseUrl,
+    PGSERVE_DATABASE_URL: databaseUrl,
+    PGSERVE_HOST: getDatabaseHost(databaseUrl),
+    PGSERVE_PORT: String(routerPort),
+    PGSERVE_POSTGRES_PORT: String(postgresPort),
+    PGSERVE_DATA_DIR: dataDir,
+    PGSERVE_SOCKET_DIR: socketDir,
+    PGSERVE_CONNECTION_ENV: connectionEnvPath,
+  };
+
+  if (wrapperPid !== undefined) {
+    env.PGSERVE_WRAPPER_PID = String(wrapperPid);
+  }
+
   return {
     connectionEnvPath,
     databaseUrl,
     dataDir,
-    env: {
-      ...process.env,
-      DATABASE_URL: databaseUrl,
-      PGSERVE_DATABASE_URL: databaseUrl,
-      PGSERVE_HOST: getDatabaseHost(databaseUrl),
-      PGSERVE_PORT: String(routerPort),
-      PGSERVE_POSTGRES_PORT: String(postgresPort),
-      PGSERVE_DATA_DIR: dataDir,
-      PGSERVE_SOCKET_DIR: socketDir,
-      PGSERVE_CONNECTION_ENV: connectionEnvPath,
-    },
+    env,
     postgresPort,
     routerPort,
     socketDir,
+    wrapperPid,
   };
 }
 
@@ -74,6 +83,9 @@ function writeConnectionEnvFile(connection: PgserveConnectionEnv): void {
     `PGSERVE_POSTGRES_PORT=${connection.postgresPort}`,
     `PGSERVE_DATA_DIR=${connection.dataDir}`,
     `PGSERVE_SOCKET_DIR=${connection.socketDir}`,
+    ...(connection.wrapperPid !== undefined
+      ? [`PGSERVE_WRAPPER_PID=${connection.wrapperPid}`]
+      : []),
     "",
   ].join("\n");
 
@@ -108,6 +120,9 @@ function parseConnectionEnvFile(connectionEnvPath: string): PgserveConnectionEnv
   const socketDir = values.PGSERVE_SOCKET_DIR ?? getSocketDir();
   const routerPort = Number.parseInt(values.PGSERVE_PORT ?? "", 10);
   const postgresPort = Number.parseInt(values.PGSERVE_POSTGRES_PORT ?? "", 10);
+  const wrapperPidValue = values.PGSERVE_WRAPPER_PID;
+  const wrapperPid =
+    wrapperPidValue !== undefined ? Number.parseInt(wrapperPidValue, 10) : undefined;
 
   if (!databaseUrl || !dataDir || !routerPort || !postgresPort) {
     throw new Error(`Invalid pgserve connection env at ${connectionEnvPath}`);
@@ -120,6 +135,7 @@ function parseConnectionEnvFile(connectionEnvPath: string): PgserveConnectionEnv
     routerPort,
     postgresPort,
     socketDir,
+    wrapperPid: Number.isInteger(wrapperPid) && wrapperPid! > 0 ? wrapperPid : undefined,
   });
 }
 

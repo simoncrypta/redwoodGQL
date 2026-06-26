@@ -1,4 +1,10 @@
 export { definePgserveConfig } from "./config/defineConfig.ts";
+export {
+  DEFAULT_DB_DEV_PORT,
+  DEFAULT_DEV_PORTS,
+  defineDbDevConfig,
+  type DefineDbDevConfigOptions,
+} from "./config/defineDbDevConfig.ts";
 export { loadPgserveConfigFromModule, loadResolvedConfigFromArgv } from "./config/loadConfig.ts";
 export { buildPgserveConfigArg, resolvePgserveConfig } from "./config/resolveConfig.ts";
 export { setupAppEnvFallback, syncAppEnvFromConnection } from "./env/index.ts";
@@ -10,6 +16,7 @@ export {
   registerShutdown,
   removeConnectionEnvFiles,
   startLocalDevPgserve,
+  stopLocalDevPgserve,
   stopProvider,
   waitForConnectionEnv,
 } from "./local-dev/index.ts";
@@ -22,8 +29,10 @@ export {
 } from "./provider/pgserveProvider.ts";
 export { canQueryDatabase, ensureDatabaseExists } from "./postgres/client.ts";
 export { buildPostgresSocketUrl, getSocketDir } from "./postgres/urls.ts";
-export { createDevPrepareTask, createPgserveTasks } from "./tasks.ts";
+export { createDevPrepareTask, createDevStopTask, createPgserveTasks } from "./tasks.ts";
 export type {
+  AppEnvAdapter,
+  AppEnvVariables,
   PgserveCliArgs,
   PgserveConnectionEnv,
   PgserveDevConfig,

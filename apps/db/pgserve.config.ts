@@ -1,10 +1,6 @@
-import { definePgserveConfig } from "@rwgql/pgserve-dev";
+import { defineDbDevConfig } from "@rwgql/pgserve-dev";
+import { createPrismaEnvAdapter } from "@rwgql/prisma-dev";
 
-export const pgserveDevConfig = definePgserveConfig(import.meta.url, {
-  databaseName: "redwoodgql",
-  defaultPort: 8432,
-  dataDir: "apps/db/.pgserve",
-  pgserveBinPath: "apps/db/node_modules/pgserve/bin/pgserve-wrapper.cjs",
-  appEnvAdapter: "prisma",
-  devPorts: [8910, 8911, 8912, 8913],
+export const pgserveDevConfig = defineDbDevConfig(import.meta.url, {
+  appEnvAdapter: createPrismaEnvAdapter(),
 });

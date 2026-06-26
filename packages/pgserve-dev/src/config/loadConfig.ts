@@ -64,7 +64,9 @@ export async function loadResolvedConfigFromArgv(
   const configModule = getStringArg(args, CliKeys.Config);
 
   if (!configModule) {
-    throw new Error("Missing required --config argument (e.g. --config=apps/db/pgserve.config.ts)");
+    throw new Error(
+      "Missing required --config argument (e.g. --config=/abs/path/to/apps/db/pgserve.config.ts)",
+    );
   }
 
   const config = applyConfigOverrides(await loadPgserveConfigFromModule(configModule), args);

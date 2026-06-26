@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-function isProcessRunning(pid: number): boolean {
+export function isProcessRunning(pid: number): boolean {
   try {
     process.kill(pid, 0);
     return true;
@@ -25,36 +25,84 @@ export function hasLivePostmaster(dataDir: string): boolean {
   return pid !== null && isProcessRunning(pid);
 }
 
-async function waitForPostmasterExit(dataDir: string): Promise<boolean> {
+async function waitUntil(predicate: () => boolean, timeoutMs = 5000): Promise<boolean> {
   const startedAt = Date.now();
-  const timeoutMs = 5000;
 
   while (Date.now() - startedAt < timeoutMs) {
-    if (!hasLivePostmaster(dataDir)) {
+    if (predicate()) {
       return true;
     }
 
     await new Promise((resolve) => setTimeout(resolve, 200));
   }
 
-  return !hasLivePostmaster(dataDir);
+  return predicate();
 }
 
-export async function stopLivePostmaster(dataDir: string): Promise<void> {
+async function waitForProcessExit(pid: number, timeoutMs = 5000): Promise<boolean> {
+  return waitUntil(() => !isProcessRunning(pid), timeoutMs);
+}
+
+async function waitForPostmasterExit(dataDir: string, timeoutMs = 5000): Promise<boolean> {
+  return waitUntil(() => !hasLivePostmaster(dataDir), timeoutMs);
+}
+
+function killProcess(pid: number, signal: NodeJS.Signals): void {
+  try {
+    process.kill(pid, signal);
+  } catch {
+    // Process already exited.
+  }
+}
+
+function killProcessGroup(pid: number, signal: NodeJS.Signals): void {
+  if (process.platform === "win32") {
+    killProcess(pid, signal);
+    return;
+  }
+
+  try {
+    process.kill(-pid, signal);
+  } catch {
+    killProcess(pid, signal);
+  }
+}
+
+export async function stopDetachedPgserveWrapper(wrapperPid: number | undefined): Promise<void> {
+  if (wrapperPid === undefined || !isProcessRunning(wrapperPid)) {
+    return;
+  }
+
+  killProcessGroup(wrapperPid, "SIGTERM");
+  if (await waitForProcessExit(wrapperPid)) {
+    return;
+  }
+
+  killProcessGroup(wrapperPid, "SIGKILL");
+  await waitForProcessExit(wrapperPid);
+}
+
+export async function stopLivePostmaster(
+  dataDir: string,
+  options: { quiet?: boolean } = {},
+): Promise<void> {
   const pid = readPostmasterPid(dataDir);
   if (pid === null || !isProcessRunning(pid)) {
     return;
   }
 
-  console.warn(
-    `Found an existing pgserve PostgreSQL process (${pid}) for ${dataDir} without reusable connection metadata; stopping it before starting a fresh pgserve.`,
-  );
-  process.kill(pid, "SIGTERM");
+  if (!options.quiet) {
+    console.warn(
+      `Found an existing pgserve PostgreSQL process (${pid}) for ${dataDir} without reusable connection metadata; stopping it before starting a fresh pgserve.`,
+    );
+  }
+
+  killProcess(pid, "SIGTERM");
   if (await waitForPostmasterExit(dataDir)) {
     return;
   }
 
-  process.kill(pid, "SIGKILL");
+  killProcess(pid, "SIGKILL");
   if (!(await waitForPostmasterExit(dataDir))) {
     throw new Error(
       `Timed out stopping existing pgserve PostgreSQL process (${pid}) for ${dataDir}`,

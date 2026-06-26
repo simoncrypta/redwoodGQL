@@ -229,6 +229,9 @@ importers:
       '@rwgql/pgserve-dev':
         specifier: workspace:*
         version: link:packages/pgserve-dev
+      '@rwgql/prisma-dev':
+        specifier: workspace:*
+        version: link:packages/prisma-dev
       '@rwgql/task-core':
         specifier: workspace:*
         version: link:packages/task-core
@@ -250,6 +253,9 @@ importers:
       '@prisma/client':
         specifier: ^6.19.0
         version: 6.19.3(prisma@6.19.3(typescript@7.0.1-rc))(typescript@7.0.1-rc)
+      '@rwgql/prisma-dev':
+        specifier: workspace:*
+        version: link:../../packages/prisma-dev
     devDependencies:
       '@rwgql/pgserve-dev':
         specifier: workspace:*
@@ -545,6 +551,25 @@ importers:
       '@types/pg':
         specifier: ^8.15.5
         version: 8.20.0
+      typescript:
+        specifier: 'catalog:'
+        version: 7.0.1-rc
+      vite-plus:
+        specifier: 'catalog:'
+        version: 0.2.1(@types/node@25.6.2)(esbuild@0.28.1)(jiti@2.7.0)(jsdom@27.4.0)(terser@5.48.0)(tsx@4.22.4)(typescript@7.0.1-rc)(vite@8.0.16(@types/node@25.6.2)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.48.0)(tsx@4.22.4)(yaml@2.9.0))(yaml@2.9.0)
+
+  packages/prisma-dev:
+    dependencies:
+      '@rwgql/pgserve-dev':
+        specifier: workspace:*
+        version: link:../pgserve-dev
+      '@rwgql/task-core':
+        specifier: workspace:*
+        version: link:../task-core
+    devDependencies:
+      '@types/node':
+        specifier: ^25.6.2
+        version: 25.6.2
       typescript:
         specifier: 'catalog:'
         version: 7.0.1-rc

@@ -1,24 +1,36 @@
+import { mkdtempSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+
 import { describe, expect, it } from "vite-plus/test";
 
-import { buildPrismaFallbackEnv } from "./syncAppEnv.ts";
-import { formatAppEnvFile } from "./writeAppEnv.ts";
+import type { AppEnvAdapter, ResolvedPgserveConfig } from "../types.ts";
+import { setupAppEnvFallback } from "./syncAppEnv.ts";
+import { formatAppEnvFile, readAppEnvFile } from "./writeAppEnv.ts";
 
-describe("setupAppEnvFallback", () => {
-  it("builds fallback env from config defaults", () => {
-    const variables = buildPrismaFallbackEnv({
-      configModule: "apps/db/pgserve.config.ts",
-      workspaceRoot: "/tmp",
-      databaseName: "redwoodgql",
-      defaultPort: 8432,
-      dataDir: "/tmp/apps/db/.pgserve",
-      pgserveBinPath: "/tmp/apps/db/node_modules/pgserve/bin/pgserve-wrapper.cjs",
-      appEnvPath: "/tmp/apps/db/.env",
-      appEnvAdapter: "prisma",
-    });
+const testConfig = (appEnvPath: string, adapter: AppEnvAdapter): ResolvedPgserveConfig => ({
+  configModule: "apps/db/pgserve.config.ts",
+  workspaceRoot: "/tmp",
+  databaseName: "redwoodgql",
+  defaultPort: 8432,
+  dataDir: "/tmp/apps/db/.pgserve",
+  pgserveBinPath: "/tmp/apps/db/node_modules/pgserve/bin/pgserve-wrapper.cjs",
+  appEnvPath,
+  appEnvAdapter: adapter,
+});
 
-    expect(variables.DATABASE_URL).toContain("8432/redwoodgql");
-    expect(variables.PRISMA_DATABASE_URL).toContain("host=");
-    expect(variables.PRISMA_HIDE_UPDATE_MESSAGE).toBe("true");
+describe("syncAppEnv", () => {
+  it("writes fallback env via adapter when connection env is missing", () => {
+    const dir = mkdtempSync(join(tmpdir(), "pgserve-dev-"));
+    const appEnvPath = join(dir, ".env");
+    const adapter: AppEnvAdapter = {
+      fromConnection: () => ({ FROM_CONNECTION: "yes" }),
+      fallback: () => ({ FALLBACK: "yes" }),
+    };
+
+    setupAppEnvFallback(testConfig(appEnvPath, adapter));
+
+    expect(readAppEnvFile(appEnvPath)).toEqual({ FALLBACK: "yes" });
   });
 
   it("formats quoted env files", () => {

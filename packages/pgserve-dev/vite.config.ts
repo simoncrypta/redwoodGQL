@@ -7,6 +7,7 @@ export default defineConfig({
     },
     entry: [
       "src/index.ts",
+      "src/config/defineDbDevConfig.ts",
       "src/tasks.ts",
       "src/env/index.ts",
       "src/cli/ensure.ts",
@@ -14,6 +15,7 @@ export default defineConfig({
       "src/cli/wait.ts",
       "src/cli/dev-prepare.ts",
       "src/cli/setup-env.ts",
+      "src/cli/stop.ts",
     ],
   },
   test: {

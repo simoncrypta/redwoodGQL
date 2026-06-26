@@ -8,13 +8,20 @@ function pgserveTaskCommand(
   cliName: string,
   config: PgserveDevConfig,
 ): string {
-  return `tsx ${ctx.bin(cliName)} ${buildPgserveConfigArg(config)}`;
+  return `${ctx.bin(cliName)} ${buildPgserveConfigArg(config)}`;
+}
+
+export interface CreatePgserveTasksOptions {
+  prepareDependsOn?: string[];
 }
 
 export function createPgserveTasks(
   config: PgserveDevConfig,
   ctx: TaskPluginContext,
+  options: CreatePgserveTasksOptions = {},
 ): Record<string, TaskDefinition> {
+  const prepareDependsOn = options.prepareDependsOn ?? [];
+
   const tasks: Record<string, TaskDefinition> = {
     pgserve: {
       command: pgserveTaskCommand(ctx, "rwgql-pgserve-start", config),
@@ -22,7 +29,7 @@ export function createPgserveTasks(
     },
     prepare: {
       command: pgserveTaskCommand(ctx, "rwgql-pgserve-ensure", config),
-      dependsOn: ["generate"],
+      ...(prepareDependsOn.length > 0 ? { dependsOn: prepareDependsOn } : {}),
       cache: false,
     },
   };
@@ -40,10 +47,24 @@ export function createPgserveTasks(
 export function createDevPrepareTask(
   config: PgserveDevConfig,
   ctx: TaskPluginContext,
+  options: { dependsOn?: string[] } = {},
 ): Record<string, TaskDefinition> {
   return {
     "dev:prepare": {
       command: pgserveTaskCommand(ctx, "rwgql-pgserve-dev-prepare", config),
+      dependsOn: options.dependsOn ?? [],
+      cache: false,
+    },
+  };
+}
+
+export function createDevStopTask(
+  config: PgserveDevConfig,
+  ctx: TaskPluginContext,
+): Record<string, TaskDefinition> {
+  return {
+    "dev:stop": {
+      command: pgserveTaskCommand(ctx, "rwgql-pgserve-stop", config),
       cache: false,
     },
   };

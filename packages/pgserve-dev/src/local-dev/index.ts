@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { getStringArg, parseCliArgs } from "@rwgql/task-core/cli";
+import { freeTcpPort } from "@rwgql/task-core/process";
 import { parseStrictPort } from "@rwgql/task-core/port";
 
 import { syncAppEnvFromConnection } from "../env/syncAppEnv.ts";
@@ -31,6 +32,7 @@ import {
 import {
   hasLivePostmaster,
   removeIncompletePgserveDataDir,
+  stopDetachedPgserveWrapper,
   stopLivePostmaster,
 } from "./postmaster.ts";
 
@@ -196,6 +198,7 @@ export async function startLocalDevPgserve(
         routerPort,
         postgresPort,
         socketDir,
+        wrapperPid: detach ? (provider.getWrapperPid() ?? undefined) : undefined,
       }),
     );
 
@@ -220,6 +223,39 @@ export async function startLocalDevPgserve(
     removeConnectionEnvFiles(config, args);
     throw error;
   }
+}
+
+export async function stopLocalDevPgserve(
+  config: ResolvedPgserveConfig,
+  args: PgserveCliArgs = parseCliArgs(),
+): Promise<void> {
+  const dataDir = path.resolve(getStringArg(args, PgserveCliArgKey.DataDir) ?? config.dataDir);
+  const portArg = getStringArg(args, PgserveCliArgKey.Port);
+  const requestedPort = parseStrictPort(portArg, `Invalid --port value: ${portArg}`);
+  let routerPort = requestedPort ?? config.defaultPort;
+
+  const connectionEnvPath = getConnectionEnvPath(config, args);
+  if (fs.existsSync(connectionEnvPath)) {
+    try {
+      const connection = readConnectionEnv(config, args);
+      routerPort = connection.routerPort;
+      await stopDetachedPgserveWrapper(connection.wrapperPid);
+    } catch (error) {
+      console.warn(`Failed to read pgserve connection env at ${connectionEnvPath}:`, error);
+    }
+  } else {
+    console.warn(
+      `No pgserve connection env at ${connectionEnvPath}; stopping postmaster for ${dataDir}.`,
+    );
+  }
+
+  await stopLivePostmaster(dataDir, { quiet: true });
+
+  if (routerPort !== undefined) {
+    freeTcpPort(routerPort);
+  }
+
+  removeConnectionEnvFiles(config, args);
 }
 
 export function registerShutdown(

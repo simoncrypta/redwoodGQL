@@ -1,5 +1,5 @@
 import cors from "@fastify/cors";
-import Fastify from "fastify";
+import Fastify, { type FastifyReply, type FastifyRequest } from "fastify";
 import { registerDbAuthRoutes } from "@rwgql/dbauth/server";
 
 import { dbAuthOptions } from "./src/auth/dbAuthConfig.js";
@@ -19,15 +19,22 @@ registerDbAuthRoutes(app, dbAuthOptions);
 
 const yoga = createGraphqlYoga(app.log);
 
-app.route({
-  handler: (request, reply) =>
-    yoga.handleNodeRequestAndResponse(request, reply, {
-      reply,
-      request,
-    }),
-  method: ["GET", "POST", "OPTIONS"],
-  url: yoga.graphqlEndpoint,
-});
+const yogaMethods = ["GET", "HEAD", "POST", "OPTIONS"] as const;
+
+const handleYoga = (request: FastifyRequest, reply: FastifyReply) =>
+  yoga.handleNodeRequestAndResponse(request, reply, {
+    reply,
+    request,
+  });
+
+// Yoga owns /graphql and built-in subpaths like /graphql/health (readiness).
+for (const url of [yoga.graphqlEndpoint, `${yoga.graphqlEndpoint}/health`]) {
+  app.route({
+    handler: handleYoga,
+    method: [...yogaMethods],
+    url,
+  });
+}
 
 const disconnect = async () => {
   await db.$disconnect();

@@ -1,3 +1,10 @@
+export type AppEnvVariables = Record<string, string>;
+
+export interface AppEnvAdapter {
+  fromConnection(config: ResolvedPgserveConfig, connection: PgserveConnectionEnv): AppEnvVariables;
+  fallback(config: ResolvedPgserveConfig): AppEnvVariables;
+}
+
 export interface PgserveConnectionEnv {
   connectionEnvPath: string;
   databaseUrl: string;
@@ -6,6 +13,7 @@ export interface PgserveConnectionEnv {
   postgresPort: number;
   routerPort: number;
   socketDir: string;
+  wrapperPid?: number;
 }
 
 export interface PgserveDevConfig {
@@ -18,7 +26,7 @@ export interface PgserveDevConfig {
   pgserveBinPath: string;
   /** Relative to workspaceRoot. Defaults to `.env` beside the config file when using definePgserveConfig(). */
   appEnvPath?: string;
-  appEnvAdapter?: "prisma";
+  appEnvAdapter?: AppEnvAdapter;
   devPorts?: readonly number[];
 }
 
@@ -31,7 +39,7 @@ export interface ResolvedPgserveConfig {
   dataDir: string;
   pgserveBinPath: string;
   appEnvPath?: string;
-  appEnvAdapter?: "prisma";
+  appEnvAdapter?: AppEnvAdapter;
   devPorts?: readonly number[];
 }
 

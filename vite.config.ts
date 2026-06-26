@@ -1,13 +1,10 @@
 import { defineConfig } from "vite-plus";
 import { configDefaults } from "vite-plus/test/config";
-import { createBinCommand, createBinResolver, mergeTasks } from "@rwgql/task-core/vite";
-import { createDevPrepareTask } from "@rwgql/pgserve-dev/tasks";
+import { createBinCommand } from "@rwgql/task-core/vite";
 
-import { pgserveDevConfig } from "./apps/db/pgserve.config.ts";
-
-const pgserveBin = createBinResolver("@rwgql/pgserve-dev");
 const devTasks = ["rwsdk#dev", "graphql#dev", "graphql#codegen:watch"] as const;
-const devCommand = `RWGQL_DEV_TASKS=${devTasks.join(",")} ${createBinCommand("@rwgql/task-core", "rwgql-dev")}`;
+const devStopTasks = ["db#dev:stop"] as const;
+const devCommand = `RWGQL_DEV_STOP_TASKS=${devStopTasks.join(",")} RWGQL_DEV_TASKS=${devTasks.join(",")} ${createBinCommand("@rwgql/task-core", "rwgql-dev")}`;
 
 export default defineConfig({
   staged: {
@@ -34,10 +31,10 @@ export default defineConfig({
   },
   run: {
     cache: true,
-    tasks: mergeTasks(createDevPrepareTask(pgserveDevConfig, { bin: pgserveBin }), {
+    tasks: {
       dev: {
         command: devCommand,
-        dependsOn: ["dev:prepare", "seed", "graphql#codegen"],
+        dependsOn: ["db#dev:prepare", "seed", "graphql#codegen"],
         cache: false,
       },
       seed: {
@@ -45,6 +42,6 @@ export default defineConfig({
         dependsOn: ["db#migrate-deploy", "@rwgql/dbauth#build"],
         cache: false,
       },
-    }),
+    },
   },
 });

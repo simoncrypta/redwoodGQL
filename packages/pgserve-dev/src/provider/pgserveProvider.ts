@@ -359,6 +359,10 @@ export class PgserveProvider {
     return this.server !== null && this.server.exitCode === null;
   }
 
+  getWrapperPid(): number | null {
+    return this.server?.pid ?? null;
+  }
+
   async stop(): Promise<void> {
     if (!this.server) {
       return;
