@@ -33,3 +33,5 @@ allowBuilds:
   prisma: true
   sharp: true
   workerd: true
+minimumReleaseAgeExclude:
+  - rwsdk@1.5.0
