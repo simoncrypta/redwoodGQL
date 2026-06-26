@@ -9,6 +9,8 @@
   },
   "devDependencies": {
     "@rwgql/dbauth": "workspace:*",
+    "@rwgql/pgserve-dev": "workspace:*",
+    "@rwgql/task-core": "workspace:*",
     "db": "workspace:*",
     "tsx": "catalog:",
     "typescript": "catalog:",

@@ -5,15 +5,16 @@
     "moduleDetection": "force",
     "module": "nodenext",
     "moduleResolution": "nodenext",
-    "types": ["node"],
+    "resolveJsonModule": true,
+    "types": ["node", "vite-plus/test"],
     "strict": true,
     "noUnusedLocals": true,
+    "declaration": true,
     "noEmit": true,
     "allowImportingTsExtensions": true,
     "esModuleInterop": true,
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
     "skipLibCheck": true
-  },
-  "include": ["src", "prisma", "scripts", "pgserve.config.ts", "vite.config.ts"]
+  }
 }

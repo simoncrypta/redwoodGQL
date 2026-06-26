@@ -10,9 +10,12 @@
     "@prisma/client": "^6.19.0"
   },
   "devDependencies": {
+    "@rwgql/pgserve-dev": "workspace:*",
+    "@rwgql/task-core": "workspace:*",
     "@types/node": "^25.6.2",
     "pgserve": "^2.6.10",
     "prisma": "^6.19.0",
+    "tsx": "catalog:",
     "typescript": "catalog:",
     "vite-plus": "catalog:"
   }

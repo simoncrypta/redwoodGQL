@@ -1,4 +1,10 @@
 import { defineConfig } from "vite-plus";
+import { createBinResolver, mergeTasks } from "@rwgql/task-core/vite";
+import { createPgserveTasks } from "@rwgql/pgserve-dev/tasks";
+
+import { pgserveDevConfig } from "./pgserve.config.ts";
+
+const pgserveBin = createBinResolver("@rwgql/pgserve-dev");
 
 export default defineConfig({
   fmt: {
@@ -12,30 +18,17 @@ export default defineConfig({
     },
   },
   run: {
-    tasks: {
-      "setup-env": {
-        command: "bash ../../scripts/setup-db-env.sh",
-        input: ["../../scripts/setup-db-env.sh"],
-      },
+    tasks: mergeTasks(createPgserveTasks(pgserveDevConfig, { bin: pgserveBin }), {
       generate: {
         command: "prisma generate",
         dependsOn: ["setup-env"],
         input: ["prisma/schema.prisma"],
-      },
-      pgserve: {
-        command: "tsx ../../scripts/pgserve-start.ts",
-        cache: false,
-      },
-      prepare: {
-        command: "tsx ../../scripts/ensure-pgserve.ts",
-        dependsOn: ["generate"],
-        cache: false,
       },
       "migrate-deploy": {
         command: "prisma migrate deploy",
         dependsOn: ["prepare"],
         cache: false,
       },
-    },
+    }),
   },
 });

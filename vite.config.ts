@@ -1,5 +1,13 @@
 import { defineConfig } from "vite-plus";
 import { configDefaults } from "vite-plus/test/config";
+import { createBinCommand, createBinResolver, mergeTasks } from "@rwgql/task-core/vite";
+import { createDevPrepareTask } from "@rwgql/pgserve-dev/tasks";
+
+import { pgserveDevConfig } from "./apps/db/pgserve.config.ts";
+
+const pgserveBin = createBinResolver("@rwgql/pgserve-dev");
+const devTasks = ["rwsdk#dev", "graphql#dev", "graphql#codegen:watch"] as const;
+const devCommand = `RWGQL_DEV_TASKS=${devTasks.join(",")} ${createBinCommand("@rwgql/task-core", "rwgql-dev")}`;
 
 export default defineConfig({
   staged: {
@@ -26,13 +34,9 @@ export default defineConfig({
   },
   run: {
     cache: true,
-    tasks: {
-      "dev:prepare": {
-        command: "tsx scripts/dev-prepare.ts",
-        cache: false,
-      },
+    tasks: mergeTasks(createDevPrepareTask(pgserveDevConfig, { bin: pgserveBin }), {
       dev: {
-        command: "tsx scripts/dev.ts",
+        command: devCommand,
         dependsOn: ["dev:prepare", "seed", "graphql#codegen"],
         cache: false,
       },
@@ -41,6 +45,6 @@ export default defineConfig({
         dependsOn: ["db#migrate-deploy", "@rwgql/dbauth#build"],
         cache: false,
       },
-    },
+    }),
   },
 });

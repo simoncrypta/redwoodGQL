@@ -1,0 +1,57 @@
+{
+  "name": "@rwgql/pgserve-dev",
+  "version": "0.0.0",
+  "private": true,
+  "bin": {
+    "rwgql-pgserve-dev-prepare": "./dist/cli/dev-prepare.mjs",
+    "rwgql-pgserve-ensure": "./dist/cli/ensure.mjs",
+    "rwgql-pgserve-setup-env": "./dist/cli/setup-env.mjs",
+    "rwgql-pgserve-start": "./dist/cli/start.mjs",
+    "rwgql-pgserve-wait": "./dist/cli/wait.mjs"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    },
+    "./env": {
+      "types": "./dist/env/index.d.mts",
+      "default": "./dist/env/index.mjs"
+    },
+    "./tasks": {
+      "types": "./dist/tasks.d.mts",
+      "default": "./dist/tasks.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "vp pack",
+    "dev": "vp pack --watch",
+    "test": "vp test",
+    "check": "vp check",
+    "prepublishOnly": "vp run build"
+  },
+  "dependencies": {
+    "@rwgql/task-core": "workspace:*",
+    "pg": "^8.16.3",
+    "tsx": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.2",
+    "@types/pg": "^8.15.5",
+    "typescript": "catalog:",
+    "vite-plus": "catalog:"
+  },
+  "peerDependencies": {
+    "pgserve": "*"
+  },
+  "peerDependenciesMeta": {
+    "pgserve": {
+      "optional": true
+    }
+  }
+}

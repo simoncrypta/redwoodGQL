@@ -1,10 +1,10 @@
 import type { AddressInfo } from "node:net";
 import fs from "node:fs";
-import path from "node:path";
 import { spawn } from "node:child_process";
-import { fileURLToPath } from "node:url";
 
-import { loadPrismaClientConstructor } from "./prismaClient.ts";
+import { ensureDatabaseExists } from "../postgres/client.ts";
+import { canConnectTcp } from "../postgres/tcp.ts";
+import { buildPostgresSocketUrl } from "../postgres/urls.ts";
 
 const log = {
   debug(message: string) {
@@ -32,6 +32,7 @@ interface PgserveProviderBaseOptions {
   logLevel?: "error" | "warn" | "info" | "debug";
   env?: NodeJS.ProcessEnv;
   detach?: boolean;
+  pgserveBinPath: string;
 }
 
 type PgserveProviderPortOptions =
@@ -40,15 +41,18 @@ type PgserveProviderPortOptions =
 
 export type PgserveProviderOptions = PgserveProviderBaseOptions & PgserveProviderPortOptions;
 
-type PgserveProviderOptionOverrides = Omit<PgserveProviderBaseOptions, "databaseName"> & {
+type PgserveProviderOptionOverrides = Omit<
+  PgserveProviderBaseOptions,
+  "databaseName" | "pgserveBinPath"
+> & {
   databaseName?: string;
   port?: number;
   startPort?: number;
+  pgserveBinPath?: string;
 };
 
 const DEFAULT_HOST = "127.0.0.1";
 const TEST_DATABASE_NAME = "template_test";
-const workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 
 async function findAvailablePort(startPort: number): Promise<number> {
   const net = await import("node:net");
@@ -73,10 +77,6 @@ async function findAvailablePort(startPort: number): Promise<number> {
   });
 }
 
-export function getDefaultPgserveDataDir(): string {
-  return path.join(workspaceRoot, "apps/db/.pgserve");
-}
-
 function buildDatabaseUrl({
   host,
   port,
@@ -89,24 +89,7 @@ function buildDatabaseUrl({
   return `postgresql://postgres@${host}:${port}/${databaseName}`;
 }
 
-function getSocketDir(): string {
-  return `${process.env.XDG_RUNTIME_DIR ?? `/run/user/${process.getuid?.() ?? 1000}`}/pgserve`;
-}
-
-function buildPrismaDatabaseUrl(port: number, databaseName: string): string {
-  const socketDir = getSocketDir();
-  return `postgresql://postgres@localhost:${port}/${databaseName}?host=${socketDir}&socket=${socketDir}`;
-}
-
-function quotePostgresIdentifier(identifier: string): string {
-  return `"${identifier.replaceAll('"', '""')}"`;
-}
-
 const PGSERVE_POSTGRES_PORT_LOG_PATTERN = /"component":"postgres"[^}]*"port":(\d+)/;
-
-function getPgserveBinPath(): string {
-  return path.join(workspaceRoot, "apps/db/node_modules/pgserve/bin/pgserve-wrapper.cjs");
-}
 
 export class PgserveProvider {
   private server: ReturnType<typeof spawn> | null = null;
@@ -134,6 +117,7 @@ export class PgserveProvider {
       logLevel: options.logLevel ?? "info",
       env: options.env ?? process.env,
       detach: options.detach ?? false,
+      pgserveBinPath: options.pgserveBinPath,
     };
   }
 
@@ -188,7 +172,7 @@ export class PgserveProvider {
     })();
 
     for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
-      const connected = await this.canConnectViaTcp(host, port);
+      const connected = await canConnectTcp(host, port);
       if (connected) {
         log.info(`pgserve ready at ${host}:${port}`);
         return this.databaseUrl;
@@ -200,54 +184,12 @@ export class PgserveProvider {
     throw new Error(`pgserve failed to start at ${host}:${port}`);
   }
 
-  private async canConnectViaTcp(host: string, port: number): Promise<boolean> {
-    const net = await import("node:net");
-
-    return new Promise((resolve) => {
-      const socket = net.createConnection({ host, port });
-      socket.setTimeout(250);
-      socket.once("connect", () => {
-        socket.end();
-        resolve(true);
-      });
-      socket.once("timeout", () => {
-        socket.destroy();
-        resolve(false);
-      });
-      socket.once("error", () => {
-        socket.destroy();
-        resolve(false);
-      });
-    });
-  }
-
-  private getPrismaReadinessUrl(): string {
-    return buildPrismaDatabaseUrl(this.getEffectivePort(), "postgres");
-  }
-
   async ensureDatabaseExists(databaseName = this.options.databaseName): Promise<string> {
-    const PrismaClient = loadPrismaClientConstructor();
-    const prisma = new PrismaClient({
-      datasources: { db: { url: this.getPrismaReadinessUrl() } },
-    });
-
-    try {
-      const rows = (await prisma.$queryRaw`
-        SELECT EXISTS(
-          SELECT 1
-          FROM pg_database
-          WHERE datname = ${databaseName}
-        ) AS "exists"
-      `) as Array<{ exists: boolean }>;
-
-      if (!rows[0]?.exists) {
-        await prisma.$executeRawUnsafe(`CREATE DATABASE ${quotePostgresIdentifier(databaseName)}`);
-      }
-
-      return this.getDatabaseUrl(databaseName);
-    } finally {
-      await prisma.$disconnect().catch(() => undefined);
-    }
+    await ensureDatabaseExists(
+      buildPostgresSocketUrl(this.getEffectivePort(), "postgres"),
+      databaseName,
+    );
+    return this.getDatabaseUrl(databaseName);
   }
 
   async start(): Promise<string> {
@@ -271,9 +213,11 @@ export class PgserveProvider {
     ];
 
     if (this.options.storageMode === "persistent") {
-      const dataDir = this.options.dataDir ?? getDefaultPgserveDataDir();
-      fs.mkdirSync(dataDir, { recursive: true });
-      args.push("--data", dataDir);
+      if (!this.options.dataDir) {
+        throw new Error("Persistent pgserve requires a dataDir");
+      }
+      fs.mkdirSync(this.options.dataDir, { recursive: true });
+      args.push("--data", this.options.dataDir);
     } else if (this.options.storageMode === "ram" && process.platform === "linux") {
       args.push("--ram");
     }
@@ -284,7 +228,7 @@ export class PgserveProvider {
     this.databaseUrl = this.buildRouterDatabaseUrl();
 
     return new Promise((resolve, reject) => {
-      this.server = spawn(process.execPath, [getPgserveBinPath(), ...args], {
+      this.server = spawn(process.execPath, [this.options.pgserveBinPath, ...args], {
         stdio: this.options.detach ? "ignore" : ["ignore", "pipe", "pipe"],
         env: { ...this.options.env },
         detached: this.options.detach,
@@ -446,7 +390,7 @@ export class PgserveProvider {
 }
 
 export class PgserveTestProvider extends PgserveProvider {
-  constructor(options: PgserveProviderOptionOverrides = {}) {
+  constructor(pgserveBinPath: string, options: PgserveProviderOptionOverrides = {}) {
     const baseOptions = {
       host: options.host,
       databaseName: options.databaseName ?? TEST_DATABASE_NAME,
@@ -455,6 +399,7 @@ export class PgserveTestProvider extends PgserveProvider {
       logLevel: options.logLevel,
       env: options.env ?? { ...process.env, NODE_ENV: "test" },
       detach: options.detach,
+      pgserveBinPath: options.pgserveBinPath ?? pgserveBinPath,
     };
 
     if (options.port !== undefined) {
@@ -473,9 +418,14 @@ export class PgserveTestProvider extends PgserveProvider {
   }
 }
 
-export function createLocalDevPgserveProvider(options: PgserveProviderOptions): PgserveProvider {
+export function createLocalDevPgserveProvider(
+  pgserveBinPath: string,
+  options: Omit<PgserveProviderOptions, "pgserveBinPath" | "storageMode"> &
+    PgserveProviderPortOptions,
+): PgserveProvider {
   return new PgserveProvider({
     storageMode: "persistent",
+    pgserveBinPath,
     ...options,
   });
 }

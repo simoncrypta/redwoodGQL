@@ -30,6 +30,8 @@ dist-ssr
 # Local PostgreSQL (pgserve)
 apps/db/.pgserve/
 apps/db/.env
+apps/db/connection.env
+apps/db/scripts/.env
 
 # GraphQL codegen
 apps/web/src/gql/
