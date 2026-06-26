@@ -1,8 +1,13 @@
 import { getDirective, MapperKind, mapSchema } from "@graphql-tools/utils";
-import { defaultFieldResolver, type GraphQLSchema } from "graphql";
+import {
+  type DocumentNode,
+  type GraphQLResolveInfo,
+  type GraphQLSchema,
+  defaultFieldResolver,
+  Kind,
+  parse,
+} from "graphql";
 import type { Plugin } from "graphql-yoga";
-
-import { AuthenticationError, ForbiddenError } from "./errors.js";
 
 export { AuthenticationError, ForbiddenError } from "./errors.js";
 export { hasRoleForUser } from "./hasRole.js";
@@ -25,10 +30,6 @@ type DecodeSession = (
 type GetCurrentUser = (
   session: Record<string, unknown>,
 ) => Promise<Record<string, unknown> | null> | null | Record<string, unknown>;
-
-type RequireAuthFn = (context: AuthContext, options?: { roles?: string[] | string }) => void;
-
-type SkipAuthFn = (context: AuthContext) => void;
 
 export const createAuthYogaPlugin = ({
   decodeSession,
@@ -60,47 +61,86 @@ export const createAuthYogaPlugin = ({
   },
 });
 
-export const createAuthDirectiveTransformers = ({
-  requireAuth,
-  skipAuth = () => undefined,
-}: {
-  requireAuth: RequireAuthFn;
-  skipAuth?: SkipAuthFn;
-}) => {
+export type ValidatorDirectiveFunc<TDirectiveArgs = Record<string, unknown>> = (args: {
+  root: unknown;
+  args: Record<string, unknown>;
+  context: AuthContext;
+  info: GraphQLResolveInfo;
+  directiveArgs: TDirectiveArgs;
+}) => void | Promise<void>;
+
+export type ValidatorDirective = {
+  readonly name: string;
+  readonly schema: DocumentNode | string;
+  readonly type: "validator";
+  readonly onResolverCalled: ValidatorDirectiveFunc;
+};
+
+const getDirectiveName = (schema: DocumentNode | string): string => {
+  const document = typeof schema === "string" ? parse(schema) : schema;
+
+  for (const definition of document.definitions) {
+    if (definition.kind === Kind.DIRECTIVE_DEFINITION) {
+      return definition.name.value;
+    }
+  }
+
+  throw new Error("createValidatorDirective: no directive definition found in schema");
+};
+
+export const createValidatorDirective = <TDirectiveArgs = Record<string, unknown>>(
+  schema: DocumentNode | string,
+  validate: ValidatorDirectiveFunc<TDirectiveArgs>,
+): ValidatorDirective => ({
+  name: getDirectiveName(schema),
+  onResolverCalled: (params) =>
+    validate({ ...params, directiveArgs: params.directiveArgs as TDirectiveArgs }),
+  schema,
+  type: "validator",
+});
+
+export const applyValidatorDirectives = (
+  directives: readonly ValidatorDirective[],
+  { enforceOn = ["Query", "Mutation"] }: { enforceOn?: readonly string[] } = {},
+) => {
+  const directiveNames = directives.map((directive) => directive.name);
+
   return (schema: GraphQLSchema): GraphQLSchema =>
     mapSchema(schema, {
-      [MapperKind.OBJECT_FIELD]: (fieldConfig) => {
-        const requireAuthDirective = getDirective(schema, fieldConfig, "requireAuth")?.[0] as
-          | { roles?: string[] }
-          | undefined;
-        const skipAuthDirective = getDirective(schema, fieldConfig, "skipAuth")?.[0];
+      [MapperKind.OBJECT_FIELD]: (fieldConfig, fieldName, typeName) => {
+        const matched = directives.flatMap((directive) => {
+          const directiveArgs = getDirective(schema, fieldConfig, directive.name)?.[0];
 
-        if (!requireAuthDirective && !skipAuthDirective) {
+          return directiveArgs ? [{ directive, directiveArgs }] : [];
+        });
+
+        if (matched.length === 0) {
+          if (enforceOn.includes(typeName)) {
+            throw new Error(
+              `Field "${typeName}.${fieldName}" is missing an auth directive. ` +
+                `Add one of: ${directiveNames.map((name) => `@${name}`).join(", ")}.`,
+            );
+          }
+
           return fieldConfig;
         }
 
         const { resolve = defaultFieldResolver } = fieldConfig;
 
-        fieldConfig.resolve = (source, args, context, info) => {
+        fieldConfig.resolve = async (root, args, context, info) => {
           const authContext = context as AuthContext;
 
-          if (skipAuthDirective) {
-            skipAuth(authContext);
+          for (const { directive, directiveArgs } of matched) {
+            await directive.onResolverCalled({
+              args: args as Record<string, unknown>,
+              context: authContext,
+              directiveArgs,
+              info,
+              root,
+            });
           }
 
-          if (requireAuthDirective) {
-            try {
-              requireAuth(authContext, { roles: requireAuthDirective.roles });
-            } catch (error) {
-              if (error instanceof AuthenticationError || error instanceof ForbiddenError) {
-                throw error;
-              }
-
-              throw error;
-            }
-          }
-
-          return resolve(source, args, context, info);
+          return resolve(root, args, context, info);
         };
 
         return fieldConfig;

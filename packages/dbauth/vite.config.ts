@@ -5,7 +5,7 @@ export default defineConfig({
     dts: {
       tsgo: true,
     },
-    entry: ["src/web.ts", "src/server.ts"],
+    entry: ["src/web.ts", "src/server.ts", "src/decoder.ts"],
   },
   test: {
     environment: "node",

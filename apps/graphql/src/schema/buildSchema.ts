@@ -2,11 +2,10 @@ import { mergeTypeDefs } from "@graphql-tools/merge";
 import { makeExecutableSchema } from "@graphql-tools/schema";
 import type { GraphQLSchema } from "graphql";
 
-import { createAuthDirectiveTransformers } from "@rwgql/auth/graphql";
+import { applyValidatorDirectives } from "@rwgql/auth/graphql";
 
-import { requireAuth, skipAuth, type AuthContext } from "../lib/auth.js";
 import type { Post, User } from "../types.js";
-import { rootResolvers, services, typeDefs } from "./registry.js";
+import { directives, rootResolvers, services, typeDefs } from "./registry.js";
 
 const isPostRoot = (root: unknown): root is Post =>
   typeof root === "object" && root !== null && "authorId" in root;
@@ -57,9 +56,8 @@ const serviceResolvers = {
 
 let schema: GraphQLSchema | undefined;
 
-const applyAuthDirectives = createAuthDirectiveTransformers({
-  requireAuth: (context, options) => requireAuth(context as AuthContext, options),
-  skipAuth: (context) => skipAuth(context as AuthContext),
+const applyAuthDirectives = applyValidatorDirectives(directives, {
+  enforceOn: ["Query", "Mutation"],
 });
 
 export const getSchema = (): GraphQLSchema => {

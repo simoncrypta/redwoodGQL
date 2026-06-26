@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { route } from "rwsdk/router";
 import { defineApp, type RequestInfo } from "rwsdk/worker";
+import { createAuthDecoder } from "@rwgql/dbauth/decoder";
 import {
   createApolloRwsdkTransportId,
   renderApolloRwsdkStream,
@@ -32,10 +33,34 @@ import ResetPasswordPage from "@/app/pages/ResetPasswordPage/ResetPasswordPage";
 import SignupPage from "@/app/pages/SignupPage/SignupPage";
 import WaterfallPage from "@/app/pages/WaterfallPage/WaterfallPage";
 
-export type AppContext = {};
+export type Session = {
+  readonly id: number;
+};
+
+export type AppContext = {
+  session: Session | null;
+};
 
 type IdParams = {
   readonly id: string;
+};
+
+// Must match the dbAuth cookie name configured in apps/graphql (src/lib/auth.ts).
+const cookieName = "session_8911";
+
+const authDecoder = createAuthDecoder({ cookieName });
+
+const sessionMiddleware = ({ ctx, request }: RequestInfo) => {
+  ctx.session = authDecoder(request);
+};
+
+const requireAuth = ({ ctx }: RequestInfo) => {
+  if (!ctx.session) {
+    return new Response(null, {
+      headers: { Location: "/login" },
+      status: 302,
+    });
+  }
 };
 
 const defaultDevGraphqlUrl = "http://localhost:8911/graphql";
@@ -97,6 +122,7 @@ const renderPostsPage = (requestInfo: RequestInfo, children: ReactNode) =>
 
 export default defineApp([
   setCommonHeaders(),
+  sessionMiddleware,
   route("/double", (requestInfo) => renderPage(requestInfo, <DoublePage />)),
   route("/login", (requestInfo) => renderPage(requestInfo, <LoginPage />)),
   route("/signup", (requestInfo) => renderPage(requestInfo, <SignupPage />)),
@@ -123,7 +149,7 @@ export default defineApp([
   route("/waterfall/:id", (requestInfo: RequestInfo<IdParams>) =>
     renderBlogPage(requestInfo, <WaterfallPage id={routeId(requestInfo)} />),
   ),
-  route("/profile", (requestInfo) => renderBlogPage(requestInfo, <ProfilePage />)),
+  route("/profile", [requireAuth, (requestInfo) => renderBlogPage(requestInfo, <ProfilePage />)]),
   route("/blog-post/:id", (requestInfo: RequestInfo<IdParams>) =>
     renderBlogPage(requestInfo, <BlogPostPage id={routeId(requestInfo)} />),
   ),

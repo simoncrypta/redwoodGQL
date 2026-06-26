@@ -2,7 +2,7 @@ export const schema = `
   scalar DateTime
 
   type Query {
-    redwoodApolloPoc: ApolloPoc!
+    redwoodApolloPoc: ApolloPoc! @skipAuth
   }
 
   type ApolloPoc {
