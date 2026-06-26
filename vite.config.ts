@@ -13,6 +13,12 @@ export default defineConfig({
     jsPlugins: [{ name: "vite-plus", specifier: "vite-plus/oxlint-plugin" }],
     rules: { "vite-plus/prefer-vite-plus-imports": "error" },
     options: { typeAware: true, typeCheck: true },
+    overrides: [
+      {
+        files: ["scripts/**"],
+        env: { node: true },
+      },
+    ],
   },
   test: {
     exclude: [...configDefaults.exclude, "test-project/**"],
@@ -21,8 +27,17 @@ export default defineConfig({
   run: {
     cache: true,
     tasks: {
+      "dev:prepare": {
+        command: "tsx scripts/dev-prepare.ts",
+        cache: false,
+      },
+      dev: {
+        command: "tsx scripts/dev.ts",
+        dependsOn: ["dev:prepare", "seed", "graphql#codegen"],
+        cache: false,
+      },
       seed: {
-        command: "node --experimental-strip-types scripts/seed.ts",
+        command: "tsx scripts/seed.ts",
         dependsOn: ["db#migrate-deploy", "@rwgql/dbauth#build"],
         cache: false,
       },

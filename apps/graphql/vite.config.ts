@@ -18,7 +18,7 @@ export default defineConfig({
         cache: false,
       },
       "export-schema": {
-        command: "node --experimental-strip-types scripts/export-schema.ts",
+        command: "tsx scripts/export-schema.ts",
         input: [
           "scripts/export-schema.ts",
           "src/graphql/**/*.ts",

@@ -18,12 +18,12 @@ Manual db tasks:
 
 ```bash
 vp run db#pgserve          # start PostgreSQL on port 8432 (data in .pgserve/)
-vp run db#generate         # generate Prisma client
-vp run db#migrate-deploy   # apply migrations (waits for pgserve)
+vp run db#generate         # ensure pgserve + generate Prisma client
+vp run db#migrate-deploy   # apply migrations (starts/reuses pgserve via prepare)
 vp run seed                # seed dev data
 ```
 
-Copy `.env.defaults` to `.env` to override `DATABASE_URL`.
+`db#prepare` starts or reuses pgserve, writes `apps/db/.pgserve/connection.env`, and updates `apps/db/.env`. Copy `.env.defaults` to `.env` only when overriding the generated values.
 
 ## Schema
 

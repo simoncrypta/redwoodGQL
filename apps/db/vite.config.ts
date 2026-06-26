@@ -23,16 +23,17 @@ export default defineConfig({
         input: ["prisma/schema.prisma"],
       },
       pgserve: {
-        command: "pgserve postmaster --port 8432 --data .pgserve",
+        command: "tsx ../../scripts/pgserve-start.ts",
         cache: false,
       },
       prepare: {
-        command: "node --experimental-strip-types ../../scripts/wait-for-pg.ts",
+        command: "tsx ../../scripts/ensure-pgserve.ts",
+        dependsOn: ["generate"],
         cache: false,
       },
       "migrate-deploy": {
         command: "prisma migrate deploy",
-        dependsOn: ["generate", "prepare"],
+        dependsOn: ["prepare"],
         cache: false,
       },
     },
