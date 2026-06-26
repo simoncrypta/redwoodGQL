@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./index.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.0",
@@ -21,6 +21,6 @@
     "vite-plus": "catalog:"
   },
   "prisma": {
-    "schema": "src/schema.prisma"
+    "schema": "prisma/schema.prisma"
   }
 }

@@ -25,7 +25,7 @@ export default defineConfig({
   run: {
     tasks: mergeTasks(
       createPgserveTasks(pgserveDevConfig, { bin: pgserveBin }, { prepareDependsOn: ["generate"] }),
-      createPrismaTasks({ dependsOnPrepare: "dev:prepare", schemaPath: "src/schema.prisma" }),
+      createPrismaTasks({ dependsOnPrepare: "dev:prepare" }),
       createDevPrepareTask(pgserveDevConfig, { bin: pgserveBin }, { dependsOn: ["generate"] }),
       createDevStopTask(pgserveDevConfig, { bin: pgserveBin }),
     ),

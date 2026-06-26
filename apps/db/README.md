@@ -1,41 +1,67 @@
 # db
 
-PostgreSQL data layer with Prisma ORM for RedwoodGQL.
+Workspace package for PostgreSQL + Prisma. Other apps import the shared client:
 
-## Prerequisites
-
-Install [pgserve/autopg](https://github.com/automagik-dev/autopg) for local PostgreSQL:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/automagik-dev/autopg/main/install.sh | bash
+```ts
+import { db, type User } from "db";
 ```
 
-## Local development
+`apps/graphql` and `scripts/seed.ts` depend on this package.
 
-The dev stack starts pgserve, applies migrations, and seeds data automatically via `vp run dev` from the repo root.
+## Day to day
 
-This package owns the db task graph in [`vite.config.ts`](vite.config.ts). Root orchestration depends on these tasks via `db#...` references.
+From the repo root, `vp run dev` handles the database for you: start or reuse local Postgres (via [pgserve](https://www.npmjs.com/package/pgserve)), apply migrations, generate the Prisma client, and seed data.
 
-Manual db tasks:
+You usually do not need to run anything in this directory manually.
+
+## Layout
+
+| Path                   | Purpose                                       |
+| ---------------------- | --------------------------------------------- |
+| `index.ts`             | Exports `db` (`PrismaClient`) and model types |
+| `prisma/schema.prisma` | Schema                                        |
+| `prisma/migrations/`   | Migration history                             |
+| `pgserve.config.ts`    | Local Postgres dev config                     |
+| `vite.config.ts`       | `db#…` task definitions                       |
+| `.env`                 | Generated connection URLs (gitignored)        |
+| `.pgserve/`            | Local Postgres data directory (gitignored)    |
+
+## Tasks
+
+Run from the repo root with `vp run db#<task>`:
+
+| Task             | When to use                                                             |
+| ---------------- | ----------------------------------------------------------------------- |
+| `dev:prepare`    | Start/reuse Postgres and refresh `.env` before dev (used by root `dev`) |
+| `dev:stop`       | Stop the detached Postgres process (run on dev shutdown)                |
+| `generate`       | Regenerate `@prisma/client` after schema changes                        |
+| `migrate-deploy` | Apply pending migrations (production-style; used by root `seed`)        |
+| `pgserve`        | Start Postgres only, on port **8432**                                   |
+| `prepare`        | Ensure Postgres is running and connection env is written                |
+
+Root tasks that depend on this package:
 
 ```bash
-vp run db#pgserve          # start PostgreSQL on port 8432 (data in .pgserve/)
-vp run db#generate         # ensure pgserve + generate Prisma client
-vp run db#migrate-deploy   # apply migrations (starts/reuses pgserve via prepare)
-vp run db#dev:prepare      # free dev ports and start/reuse pgserve
-vp run seed                # seed dev data (root task; depends on db#migrate-deploy)
+vp run dev    # db#dev:prepare → migrate → seed → start apps
+vp run seed   # db#migrate-deploy → scripts/seed.ts
 ```
 
-`db#prepare` starts or reuses pgserve, writes `apps/db/.pgserve/connection.env`, and updates `apps/db/.env`. Copy `.env.defaults` to `.env` only when overriding the generated values.
+## Schema changes
 
-## Schema
-
-Models live in [`src/schema.prisma`](src/schema.prisma) with migrations in [`src/migrations/`](src/migrations/). They mirror [`test-project/api/db/schema.prisma`](../../test-project/api/db/schema.prisma): `UserExample`, `User`, `Post`, `Contact`.
-
-Initial migration:
+1. Edit `prisma/schema.prisma`.
+2. Create and apply a migration:
 
 ```bash
-vp run db#pgserve
-vp run db#generate
-cd apps/db && vp exec prisma migrate dev --name init
+vp run db#dev:prepare
+cd apps/db && vp exec prisma migrate dev --name describe_your_change
 ```
+
+3. Commit the new files under `prisma/migrations/`.
+
+`vp run db#generate` runs automatically as part of the dev prepare flow; run it yourself if you only need the client regenerated.
+
+## Environment
+
+`db#dev:prepare` writes `apps/db/.env` with `DATABASE_URL` and `PRISMA_DATABASE_URL`. See `.env.defaults` for the expected shape.
+
+Override values by editing `.env` locally — it is gitignored. You should not need a separate install step; `pgserve` is already a devDependency of this package.
