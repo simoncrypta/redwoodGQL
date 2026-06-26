@@ -3,6 +3,23 @@ import type { DbAuthHandlerOptions } from "@rwgql/dbauth/server";
 
 import { cookieName } from "../lib/auth.js";
 
+const oneDay = 60 * 60 * 24;
+const invalidCredentials = "Invalid username or password";
+const forgotPasswordMessage =
+  "If an account exists for that email, password reset instructions have been sent.";
+
+const validatePassword = (password: string) => {
+  if (password.length < 12) {
+    return false;
+  }
+
+  const characterClasses = [/[a-z]/, /[A-Z]/, /\d/, /[^a-zA-Z\d]/].filter((pattern) =>
+    pattern.test(password),
+  );
+
+  return characterClasses.length >= 3;
+};
+
 export const dbAuthOptions: DbAuthHandlerOptions = {
   allowedUserFields: ["email", "id", "roles"],
   authFields: {
@@ -18,6 +35,7 @@ export const dbAuthOptions: DbAuthHandlerOptions = {
     attributes: {
       HttpOnly: true,
       Path: "/",
+      // Cross-site web/API deployments should use SameSite=None with Secure.
       SameSite: "Lax",
       Secure: process.env.NODE_ENV === "production",
     },
@@ -26,23 +44,35 @@ export const dbAuthOptions: DbAuthHandlerOptions = {
   db: db as unknown as DbAuthHandlerOptions["db"],
   forgotPassword: {
     errors: {
-      usernameNotFound: "Username not found",
-      usernameRequired: "Username is required",
+      usernameNotFound: forgotPasswordMessage,
+      usernameRequired: "Email is required",
     },
-    expires: 60 * 60 * 24,
-    handler: (user) => user,
+    expires: oneDay,
+    handler: (user, resetToken) => {
+      if (process.env.NODE_ENV === "production") {
+        throw new Error("Forgot password delivery is not configured");
+      }
+
+      console.info("Development password reset token", {
+        email: user.email,
+        resetToken,
+      });
+
+      return { message: forgotPasswordMessage };
+    },
   },
   login: {
     errors: {
-      incorrectPassword: "Incorrect password for ${username}",
-      usernameNotFound: "Username ${username} not found",
-      usernameOrPasswordMissing: "Both username and password are required",
+      incorrectPassword: invalidCredentials,
+      invalidCredentials,
+      usernameNotFound: invalidCredentials,
+      usernameOrPasswordMissing: invalidCredentials,
     },
-    expires: 60 * 60 * 24 * 365 * 10,
+    expires: oneDay * 7,
     handler: (user) => user,
   },
   resetPassword: {
-    allowReusedPassword: true,
+    allowReusedPassword: false,
     errors: {
       resetTokenExpired: "resetToken is expired",
       resetTokenInvalid: "resetToken is invalid",
@@ -66,6 +96,7 @@ export const dbAuthOptions: DbAuthHandlerOptions = {
           salt,
         },
       }),
-    passwordValidation: () => true,
+    passwordValidation: validatePassword,
   },
+  secret: process.env.DB_AUTH_SECRET,
 };

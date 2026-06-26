@@ -1,14 +1,20 @@
 import {
   buildSetCookieHeader,
   clearCookieHeader,
+  createSessionPayload,
   decryptSession,
   encryptSession,
   parseCookieHeader,
-  DEFAULT_DB_AUTH_SECRET,
+  resolveDbAuthSecret,
 } from "./cookie.js";
 import { hashPassword, verifyPassword } from "./password.js";
 import type { DbAuthHandlerOptions, UserType } from "./types.js";
 import { DbAuthError, PasswordValidationError } from "./types.js";
+
+const defaultSessionExpires = 60 * 60 * 24 * 7;
+const genericInvalidCredentials = "Invalid username or password";
+const genericForgotPasswordMessage =
+  "If an account exists for that username, password reset instructions have been sent.";
 
 const sanitizeUser = (user: UserType, allowedUserFields: string[]) => {
   const sanitized: UserType = {};
@@ -33,6 +39,24 @@ const readJsonBody = async (request: Request) => {
   }
 };
 
+const assertSafeAllowedUserFields = (options: DbAuthHandlerOptions) => {
+  const sensitiveFields = new Set([
+    options.authFields.hashedPassword,
+    options.authFields.resetToken,
+    options.authFields.resetTokenExpiresAt,
+    options.authFields.salt,
+    "hashedPassword",
+    "resetToken",
+    "resetTokenExpiresAt",
+    "salt",
+  ]);
+  const exposedField = options.allowedUserFields.find((field) => sensitiveFields.has(field));
+
+  if (exposedField) {
+    throw new DbAuthError(`Refusing to expose sensitive user field "${exposedField}"`);
+  }
+};
+
 const getModel = (options: DbAuthHandlerOptions) => {
   const model = options.db[options.authModelAccessor];
 
@@ -44,9 +68,9 @@ const getModel = (options: DbAuthHandlerOptions) => {
 };
 
 const setSessionCookie = (options: DbAuthHandlerOptions, userId: number) => {
-  const secret = options.secret ?? process.env.DB_AUTH_SECRET ?? DEFAULT_DB_AUTH_SECRET;
-  const value = encryptSession({ id: userId }, secret);
-  const maxAge = options.login?.expires ?? 60 * 60 * 24 * 365 * 10;
+  const secret = resolveDbAuthSecret({ secret: options.secret });
+  const maxAge = options.login?.expires ?? defaultSessionExpires;
+  const value = encryptSession(createSessionPayload(userId, maxAge), secret);
 
   return buildSetCookieHeader(options.cookie.name, value, {
     ...options.cookie.attributes,
@@ -55,12 +79,13 @@ const setSessionCookie = (options: DbAuthHandlerOptions, userId: number) => {
 };
 
 const getSessionUserId = (request: Request, options: DbAuthHandlerOptions) => {
-  const secret = options.secret ?? process.env.DB_AUTH_SECRET ?? DEFAULT_DB_AUTH_SECRET;
   const cookieValue = parseCookieHeader(request.headers.get("cookie"), options.cookie.name);
 
   if (!cookieValue) {
     return null;
   }
+
+  const secret = resolveDbAuthSecret({ secret: options.secret });
 
   return decryptSession(cookieValue, secret)?.id ?? null;
 };
@@ -75,6 +100,7 @@ const login = async (request: Request, options: DbAuthHandlerOptions) => {
   const username = typeof body.username === "string" ? body.username : "";
   const password = typeof body.password === "string" ? body.password : "";
   const errors = options.login?.errors ?? {};
+  const invalidCredentials = errors.invalidCredentials ?? genericInvalidCredentials;
   const model = getModel(options);
   const { authFields } = options;
 
@@ -90,31 +116,17 @@ const login = async (request: Request, options: DbAuthHandlerOptions) => {
   });
 
   if (!user) {
-    return Response.json(
-      {
-        error: interpolate(errors.usernameNotFound ?? "Username ${username} not found", {
-          username,
-        }),
-      },
-      { status: 401 },
-    );
+    return Response.json({ error: invalidCredentials }, { status: 401 });
   }
 
   const salt = readUserString(user, authFields.salt);
   const hashedPassword = readUserString(user, authFields.hashedPassword);
 
   if (!verifyPassword(password, salt, hashedPassword)) {
-    return Response.json(
-      {
-        error: interpolate(errors.incorrectPassword ?? "Incorrect password for ${username}", {
-          username,
-        }),
-      },
-      { status: 401 },
-    );
+    return Response.json({ error: invalidCredentials }, { status: 401 });
   }
 
-  const loggedInUser = options.login?.handler?.(user) ?? user;
+  const loggedInUser = (await options.login?.handler?.(user)) ?? user;
   const userId = Number(loggedInUser[authFields.id]);
 
   return Response.json(sanitizeUser(loggedInUser, options.allowedUserFields), {
@@ -207,8 +219,12 @@ const signup = async (request: Request, options: DbAuthHandlerOptions) => {
       },
     });
   } catch (error) {
+    if (error instanceof DbAuthError) {
+      throw error;
+    }
+
     if (error instanceof Error) {
-      return Response.json({ error: error.message }, { status: 400 });
+      return Response.json({ error: "Unable to create account" }, { status: 400 });
     }
 
     throw error;
@@ -229,15 +245,16 @@ const forgotPassword = async (request: Request, options: DbAuthHandlerOptions) =
     );
   }
 
+  if (!options.forgotPassword?.handler) {
+    return Response.json({ error: "Forgot password handler is not configured" }, { status: 500 });
+  }
+
   const user = await model.findUnique({
     where: { [authFields.username]: username },
   });
 
   if (!user) {
-    return Response.json(
-      { error: errors.usernameNotFound ?? "Username not found" },
-      { status: 404 },
-    );
+    return Response.json({ message: genericForgotPasswordMessage });
   }
 
   const resetToken = crypto.randomUUID();
@@ -253,9 +270,9 @@ const forgotPassword = async (request: Request, options: DbAuthHandlerOptions) =
     where: { [authFields.id]: user[authFields.id] },
   });
 
-  const responseUser = options.forgotPassword?.handler?.(updatedUser, resetToken) ?? updatedUser;
+  const response = await options.forgotPassword.handler(updatedUser, resetToken);
 
-  return Response.json(sanitizeUser(responseUser, options.allowedUserFields));
+  return Response.json(response ?? { message: genericForgotPasswordMessage });
 };
 
 const resetPassword = async (request: Request, options: DbAuthHandlerOptions) => {
@@ -323,7 +340,7 @@ const resetPassword = async (request: Request, options: DbAuthHandlerOptions) =>
     where: { [authFields.id]: user[authFields.id] },
   });
 
-  const shouldLogin = options.resetPassword?.handler?.(updatedUser) ?? true;
+  const shouldLogin = (await options.resetPassword?.handler?.(updatedUser)) ?? true;
   const headers: Record<string, string> = {};
 
   if (shouldLogin) {
@@ -408,6 +425,8 @@ export const handleDbAuthRequest = async (
   if (request.method !== "POST") {
     return Response.json({ error: "Method not allowed" }, { status: 405 });
   }
+
+  assertSafeAllowedUserFields(options);
 
   switch (method) {
     case "login":

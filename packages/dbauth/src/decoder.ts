@@ -1,21 +1,22 @@
-import { parseCookieHeader, decryptSession, DEFAULT_DB_AUTH_SECRET } from "./cookie.js";
+import { decryptSession, parseCookieHeader, resolveDbAuthSecret } from "./cookie.js";
 
-export const createAuthDecoder =
-  ({
-    cookieName,
-    secret = process.env.DB_AUTH_SECRET ?? DEFAULT_DB_AUTH_SECRET,
-  }: {
-    cookieName: string;
-    secret?: string;
-  }) =>
-  (request: Request): { id: number } | null => {
+export const createAuthDecoder = ({
+  cookieName,
+  secret,
+}: {
+  cookieName: string;
+  secret?: string;
+}) => {
+  const resolvedSecret = resolveDbAuthSecret({ secret });
+
+  return (request: Request): { id: number } | null => {
     const cookieValue = parseCookieHeader(request.headers.get("cookie"), cookieName);
 
     if (!cookieValue) {
       return null;
     }
 
-    const session = decryptSession(cookieValue, secret);
+    const session = decryptSession(cookieValue, resolvedSecret);
 
     if (!session) {
       return null;
@@ -23,3 +24,4 @@ export const createAuthDecoder =
 
     return { id: session.id };
   };
+};

@@ -4,8 +4,49 @@ export const DEFAULT_DB_AUTH_SECRET = "dev-only-dbauth-secret-change-in-producti
 
 const deriveKey = (secret: string) => createHash("sha256").update(secret).digest();
 
+export type ResolveDbAuthSecretOptions = {
+  readonly env?: Record<string, string | undefined>;
+  readonly isProduction?: boolean;
+  readonly secret?: string;
+};
+
 export type SessionPayload = {
+  readonly exp: number;
   readonly id: number;
+  readonly iat: number;
+};
+
+const getProcessEnv = (): Record<string, string | undefined> =>
+  typeof process === "undefined" ? {} : process.env;
+
+export const resolveDbAuthSecret = ({
+  env = getProcessEnv(),
+  isProduction = env.NODE_ENV === "production",
+  secret,
+}: ResolveDbAuthSecretOptions = {}) => {
+  const resolvedSecret = secret || env.DB_AUTH_SECRET || DEFAULT_DB_AUTH_SECRET;
+
+  if (isProduction && resolvedSecret === DEFAULT_DB_AUTH_SECRET) {
+    throw new Error(
+      "DB_AUTH_SECRET must be set to a strong non-default value before using dbAuth in production.",
+    );
+  }
+
+  return resolvedSecret;
+};
+
+export const createSessionPayload = (
+  id: number,
+  expiresInSeconds: number,
+  now = Date.now(),
+): SessionPayload => {
+  const iat = Math.floor(now / 1000);
+
+  return {
+    exp: iat + expiresInSeconds,
+    id,
+    iat,
+  };
 };
 
 export const encryptSession = (payload: SessionPayload, secret: string) => {
@@ -17,7 +58,11 @@ export const encryptSession = (payload: SessionPayload, secret: string) => {
   return Buffer.concat([iv, tag, encrypted]).toString("base64url");
 };
 
-export const decryptSession = (value: string, secret: string): SessionPayload | null => {
+export const decryptSession = (
+  value: string,
+  secret: string,
+  now = Date.now(),
+): SessionPayload | null => {
   try {
     const buffer = Buffer.from(value, "base64url");
     const iv = buffer.subarray(0, 12);
@@ -30,8 +75,14 @@ export const decryptSession = (value: string, secret: string): SessionPayload | 
     );
 
     const payload = JSON.parse(decrypted) as SessionPayload;
+    const currentTime = Math.floor(now / 1000);
 
-    if (typeof payload.id !== "number") {
+    if (
+      typeof payload.id !== "number" ||
+      typeof payload.iat !== "number" ||
+      typeof payload.exp !== "number" ||
+      payload.exp <= currentTime
+    ) {
       return null;
     }
 

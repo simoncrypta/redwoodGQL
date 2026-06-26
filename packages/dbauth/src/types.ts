@@ -1,5 +1,7 @@
 export type UserType = Record<string, unknown>;
 
+type MaybePromise<T> = T | Promise<T>;
+
 export type DbAuthModel = {
   create(args: { data: Record<string, unknown> }): Promise<UserType>;
   findFirst(args: { where: Record<string, unknown> }): Promise<UserType | null>;
@@ -38,16 +40,17 @@ export type DbAuthHandlerOptions<TUser extends UserType = UserType, TAttributes 
       usernameRequired?: string;
     };
     expires?: number;
-    handler?: (user: UserType, resetToken: string) => UserType;
+    handler?: (user: UserType, resetToken: string) => MaybePromise<Record<string, unknown> | void>;
   };
   login?: {
     errors?: {
       incorrectPassword?: string;
+      invalidCredentials?: string;
       usernameNotFound?: string;
       usernameOrPasswordMissing?: string;
     };
     expires?: number;
-    handler?: (user: TUser) => TUser;
+    handler?: (user: TUser) => MaybePromise<TUser>;
   };
   resetPassword?: {
     allowReusedPassword?: boolean;
@@ -57,7 +60,7 @@ export type DbAuthHandlerOptions<TUser extends UserType = UserType, TAttributes 
       resetTokenRequired?: string;
       reusedPassword?: string;
     };
-    handler?: (user: TUser) => boolean;
+    handler?: (user: TUser) => MaybePromise<boolean>;
   };
   secret?: string;
   signup?: {
@@ -70,7 +73,7 @@ export type DbAuthHandlerOptions<TUser extends UserType = UserType, TAttributes 
       salt: string;
       userAttributes: TAttributes;
       username: string;
-    }) => Promise<TUser> | TUser;
+    }) => MaybePromise<TUser>;
     passwordValidation?: (password: string) => boolean;
   };
 };

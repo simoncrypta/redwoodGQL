@@ -3,6 +3,7 @@ import { createYoga } from "graphql-yoga";
 import { createAuthDecoder } from "@rwgql/dbauth/server";
 import { createAuthYogaPlugin } from "@rwgql/auth/graphql";
 
+import { dbAuthOptions } from "../auth/dbAuthConfig.js";
 import { cookieName, getCurrentUser } from "../lib/auth.js";
 import { getSchema } from "../schema/buildSchema.js";
 
@@ -12,7 +13,7 @@ export type YogaContext = {
   readonly request: FastifyRequest;
 };
 
-const authDecoder = createAuthDecoder({ cookieName });
+const authDecoder = createAuthDecoder({ cookieName, secret: dbAuthOptions.secret });
 
 const toWebRequest = (request: FastifyRequest) =>
   new Request(`http://localhost${request.url}`, {

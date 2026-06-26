@@ -48,16 +48,23 @@ type IdParams = {
 // Must match the dbAuth cookie name configured in apps/graphql (src/lib/auth.ts).
 const cookieName = "session_8911";
 
-const authDecoder = createAuthDecoder({ cookieName });
+const authDecoder = createAuthDecoder({
+  cookieName,
+  secret: import.meta.env.DB_AUTH_SECRET,
+});
 
 const sessionMiddleware = ({ ctx, request }: RequestInfo) => {
   ctx.session = authDecoder(request);
 };
 
-const requireAuth = ({ ctx }: RequestInfo) => {
+const requireAuth = ({ ctx, request }: RequestInfo) => {
   if (!ctx.session) {
+    const requestUrl = new URL(request.url);
+    const loginUrl = new URL("/login", requestUrl);
+    loginUrl.searchParams.set("redirectTo", `${requestUrl.pathname}${requestUrl.search}`);
+
     return new Response(null, {
-      headers: { Location: "/login" },
+      headers: { Location: `${loginUrl.pathname}${loginUrl.search}` },
       status: 302,
     });
   }
@@ -130,22 +137,39 @@ export default defineApp([
   route("/reset-password", (requestInfo) =>
     renderPage(requestInfo, <ResetPasswordPage resetToken="poc-reset-token" />),
   ),
-  route("/contacts/new", (requestInfo) => renderContactsPage(requestInfo, <NewContactPage />)),
-  route("/contacts/:id/edit", (requestInfo: RequestInfo<IdParams>) =>
-    renderContactsPage(requestInfo, <EditContactPage id={routeId(requestInfo)} />),
-  ),
-  route("/contacts/:id", (requestInfo: RequestInfo<IdParams>) =>
-    renderContactsPage(requestInfo, <ContactPage id={routeId(requestInfo)} />),
-  ),
-  route("/contacts", (requestInfo) => renderContactsPage(requestInfo, <ContactsPage />)),
-  route("/posts/new", (requestInfo) => renderPostsPage(requestInfo, <NewPostPage />)),
-  route("/posts/:id/edit", (requestInfo: RequestInfo<IdParams>) =>
-    renderPostsPage(requestInfo, <EditPostPage id={routeId(requestInfo)} />),
-  ),
-  route("/posts/:id", (requestInfo: RequestInfo<IdParams>) =>
-    renderPostsPage(requestInfo, <PostPage id={routeId(requestInfo)} />),
-  ),
-  route("/posts", (requestInfo) => renderPostsPage(requestInfo, <PostsPage />)),
+  route("/contacts/new", [
+    requireAuth,
+    (requestInfo) => renderContactsPage(requestInfo, <NewContactPage />),
+  ]),
+  route("/contacts/:id/edit", [
+    requireAuth,
+    (requestInfo: RequestInfo<IdParams>) =>
+      renderContactsPage(requestInfo, <EditContactPage id={routeId(requestInfo)} />),
+  ]),
+  route("/contacts/:id", [
+    requireAuth,
+    (requestInfo: RequestInfo<IdParams>) =>
+      renderContactsPage(requestInfo, <ContactPage id={routeId(requestInfo)} />),
+  ]),
+  route("/contacts", [
+    requireAuth,
+    (requestInfo) => renderContactsPage(requestInfo, <ContactsPage />),
+  ]),
+  route("/posts/new", [
+    requireAuth,
+    (requestInfo) => renderPostsPage(requestInfo, <NewPostPage />),
+  ]),
+  route("/posts/:id/edit", [
+    requireAuth,
+    (requestInfo: RequestInfo<IdParams>) =>
+      renderPostsPage(requestInfo, <EditPostPage id={routeId(requestInfo)} />),
+  ]),
+  route("/posts/:id", [
+    requireAuth,
+    (requestInfo: RequestInfo<IdParams>) =>
+      renderPostsPage(requestInfo, <PostPage id={routeId(requestInfo)} />),
+  ]),
+  route("/posts", [requireAuth, (requestInfo) => renderPostsPage(requestInfo, <PostsPage />)]),
   route("/waterfall/:id", (requestInfo: RequestInfo<IdParams>) =>
     renderBlogPage(requestInfo, <WaterfallPage id={routeId(requestInfo)} />),
   ),

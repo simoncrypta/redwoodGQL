@@ -9,12 +9,26 @@ import { toast, Toaster } from "@/app/redwood/toast";
 
 import { useAuth } from "@/app/auth";
 
+const getSafeRedirectTo = () => {
+  if (typeof window === "undefined") {
+    return routes.home();
+  }
+
+  const redirectTo = new URLSearchParams(window.location.search).get("redirectTo");
+
+  if (!redirectTo || !redirectTo.startsWith("/") || redirectTo.startsWith("//")) {
+    return routes.home();
+  }
+
+  return redirectTo;
+};
+
 const LoginPage = () => {
   const { isAuthenticated, logIn } = useAuth();
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate(routes.home());
+      navigate(getSafeRedirectTo());
     }
   }, [isAuthenticated]);
 
@@ -35,6 +49,7 @@ const LoginPage = () => {
       toast.error(response.error);
     } else {
       toast.success("Welcome back!");
+      navigate(getSafeRedirectTo());
     }
   };
 
