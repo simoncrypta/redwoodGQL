@@ -6,8 +6,16 @@ import { dbAuthOptions } from "./src/auth/dbAuthConfig.js";
 import { createGraphqlYoga } from "./src/functions/graphql.js";
 import { db } from "db";
 
+const isDev = process.env.NODE_ENV !== "production";
+
+// Fastify's per-request `→`/`←` logs are noisy; opt in with GRAPHQL_REQUEST_LOGGING=true.
+const enableRequestLogging = process.env.GRAPHQL_REQUEST_LOGGING === "true";
+
 const app = Fastify({
-  logger: true,
+  disableRequestLogging: !enableRequestLogging,
+  logger: isDev
+    ? { transport: { target: "@rwgql/log-formatter", options: { name: "graphql" } } }
+    : true,
 });
 
 await app.register(cors, {

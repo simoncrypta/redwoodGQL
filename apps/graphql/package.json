@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "vp run @rwgql/auth#build && vp run @rwgql/dbauth#build && nitro build",
-    "check": "vp run @rwgql/auth#build && vp run @rwgql/dbauth#build && vp check",
+    "build": "vp run @rwgql/auth#build && vp run @rwgql/dbauth#build && vp run @rwgql/log-formatter#build && nitro build",
+    "check": "vp run @rwgql/auth#build && vp run @rwgql/dbauth#build && vp run @rwgql/log-formatter#build && vp check",
     "start": "node .output/server/index.mjs"
   },
   "dependencies": {
@@ -14,6 +14,7 @@
     "@graphql-tools/schema": "^10.0.33",
     "@rwgql/auth": "workspace:*",
     "@rwgql/dbauth": "workspace:*",
+    "@rwgql/log-formatter": "workspace:*",
     "db": "workspace:*",
     "fastify": "^5.8.5",
     "graphql": "^16.14.2",

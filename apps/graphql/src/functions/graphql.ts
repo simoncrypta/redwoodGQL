@@ -1,5 +1,6 @@
 import type { FastifyBaseLogger, FastifyReply, FastifyRequest } from "fastify";
-import { createYoga } from "graphql-yoga";
+import type { DocumentNode } from "graphql";
+import { createYoga, type Plugin } from "graphql-yoga";
 import { createAuthDecoder } from "@rwgql/dbauth/server";
 import { createAuthYogaPlugin } from "@rwgql/auth/graphql";
 
@@ -14,6 +15,34 @@ export type YogaContext = {
 };
 
 const authDecoder = createAuthDecoder({ cookieName, secret: dbAuthOptions.secret });
+
+const getOperationName = (
+  document: DocumentNode | undefined,
+  fallback: string | null | undefined,
+): string | undefined => {
+  if (fallback) {
+    return fallback;
+  }
+
+  const operation = document?.definitions.find((def) => def.kind === "OperationDefinition");
+  return operation && "name" in operation ? operation.name?.value : undefined;
+};
+
+// Emits one lean log per GraphQL operation: the operation/resolver name plus
+// its execution time, e.g. `ListPosts 12.4ms`.
+const createOperationLoggerPlugin = (logger: FastifyBaseLogger): Plugin<YogaContext> => ({
+  onExecute({ args }) {
+    const start = performance.now();
+
+    return {
+      onExecuteDone() {
+        const responseTime = performance.now() - start;
+        const operationName = getOperationName(args.document, args.operationName);
+        logger.info({ operationName, responseTime }, operationName ?? "anonymous operation");
+      },
+    };
+  },
+});
 
 const toWebRequest = (request: FastifyRequest) =>
   new Request(`http://localhost${request.url}`, {
@@ -37,6 +66,7 @@ export const createGraphqlYoga = (logger: FastifyBaseLogger) =>
       warn: (...args) => args.forEach((arg) => logger.warn(arg)),
     },
     plugins: [
+      createOperationLoggerPlugin(logger),
       createAuthYogaPlugin({
         decodeSession: (request) => {
           const webRequest =
