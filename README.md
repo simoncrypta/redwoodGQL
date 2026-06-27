@@ -73,14 +73,18 @@ redwoodGQL/
 │   ├── web/          # RedwoodSDK React app with Apollo Client
 │   ├── graphql/      # GraphQL Yoga server on Fastify (Nitro)
 │   ├── db/           # Prisma schema, migrations, and database layer
-│   ├── domain/       # Business logic shared across delivery mechanisms
-│   └── jobs/         # Background workers and queues
+│   ├── domain/       # Business logic (planned; services live in graphql/ today)
+│   └── jobs/         # Background workers and queues (planned)
 ├── packages/
 │   ├── auth/         # @rwgql/auth — pluggable auth abstraction
 │   ├── dbauth/       # @rwgql/dbauth — self-hosted dbAuth provider
 │   ├── cell/         # @rwgql/cell — Redwood-style Cells for Apollo
 │   ├── rwsdk-apollo-client/ # Apollo integration for RedwoodSDK
-│   └── utils/        # Shared utilities
+│   ├── pgserve-dev/  # @rwgql/pgserve-dev — local Postgres dev workflow
+│   ├── prisma-dev/   # @rwgql/prisma-dev — Prisma migrate/generate tasks
+│   ├── task-core/    # @rwgql/task-core — parallel dev orchestration
+│   ├── log-formatter/# @rwgql/log-formatter — GraphQL operation logging
+│   └── utils/        # @rwgql/utils — shared utilities (stub)
 └── test-project/     # Legacy RedwoodJS reference app for comparison
 ```
 
@@ -99,75 +103,45 @@ Domain services
 Prisma → PostgreSQL
 ```
 
+Services and resolvers currently live under `apps/graphql`; `apps/domain` is reserved for a
+future extraction layer.
+
 ## Packages
 
 | Package                      | Description                                             |
 | ---------------------------- | ------------------------------------------------------- |
-| `@rwgql/auth`                | Pluggable auth — Yoga plugins                           |
-| `@rwgql/dbauth`              | Self-hosted dbAuth for Fastify/Yoga and RWSDK           |
+| `@rwgql/auth`                | Pluggable auth — Yoga plugins, `requireAuth`/`skipAuth` |
+| `@rwgql/dbauth`              | Self-hosted dbAuth for Fastify/Yoga and RWSDK web       |
 | `@rwgql/cell`                | `createCell` — query components with Loading/Empty/etc. |
 | `@rwgql/rwsdk-apollo-client` | Apollo Client provider for RedwoodSDK                   |
+| `@rwgql/pgserve-dev`         | Local Postgres via pgserve — start, env sync, teardown  |
+| `@rwgql/prisma-dev`          | Prisma dev tasks — migrate, generate, env wiring        |
+| `@rwgql/task-core`           | Vite+ task helpers — parallel dev server orchestration  |
+| `@rwgql/log-formatter`       | Vite-style per-operation GraphQL logging                |
 
 ## Getting Started
 
 **Prerequisites:** Node.js >= 22.18.0
 
-This project uses [Vite+](https://viteplus.dev/guide/) (`vp`) as its unified toolchain — it manages the runtime, package
-manager, and frontend tooling in one place.
-
-### 1. Install `vp`
-
-macOS / Linux:
-
-```bash
-curl -fsSL https://vite.plus | bash
-```
-
-Windows (PowerShell):
-
-```powershell
-irm https://vite.plus/ps1 | iex
-```
-
-Open a new shell and verify:
-
-```bash
-vp help
-```
-
-### 2. Install dependencies
-
 From the repo root:
 
 ```bash
-vp install
-```
-
-### 3. Start the dev server
-
-Install [pgserve/autopg](https://github.com/automagik-dev/autopg) for local PostgreSQL, or rely on the `pgserve` npm
-package (installed automatically via `vp install`).
-
-```bash
+curl -fsSL https://vite.plus | bash
 vp install
 vp run dev
 ```
 
-This starts pgserve, applies migrations, seeds the database, and runs the web app and GraphQL server in parallel. The
-web app runs on [http://localhost:8910](http://localhost:8910); GraphQL Yoga runs on
-[http://localhost:8911/graphql](http://localhost:8911/graphql).
+Open a new shell after installing `vp` if the command is not found. `vp run dev` starts local Postgres (pgserve),
+migrates, seeds, and runs the web app and GraphQL server in parallel:
 
-### Demo login
+- Web — [http://localhost:8910](http://localhost:8910)
+- GraphQL — [http://localhost:8911/graphql](http://localhost:8911/graphql)
+- Auth — [http://localhost:8911/auth](http://localhost:8911/auth)
 
-After seeding, you can log in with these accounts (password for both is `password`):
+**Demo login** (password for both is `password`): `ada@example.com` (ADMIN), `grace@example.com` (USER). No extra
+environment variables are required for local development.
 
-| Email               | Role  |
-| ------------------- | ----- |
-| `ada@example.com`   | ADMIN |
-| `grace@example.com` | USER  |
-
-Auth runs on the GraphQL server at [http://localhost:8911/auth](http://localhost:8911/auth) using `@rwgql/dbauth`. No
-extra environment variables are required for local development.
+See [Vite+](https://viteplus.dev/guide/) for Windows install and other `vp` commands.
 
 ## Development
 
@@ -194,8 +168,46 @@ vp check
 
 ## Status
 
-RedwoodGQL is an early proof of concept. Packages and apps are under active development. APIs and folder structure may
-change.
+RedwoodGQL is an early proof of concept. The demo app runs end-to-end locally; APIs and layout
+may still change.
+
+### Working today
+
+- **Dev workflow** — `vp run dev` starts Postgres (pgserve), migrates, seeds, and runs web +
+  GraphQL in parallel
+- **Web app** — RedwoodSDK + Apollo Client; scaffold pages (Posts, Contacts, Blog) using Cells
+  and typed GraphQL codegen
+- **GraphQL API** — Yoga on Fastify with SDL, resolvers, Prisma services, and auth directives
+- **Auth** — `@rwgql/dbauth` (login, signup, logout, forgot/reset password), session cookies,
+  web route guards, and `requireAuth`/`skipAuth` on the schema
+- **Data layer** — Prisma schema, migrations, and seed data in `apps/db`
+- **Tooling packages** — `@rwgql/pgserve-dev`, `@rwgql/prisma-dev`, `@rwgql/task-core`,
+  `@rwgql/log-formatter`
+
+### Parity checklist vs `test-project/`
+
+Compared to the classic RedwoodJS GraphQL scaffold in `test-project/`, `apps/` still needs:
+
+#### High priority
+
+- [ ] Remove or isolate legacy fixture GraphQL in `apps/web` (`fixtureData.ts`, `schema.ts`, `route.ts`)
+- [ ] Fix reset-password flow — read `?resetToken=` from the URL instead of hardcoded `poc-reset-token`
+- [ ] Port API tests from `test-project/api` — service tests, directive tests, scenario fixtures
+- [ ] Extract `apps/domain/` — move business logic out of `apps/graphql/src/services/`
+
+#### Medium priority
+
+- [ ] Add web/Cell tests (Vitest) — pages, Cells, formatters
+- [ ] Server-side GraphQL typegen — generated resolver types from SDL instead of hand-written types
+- [ ] Wire global fatal error boundary in the RWSDK worker
+
+#### Lower priority / by design
+
+- [ ] Prerender and `routeParameters` — Redwood SSG for `/`, `/about`, `/blog-post/:id`, `/waterfall/:id`, etc.
+- [ ] Storybook + Cell mocks
+- [ ] `apps/jobs/` — background workers and queues
+- [ ] Email delivery for password reset (both stacks are stub/console-only today)
+- [ ] Scaffold/generator tooling — Redwood CLI replaced by manual structure + Vite+ for now
 
 ## Further Reading
 
