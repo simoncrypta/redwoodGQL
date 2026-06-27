@@ -27,6 +27,8 @@ dist-ssr
 # AI agent worktrees
 .claude/worktrees/
 
+.qmd/
+
 # Local PostgreSQL (pgserve)
 apps/db/.pgserve/
 apps/db/.env

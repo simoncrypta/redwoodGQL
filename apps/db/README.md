@@ -10,7 +10,8 @@ import { db, type User } from "db";
 
 ## Day to day
 
-From the repo root, `vp run dev` handles the database for you: start or reuse local Postgres (via [pgserve](https://www.npmjs.com/package/pgserve)), apply migrations, generate the Prisma client, and seed data.
+From the repo root, `vp run dev` handles the database for you: start or reuse local Postgres (via
+[pgserve](https://www.npmjs.com/package/pgserve)), apply migrations, generate the Prisma client, and seed data.
 
 You usually do not need to run anything in this directory manually.
 
@@ -56,12 +57,15 @@ vp run db#dev:prepare
 cd apps/db && vp exec prisma migrate dev --name describe_your_change
 ```
 
-3. Commit the new files under `prisma/migrations/`.
+1. Commit the new files under `prisma/migrations/`.
 
-`vp run db#generate` runs automatically as part of the dev prepare flow; run it yourself if you only need the client regenerated.
+`vp run db#generate` runs automatically as part of the dev prepare flow; run it yourself if you only need the client
+regenerated.
 
 ## Environment
 
-`db#dev:prepare` writes `apps/db/.env` with `DATABASE_URL` and `PRISMA_DATABASE_URL`. See `.env.defaults` for the expected shape.
+`db#dev:prepare` writes `apps/db/.env` with `DATABASE_URL` and `PRISMA_DATABASE_URL`. See `.env.defaults` for the
+expected shape.
 
-Override values by editing `.env` locally — it is gitignored. You should not need a separate install step; `pgserve` is already a devDependency of this package.
+Override values by editing `.env` locally — it is gitignored. You should not need a separate install step; `pgserve` is
+already a devDependency of this package.

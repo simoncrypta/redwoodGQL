@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "ready": "vp check && vp run -r test && vp run -r build",
+    "ready": "vp check && vp run check:markdown && vp run -r test && vp run -r build",
     "prepare": "vp config"
   },
   "devDependencies": {
@@ -13,6 +13,7 @@
     "@rwgql/prisma-dev": "workspace:*",
     "@rwgql/task-core": "workspace:*",
     "db": "workspace:*",
+    "markdownlint-cli2": "^0.22.1",
     "tsx": "catalog:",
     "typescript": "catalog:",
     "vite-plus": "catalog:"

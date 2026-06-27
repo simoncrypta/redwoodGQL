@@ -9,6 +9,7 @@ const devCommand = `RWGQL_DEV_STOP_TASKS=${devStopTasks.join(",")} RWGQL_DEV_TAS
 export default defineConfig({
   staged: {
     "*": "vp check --fix",
+    "*.md": "markdownlint-cli2 --fix",
   },
   fmt: {
     ignorePatterns: ["test-project/**"],
@@ -32,6 +33,10 @@ export default defineConfig({
   run: {
     cache: true,
     tasks: {
+      "check:markdown": {
+        command: "markdownlint-cli2",
+        input: [{ pattern: "**/*.md", base: "workspace" }, ".markdownlint-cli2.jsonc"],
+      },
       dev: {
         command: devCommand,
         dependsOn: ["db#dev:prepare", "seed", "graphql#codegen"],
