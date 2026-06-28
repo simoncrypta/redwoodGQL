@@ -40,7 +40,7 @@ export default defineConfig({
   },
   test: {
     exclude: [...configDefaults.exclude, "test-project/**"],
-    projects: ["packages/*"],
+    projects: ["packages/*", "apps/graphql"],
   },
   run: {
     cache: true,

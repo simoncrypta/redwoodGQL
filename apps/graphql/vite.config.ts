@@ -7,6 +7,12 @@ const graphqlPackageBuilds = [
 ] as const;
 
 export default defineConfig({
+  test: {
+    environment: "node",
+    fileParallelism: false,
+    include: ["src/**/*.test.ts"],
+    setupFiles: ["src/test/setup.ts"],
+  },
   fmt: {
     ignorePatterns: [".nitro/**", ".output/**", "schema.graphql"],
   },

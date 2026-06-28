@@ -5,7 +5,7 @@
     "moduleDetection": "force",
     "module": "esnext",
     "moduleResolution": "bundler",
-    "types": ["node"],
+    "types": ["node", "vite-plus/test"],
     "strict": true,
     "noUnusedLocals": true,
     "noEmit": true,
