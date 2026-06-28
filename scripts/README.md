@@ -20,9 +20,12 @@ load that module via an absolute `--config` path derived from the workspace root
 
 Root [`vite.config.ts`](../vite.config.ts) orchestrates workspace flows:
 
-- `dev` — depends on `db#dev:prepare`, `seed`, and `graphql#codegen`; spawns `rwsdk#dev`, `graphql#dev`, and
-  `graphql#codegen:watch` in parallel; on Ctrl+C runs `db#dev:stop` to shut down detached pgserve
+- `bootstrap` — packs workspace tooling packages via `dependsOn` (`vp run bootstrap`; also runs automatically before `dev`
+  and `ready`)
+- `dev` — depends on `bootstrap`, `db#dev:prepare`, `seed`, and `graphql#codegen`; spawns `rwsdk#dev`, `graphql#dev`,
+  and `graphql#codegen:watch` in parallel; on Ctrl+C runs `db#dev:stop` to shut down detached pgserve
 - `seed` — runs `scripts/seed.ts`; depends on `db#migrate-deploy`
+- `ready` — format, lint, type-check, markdown lint, tests, and build across the workspace (`vp run ready`)
 
 [`apps/db/vite.config.ts`](../apps/db/vite.config.ts) owns the db task graph via `createPgserveTasks()` and
 `createPrismaTasks()`:

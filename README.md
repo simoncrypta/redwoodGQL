@@ -121,18 +121,18 @@ future extraction layer.
 
 ## Getting Started
 
-**Prerequisites:** Node.js >= 22.18.0
+**Prerequisites:** [Vite+](https://viteplus.dev/guide/) (`vp`). Vite+ manages Node.js (>= 22.18.0) and pnpm for this repo.
 
-From the repo root:
+First time with Vite+? Install `vp` once using the [Vite+ install guide](https://viteplus.dev/guide/), then from the
+repo root:
 
 ```bash
-curl -fsSL https://vite.plus | bash
 vp install
 vp run dev
 ```
 
-Open a new shell after installing `vp` if the command is not found. `vp run dev` starts local Postgres (pgserve),
-migrates, seeds, and runs the web app and GraphQL server in parallel:
+`vp run dev` bootstraps workspace packages, starts Postgres, migrates, seeds, and runs the web app and GraphQL server in
+parallel:
 
 - Web — [http://localhost:8910](http://localhost:8910)
 - GraphQL — [http://localhost:8911/graphql](http://localhost:8911/graphql)
@@ -141,7 +141,7 @@ migrates, seeds, and runs the web app and GraphQL server in parallel:
 **Demo login** (password for both is `password`): `ada@example.com` (ADMIN), `grace@example.com` (USER). No extra
 environment variables are required for local development.
 
-See [Vite+](https://viteplus.dev/guide/) for Windows install and other `vp` commands.
+See [Vite+](https://viteplus.dev/guide/) for Windows install, troubleshooting, and other `vp` commands.
 
 ## Development
 

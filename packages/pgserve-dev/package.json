@@ -16,16 +16,16 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/index.d.mts",
-      "default": "./dist/index.mjs"
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
     },
     "./env": {
-      "types": "./dist/env/index.d.mts",
-      "default": "./dist/env/index.mjs"
+      "types": "./src/env/index.ts",
+      "default": "./src/env/index.ts"
     },
     "./tasks": {
-      "types": "./dist/tasks.d.mts",
-      "default": "./dist/tasks.mjs"
+      "types": "./src/tasks.ts",
+      "default": "./src/tasks.ts"
     },
     "./package.json": "./package.json"
   },

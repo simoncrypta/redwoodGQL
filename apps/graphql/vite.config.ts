@@ -1,5 +1,11 @@
 import { defineConfig } from "vite-plus";
 
+const graphqlPackageBuilds = [
+  "@rwgql/auth#build",
+  "@rwgql/dbauth#build",
+  "@rwgql/log-formatter#build",
+] as const;
+
 export default defineConfig({
   fmt: {
     ignorePatterns: [".nitro/**", ".output/**", "schema.graphql"],
@@ -13,9 +19,17 @@ export default defineConfig({
   },
   run: {
     tasks: {
+      build: {
+        command: "nitro build",
+        dependsOn: [...graphqlPackageBuilds],
+      },
+      check: {
+        command: "vp check",
+        dependsOn: [...graphqlPackageBuilds],
+      },
       dev: {
-        command:
-          "vp run @rwgql/auth#build && vp run @rwgql/dbauth#build && vp run @rwgql/log-formatter#build && nitro dev",
+        command: "nitro dev",
+        dependsOn: [...graphqlPackageBuilds],
         cache: false,
       },
       "export-schema": {

@@ -4,7 +4,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "ready": "vp check && vp run check:markdown && vp run -r test && vp run -r build",
     "prepare": "vp config"
   },
   "devDependencies": {

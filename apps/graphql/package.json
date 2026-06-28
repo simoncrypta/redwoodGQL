@@ -4,8 +4,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "vp run @rwgql/auth#build && vp run @rwgql/dbauth#build && vp run @rwgql/log-formatter#build && nitro build",
-    "check": "vp run @rwgql/auth#build && vp run @rwgql/dbauth#build && vp run @rwgql/log-formatter#build && vp check",
     "start": "node .output/server/index.mjs"
   },
   "dependencies": {

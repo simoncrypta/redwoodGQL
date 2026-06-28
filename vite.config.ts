@@ -6,6 +6,18 @@ const devTasks = ["rwsdk#dev", "graphql#dev", "graphql#codegen:watch"] as const;
 const devStopTasks = ["db#dev:stop"] as const;
 const devCommand = `RWGQL_DEV_STOP_TASKS=${devStopTasks.join(",")} RWGQL_DEV_TASKS=${devTasks.join(",")} ${createBinCommand("@rwgql/task-core", "rwgql-dev")}`;
 
+const bootstrapBuilds = [
+  "@rwgql/task-core#build",
+  "@rwgql/pgserve-dev#build",
+  "@rwgql/prisma-dev#build",
+  "@rwgql/auth#build",
+  "@rwgql/dbauth#build",
+  "@rwgql/log-formatter#build",
+  "@rwgql/cell#build",
+  "utils#build",
+  "@rwgql/rwsdk-apollo-client#build",
+] as const;
+
 export default defineConfig({
   staged: {
     "*": "vp check --fix",
@@ -33,19 +45,27 @@ export default defineConfig({
   run: {
     cache: true,
     tasks: {
+      bootstrap: {
+        command: "node -e \"console.info('Workspace tooling packages built')\"",
+        dependsOn: [...bootstrapBuilds],
+      },
       "check:markdown": {
         command: "markdownlint-cli2",
         input: [{ pattern: "**/*.md", base: "workspace" }, ".markdownlint-cli2.jsonc"],
       },
       dev: {
         command: devCommand,
-        dependsOn: ["db#dev:prepare", "seed", "graphql#codegen"],
+        dependsOn: ["bootstrap", "db#dev:prepare", "seed", "graphql#codegen"],
         cache: false,
       },
       seed: {
         command: "tsx scripts/seed.ts",
-        dependsOn: ["db#migrate-deploy", "@rwgql/dbauth#build"],
+        dependsOn: ["db#migrate-deploy"],
         cache: false,
+      },
+      ready: {
+        dependsOn: ["bootstrap"],
+        command: "vp check && vp run check:markdown && vp run -r test && vp run -r build",
       },
     },
   },
