@@ -3,6 +3,12 @@ import type { TaskDefinition, TaskPluginContext } from "@rwgql/task-core/vite";
 import { buildPgserveConfigArg } from "./config/resolveConfig.ts";
 import type { PgserveDevConfig } from "./types.ts";
 
+const PGSERVE_BUILD_TASK = "@rwgql/pgserve-dev#build";
+
+function withPgserveBuildDep(dependsOn: string[] = []): string[] {
+  return dependsOn.includes(PGSERVE_BUILD_TASK) ? dependsOn : [PGSERVE_BUILD_TASK, ...dependsOn];
+}
+
 function pgserveTaskCommand(
   ctx: TaskPluginContext,
   cliName: string,
@@ -25,11 +31,12 @@ export function createPgserveTasks(
   const tasks: Record<string, TaskDefinition> = {
     pgserve: {
       command: pgserveTaskCommand(ctx, "rwgql-pgserve-start", config),
+      dependsOn: withPgserveBuildDep(),
       cache: false,
     },
     prepare: {
       command: pgserveTaskCommand(ctx, "rwgql-pgserve-ensure", config),
-      ...(prepareDependsOn.length > 0 ? { dependsOn: prepareDependsOn } : {}),
+      dependsOn: withPgserveBuildDep(prepareDependsOn),
       cache: false,
     },
   };
@@ -37,6 +44,7 @@ export function createPgserveTasks(
   if (config.appEnvPath && config.appEnvAdapter) {
     tasks["setup-env"] = {
       command: pgserveTaskCommand(ctx, "rwgql-pgserve-setup-env", config),
+      dependsOn: withPgserveBuildDep(),
       input: [config.configModule],
     };
   }
@@ -52,7 +60,7 @@ export function createDevPrepareTask(
   return {
     "dev:prepare": {
       command: pgserveTaskCommand(ctx, "rwgql-pgserve-dev-prepare", config),
-      dependsOn: options.dependsOn ?? [],
+      dependsOn: withPgserveBuildDep(options.dependsOn ?? []),
       cache: false,
     },
   };
@@ -65,6 +73,7 @@ export function createDevStopTask(
   return {
     "dev:stop": {
       command: pgserveTaskCommand(ctx, "rwgql-pgserve-stop", config),
+      dependsOn: withPgserveBuildDep(),
       cache: false,
     },
   };

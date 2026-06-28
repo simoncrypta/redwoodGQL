@@ -40,6 +40,7 @@ export default defineConfig({
       },
       "export-schema": {
         command: "tsx scripts/export-schema.ts",
+        dependsOn: [...graphqlPackageBuilds],
         input: [
           "scripts/export-schema.ts",
           "src/graphql/**/*.ts",
