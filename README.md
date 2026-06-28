@@ -19,6 +19,23 @@ is idiomatic to JavaScript and aligned with the platform.
 Over time, the term "framework" was adopted for clarity and discoverability. At its core, RedwoodGQL inherits the same
 idea: a lightweight, composable set of tools that stays out of your way.
 
+## Quick Start
+
+Install `vp` (only if you do not already have it):
+
+```bash
+curl -fsSL https://vite.plus | bash
+```
+
+Then:
+
+```bash
+git clone https://github.com/simoncrypta/redwoodGQL.git && cd redwoodGQL && ./quickstart.sh
+```
+
+Requires macOS/Linux. Validates Node.js (>= 22.18.0), installs dependencies, and starts dev. See
+[Getting Started](#getting-started) for details.
+
 ## What RedwoodGQL Brings Back
 
 - **Cells** — declarative data-fetching components built on Apollo Client (`@rwgql/cell`)
@@ -121,15 +138,23 @@ future extraction layer.
 
 ## Getting Started
 
-**Prerequisites:** [Vite+](https://viteplus.dev/guide/) (`vp`). Vite+ manages Node.js (>= 22.18.0) and pnpm for this repo.
+**Prerequisites:** [Vite+](https://viteplus.dev/guide/) (`vp`). Vite+ manages Node.js (>= 22.18.0) and pnpm for this
+repo — you do not need to install Node or pnpm separately.
 
-First time with Vite+? Install `vp` once using the [Vite+ install guide](https://viteplus.dev/guide/), then from the
-repo root:
+`./quickstart.sh` runs, in order: install `vp` (if missing) → `vp env doctor` → `vp install` → `vp run dev`.
+
+### Already have the repo?
+
+From the repo root after clone or pull:
 
 ```bash
-vp install
-vp run dev
+vp env doctor && vp install && vp run dev
 ```
+
+First time with Vite+? Install `vp` once with `curl -fsSL https://vite.plus | bash`, then open a new shell. See the
+[Vite+ install guide](https://viteplus.dev/guide/) for Windows and troubleshooting.
+
+### What `vp run dev` does
 
 `vp run dev` bootstraps workspace packages, starts Postgres, migrates, seeds, and runs the web app and GraphQL server in
 parallel:
@@ -184,30 +209,13 @@ may still change.
 - **Tooling packages** — `@rwgql/pgserve-dev`, `@rwgql/prisma-dev`, `@rwgql/task-core`,
   `@rwgql/log-formatter`
 
-### Parity checklist vs `test-project/`
+### Parity vs `test-project/`
 
-Compared to the classic RedwoodJS GraphQL scaffold in `test-project/`, `apps/` still needs:
+Compared to the classic RedwoodJS GraphQL scaffold in `test-project/`, remaining work is tracked on GitHub:
 
-#### High priority
-
-- [ ] Remove or isolate legacy fixture GraphQL in `apps/web` (`fixtureData.ts`, `schema.ts`, `route.ts`)
-- [ ] Fix reset-password flow — read `?resetToken=` from the URL instead of hardcoded `poc-reset-token`
-- [ ] Port API tests from `test-project/api` — service tests, directive tests, scenario fixtures
-- [ ] Extract `apps/domain/` — move business logic out of `apps/graphql/src/services/`
-
-#### Medium priority
-
-- [ ] Add web/Cell tests (Vitest) — pages, Cells, formatters
-- [ ] Server-side GraphQL typegen — generated resolver types from SDL instead of hand-written types
-- [ ] Wire global fatal error boundary in the RWSDK worker
-
-#### Lower priority / by design
-
-- [ ] Prerender and `routeParameters` — Redwood SSG for `/`, `/about`, `/blog-post/:id`, `/waterfall/:id`, etc.
-- [ ] Storybook + Cell mocks
-- [ ] `apps/jobs/` — background workers and queues
-- [ ] Email delivery for password reset (both stacks are stub/console-only today)
-- [ ] Scaffold/generator tooling — Redwood CLI replaced by manual structure + Vite+ for now
+- [Parity roadmap (Project)](https://github.com/users/simoncrypta/projects/3)
+- [Parity issues](https://github.com/simoncrypta/redwoodGQL/issues?q=is%3Aissue+is%3Aopen+label%3Aparity)
+- [Roadmap milestones](https://github.com/simoncrypta/redwoodGQL/milestones) — High, Medium, and Lower priority / by design
 
 ## Further Reading
 
