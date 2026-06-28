@@ -123,6 +123,10 @@ function DefaultLoading() {
   return <>Loading...</>;
 }
 
+const DEFAULT_CELL_QUERY_OPTIONS = {
+  fetchPolicy: "cache-first",
+} as const satisfies Partial<useQuery.Options<object, OperationVariables>>;
+
 function getQueryOptions<
   TData extends object,
   TVariables extends OperationVariables,
@@ -138,21 +142,27 @@ function getQueryOptions<
     const beforeQueryResult = beforeQuery(cellProps as TBeforeQueryProps);
 
     if (isQueryOptions(beforeQueryResult)) {
-      return beforeQueryResult;
+      return {
+        ...DEFAULT_CELL_QUERY_OPTIONS,
+        ...beforeQueryResult,
+      };
     }
 
     return {
+      ...DEFAULT_CELL_QUERY_OPTIONS,
       variables: beforeQueryResult,
     };
   }
 
   if (explicitVariables) {
     return {
+      ...DEFAULT_CELL_QUERY_OPTIONS,
       variables: explicitVariables,
     };
   }
 
   return {
+    ...DEFAULT_CELL_QUERY_OPTIONS,
     variables: cellProps as TVariables,
   };
 }

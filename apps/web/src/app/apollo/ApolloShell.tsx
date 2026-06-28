@@ -1,7 +1,12 @@
 "use client";
 
-import { HttpLink } from "@apollo/client";
-import { ApolloClient, ApolloRwsdkProvider, InMemoryCache } from "@rwgql/rwsdk-apollo-client";
+import { ApolloLink, HttpLink } from "@apollo/client";
+import {
+  ApolloClient,
+  ApolloRwsdkProvider,
+  InMemoryCache,
+  SSRMultipartLink,
+} from "@rwgql/rwsdk-apollo-client";
 import type { ReactNode } from "react";
 import { useMemo } from "react";
 
@@ -19,14 +24,25 @@ export const ApolloShell = ({
   readonly transportId: string;
 }) => {
   const makeClient = useMemo(
-    () => () =>
-      new ApolloClient({
+    () => () => {
+      const httpLink = new HttpLink({
+        credentials: "include",
+        uri: graphqlUrl,
+      });
+
+      return new ApolloClient({
         cache: new InMemoryCache(),
-        link: new HttpLink({
-          credentials: "include",
-          uri: graphqlUrl,
-        }),
-      }),
+        link:
+          typeof window === "undefined"
+            ? ApolloLink.from([
+                new SSRMultipartLink({
+                  stripDefer: true,
+                }),
+                httpLink,
+              ])
+            : httpLink,
+      });
+    },
     [graphqlUrl],
   );
 

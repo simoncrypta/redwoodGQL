@@ -4,6 +4,7 @@ import { defineApp, type RequestInfo } from "rwsdk/worker";
 import { createAuthDecoder } from "@rwgql/dbauth/decoder";
 import {
   createApolloRwsdkTransportId,
+  renderApolloRwsdkRscStream,
   renderApolloRwsdkStream,
 } from "@rwgql/rwsdk-apollo-client/worker";
 
@@ -88,23 +89,39 @@ const resolveGraphqlUrl = () => {
 
 const routeId = ({ params }: RequestInfo<IdParams>) => Number.parseInt(params.id, 10);
 
+const isRscNavigationRequest = (request: Request) => {
+  const url = new URL(request.url);
+  return url.searchParams.has("__rsc");
+};
+
 const renderPage = async (requestInfo: RequestInfo, children: ReactNode) => {
   const apolloTransportId = createApolloRwsdkTransportId();
   const graphqlUrl = resolveGraphqlUrl();
-  const stream = await renderApolloRwsdkStream(
+  const page = (
     <ApolloShell
       graphqlUrl={graphqlUrl}
       nonce={requestInfo.rw.nonce}
       transportId={apolloTransportId}
     >
       {children}
-    </ApolloShell>,
-    {
-      Document,
-      requestInfo,
-      transportId: apolloTransportId,
-    },
+    </ApolloShell>
   );
+
+  if (isRscNavigationRequest(requestInfo.request)) {
+    const stream = await renderApolloRwsdkRscStream(page, { requestInfo });
+
+    return new Response(stream, {
+      headers: {
+        "content-type": "text/x-component; charset=utf-8",
+      },
+    });
+  }
+
+  const stream = await renderApolloRwsdkStream(page, {
+    Document,
+    requestInfo,
+    transportId: apolloTransportId,
+  });
 
   return new Response(stream, {
     headers: {

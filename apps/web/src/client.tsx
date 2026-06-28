@@ -1,5 +1,7 @@
 import "virtual:vite-preamble";
 
-import { initClient } from "rwsdk/client";
+import { initClient, initClientNavigation } from "rwsdk/client";
 
-void initClient();
+const { handleResponse, onHydrated } = initClientNavigation();
+
+void initClient({ handleResponse, onHydrated });

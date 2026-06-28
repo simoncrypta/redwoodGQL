@@ -19,18 +19,26 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 const defaultValidateResetToken = async (_token: string): Promise<AuthResponse> => ({});
 
+let cachedCurrentUser: Record<string, unknown> | null | undefined;
+
 export const createAuthentication = (client: AuthClient) => {
   const AuthProvider = ({ children }: { readonly children: ReactNode }) => {
-    const [currentUser, setCurrentUser] = useState<Record<string, unknown> | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [currentUser, setCurrentUser] = useState<Record<string, unknown> | null>(
+      () => cachedCurrentUser ?? null,
+    );
+    const [loading, setLoading] = useState(() => cachedCurrentUser === undefined);
 
     const loadUser = useCallback(async () => {
-      setLoading(true);
+      if (cachedCurrentUser === undefined) {
+        setLoading(true);
+      }
 
       try {
         const metadata = await client.getUserMetadata();
+        cachedCurrentUser = metadata;
         setCurrentUser(metadata);
       } catch {
+        cachedCurrentUser = null;
         setCurrentUser(null);
       } finally {
         setLoading(false);
@@ -43,6 +51,7 @@ export const createAuthentication = (client: AuthClient) => {
 
     const logOut = useCallback(() => {
       void client.logout().finally(() => {
+        cachedCurrentUser = null;
         setCurrentUser(null);
       });
     }, []);
