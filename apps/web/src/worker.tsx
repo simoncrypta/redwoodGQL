@@ -72,15 +72,25 @@ const requireAuth = ({ ctx, request }: RequestInfo) => {
 
 const defaultDevGraphqlUrl = "http://localhost:8911/graphql";
 
-const resolveGraphqlUrl = (requestUrl: string) =>
-  import.meta.env.VITE_GRAPHQL_URL ??
-  (import.meta.env.DEV ? defaultDevGraphqlUrl : new URL("/graphql", requestUrl).toString());
+const resolveGraphqlUrl = () => {
+  if (import.meta.env.VITE_GRAPHQL_URL) {
+    return import.meta.env.VITE_GRAPHQL_URL;
+  }
+
+  if (import.meta.env.DEV) {
+    return defaultDevGraphqlUrl;
+  }
+
+  throw new Error(
+    "VITE_GRAPHQL_URL must point at the apps/graphql endpoint (for example https://api.example.com/graphql).",
+  );
+};
 
 const routeId = ({ params }: RequestInfo<IdParams>) => Number.parseInt(params.id, 10);
 
 const renderPage = async (requestInfo: RequestInfo, children: ReactNode) => {
   const apolloTransportId = createApolloRwsdkTransportId();
-  const graphqlUrl = resolveGraphqlUrl(requestInfo.request.url);
+  const graphqlUrl = resolveGraphqlUrl();
   const stream = await renderApolloRwsdkStream(
     <ApolloShell
       graphqlUrl={graphqlUrl}
