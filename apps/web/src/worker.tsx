@@ -161,9 +161,10 @@ export default defineApp([
   route("/login", (requestInfo) => renderPage(requestInfo, <LoginPage />)),
   route("/signup", (requestInfo) => renderPage(requestInfo, <SignupPage />)),
   route("/forgot-password", (requestInfo) => renderPage(requestInfo, <ForgotPasswordPage />)),
-  route("/reset-password", (requestInfo) =>
-    renderPage(requestInfo, <ResetPasswordPage resetToken="poc-reset-token" />),
-  ),
+  route("/reset-password", (requestInfo) => {
+    const resetToken = new URL(requestInfo.request.url).searchParams.get("resetToken") ?? "";
+    return renderPage(requestInfo, <ResetPasswordPage resetToken={resetToken} />);
+  }),
   route("/contacts/new", [
     requireAuth,
     (requestInfo) => renderContactsPage(requestInfo, <NewContactPage />),
