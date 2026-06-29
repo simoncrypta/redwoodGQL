@@ -134,6 +134,7 @@ future extraction layer.
 | `@rwgql/pgserve-dev`         | Local Postgres via pgserve — start, env sync, teardown  |
 | `@rwgql/prisma-dev`          | Prisma dev tasks — migrate, generate, env wiring        |
 | `@rwgql/log-formatter`       | Vite-style per-operation GraphQL logging                |
+| `@rwgql/graphql-typegen`     | Server resolver typegen from SDL + Yoga resolver wiring |
 
 ## Getting Started
 
@@ -201,12 +202,13 @@ may still change.
   GraphQL in parallel
 - **Web app** — RedwoodSDK + Apollo Client; scaffold pages (Posts, Contacts, Blog) using Cells
   and typed GraphQL codegen
-- **GraphQL API** — Yoga on Fastify with SDL, resolvers, Prisma services, and auth directives
+- **GraphQL API** — Yoga on Fastify with SDL, resolvers, Prisma services, auth directives,
+  and generated resolver types via `@rwgql/graphql-typegen`
 - **Auth** — `@rwgql/dbauth` (login, signup, logout, forgot/reset password), session cookies,
   web route guards, and `requireAuth`/`skipAuth` on the schema
 - **Data layer** — Prisma schema, migrations, and seed data in `apps/db`
 - **Tooling packages** — `@rwgql/pgserve-dev`, `@rwgql/prisma-dev`,
-  `@rwgql/log-formatter`
+  `@rwgql/log-formatter`, `@rwgql/graphql-typegen`
 
 ### Parity vs `test-project/`
 
