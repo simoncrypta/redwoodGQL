@@ -1,5 +1,4 @@
 import { defineConfig } from "vite-plus";
-import { createBinResolver, mergeTasks } from "@rwgql/task-core/vite";
 import {
   createPgserveTasks,
   createDevPrepareTask,
@@ -8,8 +7,6 @@ import {
 import { createPrismaTasks } from "@rwgql/prisma-dev/tasks";
 
 import { pgserveDevConfig } from "./pgserve.config.ts";
-
-const pgserveBin = createBinResolver("@rwgql/pgserve-dev");
 
 export default defineConfig({
   fmt: {
@@ -23,11 +20,12 @@ export default defineConfig({
     },
   },
   run: {
-    tasks: mergeTasks(
-      createPgserveTasks(pgserveDevConfig, { bin: pgserveBin }, { prepareDependsOn: ["generate"] }),
+    tasks: Object.assign(
+      {},
+      createPgserveTasks(pgserveDevConfig, undefined, { prepareDependsOn: ["generate"] }),
       createPrismaTasks({ dependsOnPrepare: "dev:prepare" }),
-      createDevPrepareTask(pgserveDevConfig, { bin: pgserveBin }, { dependsOn: ["generate"] }),
-      createDevStopTask(pgserveDevConfig, { bin: pgserveBin }),
+      createDevPrepareTask(pgserveDevConfig, undefined, { dependsOn: ["generate"] }),
+      createDevStopTask(pgserveDevConfig),
     ),
   },
 });

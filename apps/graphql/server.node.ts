@@ -48,12 +48,12 @@ const disconnect = async () => {
   await db.$disconnect();
 };
 
-process.on("SIGINT", () => {
-  void disconnect().finally(() => process.exit(0));
-});
-process.on("SIGTERM", () => {
-  void disconnect().finally(() => process.exit(0));
-});
+const handleShutdownSignal = () => {
+  void disconnect();
+};
+
+process.on("SIGINT", handleShutdownSignal);
+process.on("SIGTERM", handleShutdownSignal);
 
 await app.ready();
 

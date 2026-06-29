@@ -16,6 +16,7 @@ export default defineConfig({
       "src/cli/dev-prepare.ts",
       "src/cli/setup-env.ts",
       "src/cli/stop.ts",
+      "src/cli/dev-hold.ts",
     ],
   },
   test: {

@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import { getStringArg } from "@rwgql/task-core/cli";
+import { getStringArg } from "../cli/parseArgs.ts";
 
 import { getSocketDir } from "../postgres/urls.ts";
 import type { PgserveCliArgs, PgserveConnectionEnv, ResolvedPgserveConfig } from "../types.ts";

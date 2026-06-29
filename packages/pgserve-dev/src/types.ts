@@ -54,11 +54,17 @@ export const PgserveCliArgKey = {
 
 export type PgserveCliArgKey = (typeof PgserveCliArgKey)[keyof typeof PgserveCliArgKey];
 
-export type PgserveCliArgs = Partial<Record<PgserveCliArgKey, string | boolean | undefined>>;
+import type { CliArgs } from "./cli/parseArgs.ts";
+
+export type PgserveCliArgs = CliArgs;
 
 export interface StartLocalDevPgserveOptions {
   detach?: boolean;
   emitReadyMarker?: boolean;
+}
+
+export interface StopLocalDevPgserveOptions {
+  quiet?: boolean;
 }
 
 export interface StartedLocalDevPgserve {

@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "bin": {
+    "rwgql-pgserve-dev-hold": "./dist/cli/dev-hold.mjs",
     "rwgql-pgserve-dev-prepare": "./dist/cli/dev-prepare.mjs",
     "rwgql-pgserve-ensure": "./dist/cli/ensure.mjs",
     "rwgql-pgserve-setup-env": "./dist/cli/setup-env.mjs",
@@ -38,7 +39,6 @@
     "prepublishOnly": "vp run build"
   },
   "dependencies": {
-    "@rwgql/task-core": "workspace:*",
     "pg": "^8.16.3",
     "tsx": "catalog:"
   },

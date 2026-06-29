@@ -1,11 +1,8 @@
-import { parseCliArgs } from "@rwgql/task-core/cli";
-
 import { loadResolvedConfigFromArgv } from "../config/loadConfig.ts";
 import { startLocalDevPgserve } from "../local-dev/index.ts";
 
 async function main() {
-  const config = await loadResolvedConfigFromArgv();
-  const args = parseCliArgs();
+  const { config, args } = await loadResolvedConfigFromArgv();
   await startLocalDevPgserve(config, args, {
     detach: true,
     emitReadyMarker: true,

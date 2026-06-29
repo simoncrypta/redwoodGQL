@@ -1,4 +1,4 @@
-import type { TaskDefinition } from "@rwgql/task-core/vite";
+import type { TaskDefinition } from "@rwgql/pgserve-dev/tasks";
 
 export interface CreatePrismaTasksOptions {
   schemaPath?: string;

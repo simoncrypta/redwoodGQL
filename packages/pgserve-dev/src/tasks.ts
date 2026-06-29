@@ -1,20 +1,27 @@
-import type { TaskDefinition, TaskPluginContext } from "@rwgql/task-core/vite";
+import type { TaskDefinition, TaskPluginContext } from "./vite-task-types.ts";
+
+export type { TaskDefinition, TaskPluginContext } from "./vite-task-types.ts";
 
 import { buildPgserveConfigArg } from "./config/resolveConfig.ts";
 import type { PgserveDevConfig } from "./types.ts";
 
 const PGSERVE_BUILD_TASK = "@rwgql/pgserve-dev#build";
+const defaultBin = (name: string) => `vp exec ${name}`;
+
+function resolveCtx(ctx?: TaskPluginContext): TaskPluginContext {
+  return ctx ?? { bin: defaultBin };
+}
 
 function withPgserveBuildDep(dependsOn: string[] = []): string[] {
   return dependsOn.includes(PGSERVE_BUILD_TASK) ? dependsOn : [PGSERVE_BUILD_TASK, ...dependsOn];
 }
 
 function pgserveTaskCommand(
-  ctx: TaskPluginContext,
+  ctx: TaskPluginContext | undefined,
   cliName: string,
   config: PgserveDevConfig,
 ): string {
-  return `${ctx.bin(cliName)} ${buildPgserveConfigArg(config)}`;
+  return `${resolveCtx(ctx).bin(cliName)} ${buildPgserveConfigArg(config)}`;
 }
 
 export interface CreatePgserveTasksOptions {
@@ -23,7 +30,7 @@ export interface CreatePgserveTasksOptions {
 
 export function createPgserveTasks(
   config: PgserveDevConfig,
-  ctx: TaskPluginContext,
+  ctx?: TaskPluginContext,
   options: CreatePgserveTasksOptions = {},
 ): Record<string, TaskDefinition> {
   const prepareDependsOn = options.prepareDependsOn ?? [];
@@ -37,6 +44,11 @@ export function createPgserveTasks(
     prepare: {
       command: pgserveTaskCommand(ctx, "rwgql-pgserve-ensure", config),
       dependsOn: withPgserveBuildDep(prepareDependsOn),
+      cache: false,
+    },
+    dev: {
+      command: pgserveTaskCommand(ctx, "rwgql-pgserve-dev-hold", config),
+      dependsOn: withPgserveBuildDep(),
       cache: false,
     },
   };
@@ -54,7 +66,7 @@ export function createPgserveTasks(
 
 export function createDevPrepareTask(
   config: PgserveDevConfig,
-  ctx: TaskPluginContext,
+  ctx?: TaskPluginContext,
   options: { dependsOn?: string[] } = {},
 ): Record<string, TaskDefinition> {
   return {
@@ -68,7 +80,7 @@ export function createDevPrepareTask(
 
 export function createDevStopTask(
   config: PgserveDevConfig,
-  ctx: TaskPluginContext,
+  ctx?: TaskPluginContext,
 ): Record<string, TaskDefinition> {
   return {
     "dev:stop": {

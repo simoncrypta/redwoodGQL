@@ -1,7 +1,7 @@
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
-import { getStringArg, parseCliArgs, type CliArgs } from "@rwgql/task-core/cli";
+import { getStringArg, parseCliArgs, type CliArgs } from "../cli/parseArgs.ts";
 
 import { resolvePgserveConfig } from "./resolveConfig.ts";
 import type { PgserveDevConfig, ResolvedPgserveConfig } from "../types.ts";
@@ -57,9 +57,10 @@ function applyConfigOverrides(config: PgserveDevConfig, args: CliArgs): PgserveD
   return next;
 }
 
-export async function loadResolvedConfigFromArgv(
-  argv = process.argv.slice(2),
-): Promise<ResolvedPgserveConfig> {
+export async function loadResolvedConfigFromArgv(argv = process.argv.slice(2)): Promise<{
+  config: ResolvedPgserveConfig;
+  args: CliArgs;
+}> {
   const args = parseCliArgs(argv);
   const configModule = getStringArg(args, CliKeys.Config);
 
@@ -70,5 +71,5 @@ export async function loadResolvedConfigFromArgv(
   }
 
   const config = applyConfigOverrides(await loadPgserveConfigFromModule(configModule), args);
-  return resolvePgserveConfig(config);
+  return { config: resolvePgserveConfig(config), args };
 }
