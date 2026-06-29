@@ -13,7 +13,10 @@
     "esModuleInterop": true,
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "paths": {
+      "types/*": ["./src/types/*"]
+    }
   },
   "include": ["nitro.config.ts", "server.node.ts", "src"]
 }

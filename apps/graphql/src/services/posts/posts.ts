@@ -1,43 +1,50 @@
-import { db, type Post } from "db";
+import type { Post as DbPost, User } from "db";
+import { db } from "db";
 
 import type {
-  CreatePostInput,
-  PublicUser,
-  RelationResolver,
-  ServiceResolver,
-  UpdatePostInput,
-} from "../../types.js";
+  MutationCreatePostArgs,
+  MutationDeletePostArgs,
+  MutationUpdatePostArgs,
+  QueryPostArgs,
+  ResolverFn,
+} from "types/graphql";
 
-export const posts: ServiceResolver<readonly Post[]> = () => db.post.findMany();
+export const posts: ResolverFn<DbPost[], unknown, unknown, Record<string, never>> = () =>
+  db.post.findMany();
 
-export const post: ServiceResolver<Post | null, { readonly id: number }> = ({ id }) =>
+export const post: ResolverFn<DbPost | null, unknown, unknown, QueryPostArgs> = (_parent, { id }) =>
   db.post.findUnique({
     where: { id },
   });
 
-export const createPost: ServiceResolver<Post, { readonly input: CreatePostInput }> = ({ input }) =>
+export const createPost: ResolverFn<DbPost, unknown, unknown, MutationCreatePostArgs> = (
+  _parent,
+  { input },
+) =>
   db.post.create({
     data: input,
   });
 
-export const updatePost: ServiceResolver<
-  Post,
-  { readonly id: number; readonly input: UpdatePostInput }
-> = ({ id, input }) =>
+export const updatePost: ResolverFn<DbPost, unknown, unknown, MutationUpdatePostArgs> = (
+  _parent,
+  { id, input },
+) =>
   db.post.update({
-    data: input,
+    data: input as Parameters<typeof db.post.update>[0]["data"],
     where: { id },
   });
 
-export const deletePost: ServiceResolver<Post, { readonly id: number }> = ({ id }) =>
+export const deletePost: ResolverFn<DbPost, unknown, unknown, MutationDeletePostArgs> = (
+  _parent,
+  { id },
+) =>
   db.post.delete({
     where: { id },
   });
 
-export const PostRelations = {
-  author: (async (root) =>
-    db.post.findUnique({ where: { id: root.id } }).author()) satisfies RelationResolver<
-    Post,
-    PublicUser | null
-  >,
-} as const;
+export const postAuthor: ResolverFn<User | null, DbPost, unknown, Record<string, never>> = (root) =>
+  db.post.findUnique({ where: { id: root.id } }).author();
+
+export const Post = {
+  author: postAuthor,
+};

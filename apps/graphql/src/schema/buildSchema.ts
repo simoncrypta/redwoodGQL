@@ -1,16 +1,29 @@
 import { mergeTypeDefs } from "@graphql-tools/merge";
 import { makeExecutableSchema } from "@graphql-tools/schema";
+import type { Post } from "db";
 import type { GraphQLSchema } from "graphql";
 
 import { applyValidatorDirectives } from "@rwgql/auth/graphql";
 
-import type { Post, User } from "../types.js";
+import { callResolver, callResolverWithoutArgs } from "../lib/resolvers.js";
+import type {
+  MutationCreateContactArgs,
+  MutationCreatePostArgs,
+  MutationDeleteContactArgs,
+  MutationDeletePostArgs,
+  MutationUpdateContactArgs,
+  MutationUpdatePostArgs,
+  QueryContactArgs,
+  QueryPostArgs,
+  QueryUserArgs,
+} from "../types/graphql.js";
+import type { PublicUser } from "../types/mappers.js";
 import { directives, rootResolvers, services, typeDefs } from "./registry.js";
 
 const isPostRoot = (root: unknown): root is Post =>
   typeof root === "object" && root !== null && "authorId" in root;
 
-const isUserRoot = (root: unknown): root is User =>
+const isUserRoot = (root: unknown): root is PublicUser =>
   typeof root === "object" && root !== null && "id" in root;
 
 const dateTimeScalar = {
@@ -22,35 +35,34 @@ const dateTimeScalar = {
 
 const serviceResolvers = {
   Mutation: {
-    createContact: (_root: unknown, args: Parameters<typeof services.contacts.createContact>[0]) =>
-      services.contacts.createContact(args),
-    createPost: (_root: unknown, args: Parameters<typeof services.posts.createPost>[0]) =>
-      services.posts.createPost(args),
-    deleteContact: (_root: unknown, args: Parameters<typeof services.contacts.deleteContact>[0]) =>
-      services.contacts.deleteContact(args),
-    deletePost: (_root: unknown, args: Parameters<typeof services.posts.deletePost>[0]) =>
-      services.posts.deletePost(args),
-    updateContact: (_root: unknown, args: Parameters<typeof services.contacts.updateContact>[0]) =>
-      services.contacts.updateContact(args),
-    updatePost: (_root: unknown, args: Parameters<typeof services.posts.updatePost>[0]) =>
-      services.posts.updatePost(args),
+    createContact: (_root: unknown, args: MutationCreateContactArgs) =>
+      callResolver(services.contacts.createContact, args, _root),
+    createPost: (_root: unknown, args: MutationCreatePostArgs) =>
+      callResolver(services.posts.createPost, args, _root),
+    deleteContact: (_root: unknown, args: MutationDeleteContactArgs) =>
+      callResolver(services.contacts.deleteContact, args, _root),
+    deletePost: (_root: unknown, args: MutationDeletePostArgs) =>
+      callResolver(services.posts.deletePost, args, _root),
+    updateContact: (_root: unknown, args: MutationUpdateContactArgs) =>
+      callResolver(services.contacts.updateContact, args, _root),
+    updatePost: (_root: unknown, args: MutationUpdatePostArgs) =>
+      callResolver(services.posts.updatePost, args, _root),
   },
   Post: {
     author: (root: unknown) =>
-      isPostRoot(root) ? services.posts.PostRelations.author(root) : null,
+      isPostRoot(root) ? callResolver(services.posts.postAuthor, {}, root) : null,
   },
   Query: {
-    contact: (_root: unknown, args: Parameters<typeof services.contacts.contact>[0]) =>
-      services.contacts.contact(args),
-    contacts: () => services.contacts.contacts({}),
-    post: (_root: unknown, args: Parameters<typeof services.posts.post>[0]) =>
-      services.posts.post(args),
-    posts: () => services.posts.posts({}),
-    user: (_root: unknown, args: Parameters<typeof services.users.user>[0]) =>
-      services.users.user(args),
+    contact: (_root: unknown, args: QueryContactArgs) =>
+      callResolver(services.contacts.contact, args, _root),
+    contacts: () => callResolverWithoutArgs(services.contacts.contacts),
+    post: (_root: unknown, args: QueryPostArgs) => callResolver(services.posts.post, args, _root),
+    posts: () => callResolverWithoutArgs(services.posts.posts),
+    user: (_root: unknown, args: QueryUserArgs) => callResolver(services.users.user, args, _root),
   },
   User: {
-    posts: (root: unknown) => (isUserRoot(root) ? services.users.UserRelations.posts(root) : []),
+    posts: (root: unknown) =>
+      isUserRoot(root) ? callResolver(services.users.userPosts, {}, root) : [],
   },
 } as const;
 

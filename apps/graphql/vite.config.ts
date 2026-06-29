@@ -14,10 +14,10 @@ export default defineConfig({
     setupFiles: ["src/test/setup.ts"],
   },
   fmt: {
-    ignorePatterns: [".nitro/**", ".output/**", "schema.graphql"],
+    ignorePatterns: [".nitro/**", ".output/**", "schema.graphql", "src/types/graphql.ts"],
   },
   lint: {
-    ignorePatterns: [".nitro/**", ".output/**", "schema.graphql"],
+    ignorePatterns: [".nitro/**", ".output/**", "schema.graphql", "src/types/graphql.ts"],
     options: {
       typeAware: true,
       typeCheck: true,
@@ -27,11 +27,15 @@ export default defineConfig({
     tasks: {
       build: {
         command: "nitro build",
-        dependsOn: [...graphqlPackageBuilds],
+        dependsOn: [...graphqlPackageBuilds, "codegen"],
       },
       check: {
         command: "vp check",
-        dependsOn: [...graphqlPackageBuilds],
+        dependsOn: [...graphqlPackageBuilds, "codegen"],
+      },
+      test: {
+        command: "vp test",
+        dependsOn: [...graphqlPackageBuilds, "codegen"],
       },
       dev: {
         command:
@@ -61,7 +65,7 @@ export default defineConfig({
           { pattern: "apps/web/src/app/components/**/*.{ts,tsx}", base: "workspace" },
           { pattern: "apps/web/src/app/pages/**/*.{ts,tsx}", base: "workspace" },
         ],
-        output: [{ pattern: "apps/web/src/gql/**", base: "workspace" }],
+        output: [{ pattern: "apps/web/src/gql/**", base: "workspace" }, "src/types/graphql.ts"],
       },
     },
   },

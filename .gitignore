@@ -38,3 +38,4 @@ apps/db/scripts/.env
 # GraphQL codegen
 apps/web/src/gql/
 apps/graphql/schema.graphql
+apps/graphql/src/types/graphql.ts

@@ -22,6 +22,8 @@
   "devDependencies": {
     "@graphql-codegen/cli": "^5.0.7",
     "@graphql-codegen/client-preset": "^4.8.3",
+    "@graphql-codegen/typescript": "^4.1.6",
+    "@graphql-codegen/typescript-resolvers": "^4.5.2",
     "@parcel/watcher": "^2.5.1",
     "@rwgql/prisma-dev": "workspace:*",
     "@types/node": "^25.6.2",

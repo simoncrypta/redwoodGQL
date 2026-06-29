@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from "vite-plus/test";
 
+import { callResolver } from "../../lib/resolvers.js";
 import { resetDatabase, seedUsersFixture } from "../../test/db.js";
 import { user } from "./users.js";
 
@@ -10,7 +11,7 @@ describe("users", () => {
 
   it("returns a single user", async () => {
     const fixture = await seedUsersFixture();
-    const result = await user({ id: fixture.user.one.id });
+    const result = await callResolver(user, { id: fixture.user.one.id });
 
     expect(result).toEqual({
       email: fixture.user.one.email,

@@ -48,7 +48,7 @@ export default defineConfig({
         cache: false,
       },
       ready: {
-        dependsOn: ["bootstrap"],
+        dependsOn: ["bootstrap", "graphql#codegen"],
         command: "vp check && vp run check:markdown && vp run -r test && vp run -r build",
       },
     },
