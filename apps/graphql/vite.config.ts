@@ -35,10 +35,7 @@ export default defineConfig({
         dependsOn: [...graphqlPackageBuilds, "codegen"],
       },
       dev: {
-        command:
-          process.platform === "win32"
-            ? "graphql-codegen --config codegen.ts --watch & nitro dev"
-            : "sh -c 'trap \"kill 0\" INT TERM; graphql-codegen --config codegen.ts --watch & exec nitro dev'",
+        command: "tsx scripts/dev.ts",
         dependsOn: [...graphqlPackageBuilds],
         cache: false,
       },
