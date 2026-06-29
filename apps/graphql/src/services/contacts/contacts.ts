@@ -1,48 +1,28 @@
-import type { Contact } from "db";
 import { db } from "db";
+import type { Prisma } from "db";
 
-import type {
-  MutationCreateContactArgs,
-  MutationDeleteContactArgs,
-  MutationUpdateContactArgs,
-  QueryContactArgs,
-  ResolverFn,
-} from "types/graphql";
+import type { MutationResolvers, QueryResolvers } from "types/graphql";
+import type { ServiceResolver } from "@rwgql/graphql-typegen";
 
-export const contacts: ResolverFn<Contact[], unknown, unknown, Record<string, never>> = () =>
-  db.contact.findMany();
+export const contacts: ServiceResolver<QueryResolvers["contacts"]> = () => db.contact.findMany();
 
-export const contact: ResolverFn<Contact | null, unknown, unknown, QueryContactArgs> = (
-  _parent,
-  { id },
-) =>
+export const contact: ServiceResolver<QueryResolvers["contact"]> = ({ id }) =>
   db.contact.findUnique({
     where: { id },
   });
 
-export const createContact: ResolverFn<
-  Contact | null,
-  unknown,
-  unknown,
-  MutationCreateContactArgs
-> = (_parent, { input }) =>
+export const createContact: ServiceResolver<MutationResolvers["createContact"]> = ({ input }) =>
   db.contact.create({
     data: input,
   });
 
-export const updateContact: ResolverFn<Contact, unknown, unknown, MutationUpdateContactArgs> = (
-  _parent,
-  { id, input },
-) =>
+export const updateContact: ServiceResolver<MutationResolvers["updateContact"]> = ({ id, input }) =>
   db.contact.update({
-    data: input as Parameters<typeof db.contact.update>[0]["data"],
+    data: input as Prisma.ContactUpdateInput,
     where: { id },
   });
 
-export const deleteContact: ResolverFn<Contact, unknown, unknown, MutationDeleteContactArgs> = (
-  _parent,
-  { id },
-) =>
+export const deleteContact: ServiceResolver<MutationResolvers["deleteContact"]> = ({ id }) =>
   db.contact.delete({
     where: { id },
   });

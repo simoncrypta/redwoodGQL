@@ -3,6 +3,7 @@ import { defineConfig } from "vite-plus";
 const graphqlPackageBuilds = [
   "@rwgql/auth#build",
   "@rwgql/dbauth#build",
+  "@rwgql/graphql-typegen#build",
   "@rwgql/log-formatter#build",
 ] as const;
 
@@ -33,10 +34,6 @@ export default defineConfig({
         command: "vp check",
         dependsOn: [...graphqlPackageBuilds, "codegen"],
       },
-      test: {
-        command: "vp test",
-        dependsOn: [...graphqlPackageBuilds, "codegen"],
-      },
       dev: {
         command:
           process.platform === "win32"
@@ -45,20 +42,9 @@ export default defineConfig({
         dependsOn: [...graphqlPackageBuilds],
         cache: false,
       },
-      "export-schema": {
-        command: "tsx scripts/export-schema.ts",
-        dependsOn: [...graphqlPackageBuilds, "db#generate"],
-        input: [
-          "scripts/export-schema.ts",
-          "src/graphql/**/*.ts",
-          "src/schema/**/*.ts",
-          "src/directives/**/*.ts",
-        ],
-        output: ["schema.graphql"],
-      },
       codegen: {
         command: "graphql-codegen --config codegen.ts",
-        dependsOn: ["export-schema"],
+        dependsOn: ["export-schema", ...graphqlPackageBuilds],
         input: [
           "codegen.ts",
           "schema.graphql",
@@ -66,6 +52,17 @@ export default defineConfig({
           { pattern: "apps/web/src/app/pages/**/*.{ts,tsx}", base: "workspace" },
         ],
         output: [{ pattern: "apps/web/src/gql/**", base: "workspace" }, "src/types/graphql.ts"],
+      },
+      "export-schema": {
+        command: "tsx scripts/export-schema.ts",
+        dependsOn: [...graphqlPackageBuilds],
+        input: [
+          "scripts/export-schema.ts",
+          "src/graphql/**/*.ts",
+          "src/schema/**/*.ts",
+          "src/directives/**/*.ts",
+        ],
+        output: ["schema.graphql"],
       },
     },
   },

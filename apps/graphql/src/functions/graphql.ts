@@ -4,9 +4,9 @@ import { createYoga, type Plugin } from "graphql-yoga";
 import { createAuthDecoder } from "@rwgql/dbauth/server";
 import { createAuthYogaPlugin } from "@rwgql/auth/graphql";
 
-import { dbAuthOptions } from "../auth/dbAuthConfig.js";
-import { cookieName, getCurrentUser } from "../lib/auth.js";
-import { getSchema } from "../schema/buildSchema.js";
+import { dbAuthOptions } from "../auth/dbAuthConfig.ts";
+import { cookieName, getCurrentUser } from "../lib/auth.ts";
+import { getSchema } from "../schema/buildSchema.ts";
 
 export type YogaContext = {
   readonly currentUser: Awaited<ReturnType<typeof getCurrentUser>>;

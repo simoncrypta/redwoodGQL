@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vite-plus/test";
 
-import { mockValidatorDirective } from "../../test/directives.js";
-import requireAuth from "./requireAuth.js";
+import { mockValidatorDirective } from "../../test/directives.ts";
+import requireAuth from "./requireAuth.ts";
 
 describe("requireAuth directive", () => {
   it("declares the directive sdl as schema, with the correct name", () => {

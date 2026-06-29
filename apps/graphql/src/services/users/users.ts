@@ -1,33 +1,17 @@
-import type { Post as DbPost } from "db";
 import { db } from "db";
 
-import type { QueryUserArgs, ResolverFn } from "types/graphql";
+import type { QueryResolvers, UserResolvers } from "types/graphql";
+import type { ServiceResolver } from "@rwgql/graphql-typegen";
 
-import type { PublicUser } from "../../types/mappers.js";
+import { userSelect } from "../../schema/selects/user.ts";
 
-const publicUserSelect = {
-  email: true,
-  fullName: true,
-  id: true,
-  roles: true,
-} as const;
-
-export const user: ResolverFn<PublicUser | null, unknown, unknown, QueryUserArgs> = (
-  _parent,
-  { id },
-) =>
+export const user: ServiceResolver<QueryResolvers["user"]> = ({ id }) =>
   db.user.findUnique({
-    select: publicUserSelect,
+    select: userSelect,
     where: { id },
   });
 
-export const userPosts: ResolverFn<DbPost[], PublicUser, unknown, Record<string, never>> = async (
-  root,
-) => {
+export const posts: ServiceResolver<UserResolvers["posts"]> = async (_obj, { root }) => {
   const posts = await db.user.findUnique({ where: { id: root.id } }).posts();
   return posts ?? [];
-};
-
-export const User = {
-  posts: userPosts,
 };

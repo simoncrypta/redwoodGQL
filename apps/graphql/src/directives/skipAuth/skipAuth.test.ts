@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vite-plus/test";
 
-import skipAuth from "./skipAuth.js";
+import skipAuth from "./skipAuth.ts";
 
 describe("skipAuth directive", () => {
   it("declares the directive sdl as schema, with the correct name", () => {

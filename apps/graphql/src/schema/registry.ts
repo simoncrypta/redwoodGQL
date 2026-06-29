@@ -1,22 +1,10 @@
-import requireAuthDirective from "../directives/requireAuth/requireAuth.js";
-import skipAuthDirective from "../directives/skipAuth/skipAuth.js";
-import { schema as contactsSchema } from "../graphql/contacts.sdl.js";
-import { schema as postsSchema } from "../graphql/posts.sdl.js";
-import { schema as usersSchema } from "../graphql/users.sdl.js";
-import * as contactsService from "../services/contacts/contacts.js";
-import * as postsService from "../services/posts/posts.js";
-import * as usersService from "../services/users/users.js";
-import { redwoodApolloPoc, schema as rootSchema } from "./root.js";
+import * as contactsService from "../services/contacts/contacts.ts";
+import * as postsService from "../services/posts/posts.ts";
+import * as usersService from "../services/users/users.ts";
+import { redwoodApolloPoc } from "./root.ts";
+import { directives, typeDefs } from "./typeDefs.ts";
 
-export const directives = [skipAuthDirective, requireAuthDirective] as const;
-
-export const typeDefs = [
-  rootSchema,
-  ...directives.map((directive) => directive.schema),
-  usersSchema,
-  postsSchema,
-  contactsSchema,
-] as const;
+export { directives, typeDefs };
 
 export const services = {
   contacts: contactsService,

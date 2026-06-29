@@ -1,15 +1,10 @@
 import type { CodegenConfig } from "@graphql-codegen/cli";
+import { clientScalars, createRedwoodResolverGenerateEntry } from "@rwgql/graphql-typegen/codegen";
 
-const sharedConfig = {
-  useTypeImports: true,
-  enumsAsTypes: true,
-  scalars: {
-    DateTime: "Date",
-  },
-} as const;
+const schemaPath = "./schema.graphql";
 
 const config: CodegenConfig = {
-  schema: "./schema.graphql",
+  schema: schemaPath,
   documents: ["../web/src/app/components/**/*.{ts,tsx}", "../web/src/app/pages/**/*.{ts,tsx}"],
   ignoreNoDocuments: true,
   generates: {
@@ -19,21 +14,12 @@ const config: CodegenConfig = {
         fragmentMasking: { unmaskFunctionName: "getFragmentData" },
       },
       config: {
-        ...sharedConfig,
-        scalars: {
-          DateTime: "string",
-        },
+        useTypeImports: true,
+        enumsAsTypes: true,
+        scalars: clientScalars,
       },
     },
-    "./src/types/graphql.ts": {
-      plugins: ["typescript", "typescript-resolvers"],
-      config: {
-        ...sharedConfig,
-        mappers: {
-          User: "./mappers.js#PublicUser",
-        },
-      },
-    },
+    ...createRedwoodResolverGenerateEntry(),
   },
 };
 

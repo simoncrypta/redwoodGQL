@@ -1,50 +1,42 @@
-import type { Post as DbPost, User } from "db";
 import { db } from "db";
+import type { Prisma } from "db";
 
-import type {
-  MutationCreatePostArgs,
-  MutationDeletePostArgs,
-  MutationUpdatePostArgs,
-  QueryPostArgs,
-  ResolverFn,
-} from "types/graphql";
+import type { MutationResolvers, PostResolvers, QueryResolvers } from "types/graphql";
+import type { ServiceResolver } from "@rwgql/graphql-typegen";
 
-export const posts: ResolverFn<DbPost[], unknown, unknown, Record<string, never>> = () =>
-  db.post.findMany();
+import { userSelect } from "../../schema/selects/user.ts";
 
-export const post: ResolverFn<DbPost | null, unknown, unknown, QueryPostArgs> = (_parent, { id }) =>
+export const posts: ServiceResolver<QueryResolvers["posts"]> = () => db.post.findMany();
+
+export const post: ServiceResolver<QueryResolvers["post"]> = ({ id }) =>
   db.post.findUnique({
     where: { id },
   });
 
-export const createPost: ResolverFn<DbPost, unknown, unknown, MutationCreatePostArgs> = (
-  _parent,
-  { input },
-) =>
+export const createPost: ServiceResolver<MutationResolvers["createPost"]> = ({ input }) =>
   db.post.create({
     data: input,
   });
 
-export const updatePost: ResolverFn<DbPost, unknown, unknown, MutationUpdatePostArgs> = (
-  _parent,
-  { id, input },
-) =>
+export const updatePost: ServiceResolver<MutationResolvers["updatePost"]> = ({ id, input }) =>
   db.post.update({
-    data: input as Parameters<typeof db.post.update>[0]["data"],
+    data: input as Prisma.PostUpdateInput,
     where: { id },
   });
 
-export const deletePost: ResolverFn<DbPost, unknown, unknown, MutationDeletePostArgs> = (
-  _parent,
-  { id },
-) =>
+export const deletePost: ServiceResolver<MutationResolvers["deletePost"]> = ({ id }) =>
   db.post.delete({
     where: { id },
   });
 
-export const postAuthor: ResolverFn<User | null, DbPost, unknown, Record<string, never>> = (root) =>
-  db.post.findUnique({ where: { id: root.id } }).author();
+export const author: ServiceResolver<PostResolvers["author"]> = async (_obj, { root }) => {
+  const author = await db.post.findUnique({ where: { id: root.id } }).author({
+    select: userSelect,
+  });
 
-export const Post = {
-  author: postAuthor,
+  if (!author) {
+    throw new Error(`Post ${root.id} is missing author`);
+  }
+
+  return author;
 };

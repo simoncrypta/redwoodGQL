@@ -1,30 +1,11 @@
 import { mergeTypeDefs } from "@graphql-tools/merge";
 import { makeExecutableSchema } from "@graphql-tools/schema";
-import type { Post } from "db";
 import type { GraphQLSchema } from "graphql";
 
 import { applyValidatorDirectives } from "@rwgql/auth/graphql";
 
-import { callResolver, callResolverWithoutArgs } from "../lib/resolvers.js";
-import type {
-  MutationCreateContactArgs,
-  MutationCreatePostArgs,
-  MutationDeleteContactArgs,
-  MutationDeletePostArgs,
-  MutationUpdateContactArgs,
-  MutationUpdatePostArgs,
-  QueryContactArgs,
-  QueryPostArgs,
-  QueryUserArgs,
-} from "../types/graphql.js";
-import type { PublicUser } from "../types/mappers.js";
-import { directives, rootResolvers, services, typeDefs } from "./registry.js";
-
-const isPostRoot = (root: unknown): root is Post =>
-  typeof root === "object" && root !== null && "authorId" in root;
-
-const isUserRoot = (root: unknown): root is PublicUser =>
-  typeof root === "object" && root !== null && "id" in root;
+import { bindResolver } from "@rwgql/graphql-typegen/yoga";
+import { directives, rootResolvers, services, typeDefs } from "./registry.ts";
 
 const dateTimeScalar = {
   DateTime: {
@@ -35,34 +16,25 @@ const dateTimeScalar = {
 
 const serviceResolvers = {
   Mutation: {
-    createContact: (_root: unknown, args: MutationCreateContactArgs) =>
-      callResolver(services.contacts.createContact, args, _root),
-    createPost: (_root: unknown, args: MutationCreatePostArgs) =>
-      callResolver(services.posts.createPost, args, _root),
-    deleteContact: (_root: unknown, args: MutationDeleteContactArgs) =>
-      callResolver(services.contacts.deleteContact, args, _root),
-    deletePost: (_root: unknown, args: MutationDeletePostArgs) =>
-      callResolver(services.posts.deletePost, args, _root),
-    updateContact: (_root: unknown, args: MutationUpdateContactArgs) =>
-      callResolver(services.contacts.updateContact, args, _root),
-    updatePost: (_root: unknown, args: MutationUpdatePostArgs) =>
-      callResolver(services.posts.updatePost, args, _root),
+    createContact: bindResolver(services.contacts.createContact),
+    createPost: bindResolver(services.posts.createPost),
+    deleteContact: bindResolver(services.contacts.deleteContact),
+    deletePost: bindResolver(services.posts.deletePost),
+    updateContact: bindResolver(services.contacts.updateContact),
+    updatePost: bindResolver(services.posts.updatePost),
   },
   Post: {
-    author: (root: unknown) =>
-      isPostRoot(root) ? callResolver(services.posts.postAuthor, {}, root) : null,
+    author: bindResolver(services.posts.author),
   },
   Query: {
-    contact: (_root: unknown, args: QueryContactArgs) =>
-      callResolver(services.contacts.contact, args, _root),
-    contacts: () => callResolverWithoutArgs(services.contacts.contacts),
-    post: (_root: unknown, args: QueryPostArgs) => callResolver(services.posts.post, args, _root),
-    posts: () => callResolverWithoutArgs(services.posts.posts),
-    user: (_root: unknown, args: QueryUserArgs) => callResolver(services.users.user, args, _root),
+    contact: bindResolver(services.contacts.contact),
+    contacts: bindResolver(services.contacts.contacts),
+    post: bindResolver(services.posts.post),
+    posts: bindResolver(services.posts.posts),
+    user: bindResolver(services.users.user),
   },
   User: {
-    posts: (root: unknown) =>
-      isUserRoot(root) ? callResolver(services.users.userPosts, {}, root) : [],
+    posts: bindResolver(services.users.posts),
   },
 } as const;
 
