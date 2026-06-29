@@ -33,3 +33,51 @@ Docs are local at `node_modules/vite-plus/docs` or online at https://viteplus.de
 - [ ] If setup, runtime, or package-manager behavior looks wrong, run `vp env doctor` and include its output when asking for help.
 
 <!--VITE PLUS END-->
+
+## Cursor Cloud specific instructions
+
+The Vite+ CLI (`vp`) is pre-installed in the VM snapshot and symlinked at `/usr/local/bin/vp` (so it is on `PATH` in
+non-login shells). The startup update script runs `vp install`. Standard commands (`vp check`, `vp test`,
+`vp run -r build`, `vp run dev`) are documented in `README.md`.
+
+### pgserve needs `XDG_RUNTIME_DIR` (most important gotcha)
+
+Local Postgres (`pgserve`) places its unix socket under `$XDG_RUNTIME_DIR/pgserve`, but when `XDG_RUNTIME_DIR` is
+unset the pgserve wrapper and the connection-URL builder disagree (the wrapper falls back to `/tmp/pgserve` while the
+generated `PRISMA_DATABASE_URL` points at `/run/user/<uid>/pgserve`), so DB connections fail. Before running anything
+that touches the database (`vp run dev`, `vp run seed`, `vp run db#*`, or `vp test`), export a consistent runtime dir
+and make sure it exists:
+
+```bash
+export XDG_RUNTIME_DIR=/run/user/$(id -u)
+sudo mkdir -p "$XDG_RUNTIME_DIR" && sudo chown "$(id -u):$(id -g)" "$XDG_RUNTIME_DIR" && chmod 700 "$XDG_RUNTIME_DIR"
+```
+
+`/run` is tmpfs, so `/run/user/<uid>` is gone after every VM boot and must be recreated (the snapshot does not preserve
+it). The agent Shell does not source `~/.bashrc`, so this `export` must be re-run in each shell session.
+
+### Running the stack
+
+With `XDG_RUNTIME_DIR` set, `vp run dev` builds packages, starts pgserve, migrates + seeds, then runs the web app and
+the GraphQL/auth server in parallel (see `README.md` for the exact ports and URLs). Run it under tmux since it is
+long-lived. The GraphQL `posts` query is public; `contacts`/`users` are behind the `requireAuth` directive, so query
+them only with a logged-in session.
+
+### Tests
+
+`vp test` includes browser-mode (Vitest + Playwright) tests for React components, which require the Playwright Chromium
+browser. Install it once if missing (it persists in the snapshot under `~/.cache/ms-playwright`):
+
+```bash
+node node_modules/.pnpm/playwright@*/node_modules/playwright/cli.js install chromium
+```
+
+`npx playwright ...` fails here because the repo pins pnpm via `devEngines`; invoke the CLI via `node ...` (above) or
+`pnpm`.
+
+Known pre-existing failure (not environment-related): `packages/pgserve-dev/src/config/defineDbDevConfig.test.ts`
+asserts `databaseName === "redwoodgql"`, which is derived from the repo's root directory name. In Cursor Cloud the repo
+lives at `/workspace`, so the derived name is `workspace` and that one test fails. Everything else passes.
+
+The README lists demo logins (`ada@example.com` / `password`); dbAuth's password policy rejects the short `password`,
+so to exercise the auth UI sign up a fresh account with a stronger password (e.g. `Password123!`).
