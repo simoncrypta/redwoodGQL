@@ -1,6 +1,9 @@
 import { defineConfig, lazyPlugins } from "vite-plus";
+import { playwright } from "vite-plus/test/browser-playwright";
 import { redwood } from "rwsdk/vite";
 import { cloudflare } from "@cloudflare/vite-plugin";
+
+const isTest = Boolean(process.env.VITEST);
 
 const webPackageBuilds = [
   "@rwgql/auth#build",
@@ -10,12 +13,28 @@ const webPackageBuilds = [
 ] as const;
 
 export default defineConfig({
-  plugins: lazyPlugins(() => [
-    cloudflare({
-      viteEnvironment: { name: "worker" },
-    }),
-    redwood(),
-  ]),
+  resolve: {
+    tsconfigPaths: isTest,
+  },
+  plugins: lazyPlugins(() =>
+    isTest
+      ? []
+      : [
+          cloudflare({
+            viteEnvironment: { name: "worker" },
+          }),
+          redwood(),
+        ],
+  ),
+  test: {
+    browser: {
+      enabled: true,
+      instances: [{ browser: "chromium" }],
+      provider: playwright(),
+    },
+    include: ["src/**/*.test.ts", "src/**/*.test.tsx"],
+    setupFiles: ["src/test/setup.ts"],
+  },
   run: {
     tasks: {
       dev: {

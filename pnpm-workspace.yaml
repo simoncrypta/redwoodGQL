@@ -11,6 +11,7 @@ catalog:
   typescript: 7.0.1-rc
   vite: npm:@voidzero-dev/vite-plus-core@latest
   vitest: 4.1.9
+  "@vitest/browser-playwright": 4.1.9
   vite-plus: latest
 overrides:
   vite: "catalog:"
