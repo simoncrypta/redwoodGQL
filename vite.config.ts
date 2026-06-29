@@ -1,17 +1,6 @@
 import { defineConfig } from "vite-plus";
 import { configDefaults } from "vite-plus/test/config";
 
-const bootstrapBuilds = [
-  "@rwgql/pgserve-dev#build",
-  "@rwgql/prisma-dev#build",
-  "@rwgql/auth#build",
-  "@rwgql/dbauth#build",
-  "@rwgql/log-formatter#build",
-  "@rwgql/cell#build",
-  "utils#build",
-  "@rwgql/rwsdk-apollo-client#build",
-] as const;
-
 export default defineConfig({
   staged: {
     "*": "vp check --fix",
@@ -40,8 +29,9 @@ export default defineConfig({
     cache: true,
     tasks: {
       bootstrap: {
-        command: "node -e \"console.info('Workspace tooling packages built')\"",
-        dependsOn: [...bootstrapBuilds],
+        // Build workspace packages via Vite+ task runner. Limit concurrency to avoid
+        // parallel tsgo spawns racing on the native binary (spawn EBUSY on first clone).
+        command: 'vp run --filter "./packages/*" --concurrency-limit 2 build',
       },
       "check:markdown": {
         command: "markdownlint-cli2",
