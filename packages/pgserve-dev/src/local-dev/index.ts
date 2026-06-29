@@ -1,9 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import { getStringArg, parseCliArgs } from "@rwgql/task-core/cli";
-import { freeTcpPort } from "@rwgql/task-core/process";
-import { parseStrictPort } from "@rwgql/task-core/port";
+import { getStringArg, parseCliArgs } from "../cli/parseArgs.ts";
+import { freeTcpPort } from "../process/freePorts.ts";
+import { parseStrictPort } from "../port/parsePort.ts";
 
 import { syncAppEnvFromConnection } from "../env/syncAppEnv.ts";
 import { canQueryDatabase } from "../postgres/client.ts";
@@ -19,6 +19,7 @@ import {
   type PgserveConnectionEnv,
   type ResolvedPgserveConfig,
   type StartLocalDevPgserveOptions,
+  type StopLocalDevPgserveOptions,
   type StartedLocalDevPgserve,
 } from "../types.ts";
 import {
@@ -228,7 +229,9 @@ export async function startLocalDevPgserve(
 export async function stopLocalDevPgserve(
   config: ResolvedPgserveConfig,
   args: PgserveCliArgs = parseCliArgs(),
+  options: StopLocalDevPgserveOptions = {},
 ): Promise<void> {
+  const { quiet = false } = options;
   const dataDir = path.resolve(getStringArg(args, PgserveCliArgKey.DataDir) ?? config.dataDir);
   const portArg = getStringArg(args, PgserveCliArgKey.Port);
   const requestedPort = parseStrictPort(portArg, `Invalid --port value: ${portArg}`);
@@ -243,7 +246,7 @@ export async function stopLocalDevPgserve(
     } catch (error) {
       console.warn(`Failed to read pgserve connection env at ${connectionEnvPath}:`, error);
     }
-  } else {
+  } else if (!quiet) {
     console.warn(
       `No pgserve connection env at ${connectionEnvPath}; stopping postmaster for ${dataDir}.`,
     );

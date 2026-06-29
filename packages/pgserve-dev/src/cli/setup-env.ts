@@ -2,7 +2,7 @@ import { loadResolvedConfigFromArgv } from "../config/loadConfig.ts";
 import { setupAppEnvFallback } from "../env/syncAppEnv.ts";
 
 async function main() {
-  const config = await loadResolvedConfigFromArgv();
+  const { config } = await loadResolvedConfigFromArgv();
   setupAppEnvFallback(config);
 }
 

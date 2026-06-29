@@ -25,29 +25,11 @@ This project is using Vite+, a unified toolchain built on top of Vite, Rolldown,
 
 Docs are local at `node_modules/vite-plus/docs` or online at https://viteplus.dev/guide/.
 
-## Quick Start
-
-See `README.md` for the full onboarding flow. From the repo root:
-
-```bash
-vp env doctor && vp install && vp run dev
-```
-
-New clone (install `vp` first with `curl -fsSL https://vite.plus | bash` if needed):
-`git clone https://github.com/simoncrypta/redwoodGQL.git && cd redwoodGQL && ./quickstart.sh`
-
-Other common commands: `vp check`, `vp test`, `vp run ready`.
-
 ## Review Checklist
 
 - [ ] Run `vp install` after pulling remote changes and before getting started.
-- [ ] Use Vite+ best practices for all tooling. Add automation as Vite Task tasks in `vite.config.ts` / package
-      `vite.config.ts`, then run it through `vp run ...`; do not add `.sh` scripts for project tooling (except
-      `quickstart.sh` for onboarding).
 - [ ] Run `vp check` and `vp test` to format, lint, type check and test changes.
-- [ ] Check if there are `vite.config.ts` tasks or `package.json` scripts necessary for validation, run via
-      `vp run <script>`.
-- [ ] If setup, runtime, or package-manager behavior looks wrong, run `vp env doctor` and include its output when asking
-      for help.
+- [ ] Check if there are `vite.config.ts` tasks or `package.json` scripts necessary for validation, run via `vp run <script>`.
+- [ ] If setup, runtime, or package-manager behavior looks wrong, run `vp env doctor` and include its output when asking for help.
 
 <!--VITE PLUS END-->

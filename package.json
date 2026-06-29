@@ -10,7 +10,6 @@
     "@rwgql/dbauth": "workspace:*",
     "@rwgql/pgserve-dev": "workspace:*",
     "@rwgql/prisma-dev": "workspace:*",
-    "@rwgql/task-core": "workspace:*",
     "db": "workspace:*",
     "markdownlint-cli2": "^0.22.1",
     "tsx": "catalog:",

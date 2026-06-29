@@ -34,13 +34,16 @@ export default defineConfig({
         dependsOn: [...graphqlPackageBuilds],
       },
       dev: {
-        command: "nitro dev",
+        command:
+          process.platform === "win32"
+            ? "graphql-codegen --config codegen.ts --watch & nitro dev"
+            : "sh -c 'trap \"kill 0\" INT TERM; graphql-codegen --config codegen.ts --watch & exec nitro dev'",
         dependsOn: [...graphqlPackageBuilds],
         cache: false,
       },
       "export-schema": {
         command: "tsx scripts/export-schema.ts",
-        dependsOn: [...graphqlPackageBuilds],
+        dependsOn: [...graphqlPackageBuilds, "db#generate"],
         input: [
           "scripts/export-schema.ts",
           "src/graphql/**/*.ts",
@@ -59,11 +62,6 @@ export default defineConfig({
           { pattern: "apps/web/src/app/pages/**/*.{ts,tsx}", base: "workspace" },
         ],
         output: [{ pattern: "apps/web/src/gql/**", base: "workspace" }],
-      },
-      "codegen:watch": {
-        command: "graphql-codegen --config codegen.ts --watch",
-        dependsOn: ["export-schema"],
-        cache: false,
       },
     },
   },

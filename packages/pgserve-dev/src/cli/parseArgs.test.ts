@@ -4,7 +4,7 @@ import { getStringArg, parseCliArgs } from "./parseArgs.ts";
 
 describe("parseCliArgs", () => {
   it("parses boolean flags", () => {
-    expect(parseCliArgs(["--detach"])).toEqual({ detach: true });
+    expect(parseCliArgs(["--verbose"])).toEqual({ verbose: true });
   });
 
   it("parses key=value flags", () => {
@@ -15,7 +15,7 @@ describe("parseCliArgs", () => {
   });
 
   it("returns undefined for missing string args", () => {
-    const args = parseCliArgs(["--detach"]);
-    expect(getStringArg(args, "port")).toBeUndefined();
+    const args = parseCliArgs(["--port=8432"]);
+    expect(getStringArg(args, "database")).toBeUndefined();
   });
 });

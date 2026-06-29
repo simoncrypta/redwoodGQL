@@ -235,9 +235,6 @@ importers:
       '@rwgql/prisma-dev':
         specifier: workspace:*
         version: link:packages/prisma-dev
-      '@rwgql/task-core':
-        specifier: workspace:*
-        version: link:packages/task-core
       db:
         specifier: workspace:*
         version: link:apps/db
@@ -266,9 +263,6 @@ importers:
       '@rwgql/pgserve-dev':
         specifier: workspace:*
         version: link:../../packages/pgserve-dev
-      '@rwgql/task-core':
-        specifier: workspace:*
-        version: link:../../packages/task-core
       '@types/node':
         specifier: ^25.6.2
         version: 25.6.2
@@ -445,9 +439,6 @@ importers:
       vite-plus:
         specifier: 'catalog:'
         version: 0.2.1(@types/node@25.6.2)(@vitest/browser-playwright@4.1.9)(@voidzero-dev/vite-plus-core@0.2.1(@types/node@25.6.2)(esbuild@0.28.1)(jiti@1.21.7)(terser@5.48.0)(tsx@4.22.4)(typescript@7.0.1-rc)(yaml@2.9.0))(esbuild@0.28.1)(jiti@1.21.7)(jsdom@27.4.0)(terser@5.48.0)(tsx@4.22.4)(typescript@7.0.1-rc)(yaml@2.9.0)
-      vite-tsconfig-paths:
-        specifier: ^6.1.1
-        version: 6.1.1(@voidzero-dev/vite-plus-core@0.2.1(@types/node@25.6.2)(esbuild@0.28.1)(jiti@1.21.7)(terser@5.48.0)(tsx@4.22.4)(typescript@7.0.1-rc)(yaml@2.9.0))(typescript@7.0.1-rc)
       wrangler:
         specifier: 4.85.0
         version: 4.85.0(@cloudflare/workers-types@4.20260426.1)
@@ -578,9 +569,6 @@ importers:
 
   packages/pgserve-dev:
     dependencies:
-      '@rwgql/task-core':
-        specifier: workspace:*
-        version: link:../task-core
       pg:
         specifier: ^8.16.3
         version: 8.22.0
@@ -609,9 +597,6 @@ importers:
       '@rwgql/pgserve-dev':
         specifier: workspace:*
         version: link:../pgserve-dev
-      '@rwgql/task-core':
-        specifier: workspace:*
-        version: link:../task-core
     devDependencies:
       '@types/node':
         specifier: ^25.6.2
@@ -653,18 +638,6 @@ importers:
       rwsdk:
         specifier: 1.5.0
         version: 1.5.0(@cloudflare/vite-plugin@1.33.2(vite@8.0.16(@types/node@25.6.2)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.48.0)(tsx@4.22.4)(yaml@2.9.0))(workerd@1.20260424.1)(wrangler@4.85.0(@cloudflare/workers-types@4.20260426.1)))(react-dom@19.2.6(react@19.2.6))(react-server-dom-webpack@19.2.6(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(webpack@5.107.2(esbuild@0.28.1)))(react@19.2.6)(typescript@7.0.1-rc)(vite@8.0.16(@types/node@25.6.2)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.48.0)(tsx@4.22.4)(yaml@2.9.0))(wrangler@4.85.0(@cloudflare/workers-types@4.20260426.1))
-      typescript:
-        specifier: 'catalog:'
-        version: 7.0.1-rc
-      vite-plus:
-        specifier: 'catalog:'
-        version: 0.2.1(@types/node@25.6.2)(@vitest/browser-playwright@4.1.9)(esbuild@0.28.1)(jiti@2.7.0)(jsdom@27.4.0)(terser@5.48.0)(tsx@4.22.4)(typescript@7.0.1-rc)(vite@8.0.16(@types/node@25.6.2)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.48.0)(tsx@4.22.4)(yaml@2.9.0))(yaml@2.9.0)
-
-  packages/task-core:
-    devDependencies:
-      '@types/node':
-        specifier: ^25.6.2
-        version: 25.6.2
       typescript:
         specifier: 'catalog:'
         version: 7.0.1-rc

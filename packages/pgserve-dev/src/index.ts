@@ -39,6 +39,7 @@ export type {
   ResolvedPgserveConfig,
   StartedLocalDevPgserve,
   StartLocalDevPgserveOptions,
+  StopLocalDevPgserveOptions,
 } from "./types.ts";
 export { PGSERVE_READY_MARKER, PgserveCliArgKey } from "./types.ts";
 export { waitForPostgres, waitForPostgresFromDatabaseUrl } from "./wait/waitForPostgres.ts";

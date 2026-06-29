@@ -1,13 +1,7 @@
 import { defineConfig } from "vite-plus";
 import { configDefaults } from "vite-plus/test/config";
-import { createBinCommand } from "@rwgql/task-core/vite";
-
-const devTasks = ["rwsdk#dev", "graphql#dev", "graphql#codegen:watch"] as const;
-const devStopTasks = ["db#dev:stop"] as const;
-const devCommand = `RWGQL_DEV_STOP_TASKS=${devStopTasks.join(",")} RWGQL_DEV_TASKS=${devTasks.join(",")} ${createBinCommand("@rwgql/task-core", "rwgql-dev")}`;
 
 const bootstrapBuilds = [
-  "@rwgql/task-core#build",
   "@rwgql/pgserve-dev#build",
   "@rwgql/prisma-dev#build",
   "@rwgql/auth#build",
@@ -54,8 +48,8 @@ export default defineConfig({
         input: [{ pattern: "**/*.md", base: "workspace" }, ".markdownlint-cli2.jsonc"],
       },
       dev: {
-        command: devCommand,
-        dependsOn: ["bootstrap", "db#dev:prepare", "seed", "graphql#codegen"],
+        command: "vp run --parallel --filter rwsdk --filter graphql --filter db dev",
+        dependsOn: ["bootstrap", "db#generate", "db#dev:prepare", "seed", "graphql#codegen"],
         cache: false,
       },
       seed: {

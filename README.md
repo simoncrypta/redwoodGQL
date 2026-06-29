@@ -99,7 +99,6 @@ redwoodGQL/
 │   ├── rwsdk-apollo-client/ # Apollo integration for RedwoodSDK
 │   ├── pgserve-dev/  # @rwgql/pgserve-dev — local Postgres dev workflow
 │   ├── prisma-dev/   # @rwgql/prisma-dev — Prisma migrate/generate tasks
-│   ├── task-core/    # @rwgql/task-core — parallel dev orchestration
 │   ├── log-formatter/# @rwgql/log-formatter — GraphQL operation logging
 │   └── utils/        # @rwgql/utils — shared utilities (stub)
 └── test-project/     # Legacy RedwoodJS reference app for comparison
@@ -133,7 +132,6 @@ future extraction layer.
 | `@rwgql/rwsdk-apollo-client` | Apollo Client provider for RedwoodSDK                   |
 | `@rwgql/pgserve-dev`         | Local Postgres via pgserve — start, env sync, teardown  |
 | `@rwgql/prisma-dev`          | Prisma dev tasks — migrate, generate, env wiring        |
-| `@rwgql/task-core`           | Vite+ task helpers — parallel dev server orchestration  |
 | `@rwgql/log-formatter`       | Vite-style per-operation GraphQL logging                |
 
 ## Getting Started
@@ -206,7 +204,7 @@ may still change.
 - **Auth** — `@rwgql/dbauth` (login, signup, logout, forgot/reset password), session cookies,
   web route guards, and `requireAuth`/`skipAuth` on the schema
 - **Data layer** — Prisma schema, migrations, and seed data in `apps/db`
-- **Tooling packages** — `@rwgql/pgserve-dev`, `@rwgql/prisma-dev`, `@rwgql/task-core`,
+- **Tooling packages** — `@rwgql/pgserve-dev`, `@rwgql/prisma-dev`,
   `@rwgql/log-formatter`
 
 ### Parity vs `test-project/`

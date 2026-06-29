@@ -2,9 +2,8 @@
 
 Project-specific scripts live here. Shared dev tooling lives in packages:
 
-- [`@rwgql/task-core`](../packages/task-core) — CLI parsing, port utilities, parallel process orchestration, and Vite
-  task helpers
-- [`@rwgql/pgserve-dev`](../packages/pgserve-dev) — PostgreSQL/pgserve lifecycle and related Vite tasks (ORM-agnostic)
+- [`@rwgql/pgserve-dev`](../packages/pgserve-dev) — PostgreSQL/pgserve lifecycle, CLI utilities, and related Vite
+  tasks (ORM-agnostic)
 - [`@rwgql/prisma-dev`](../packages/prisma-dev) — Prisma env loading and Vite tasks (`generate`, `migrate-deploy`)
 
 Pgserve configuration for this app is in [`apps/db/pgserve.config.ts`](../apps/db/pgserve.config.ts). CLI entrypoints
@@ -22,15 +21,16 @@ Root [`vite.config.ts`](../vite.config.ts) orchestrates workspace flows:
 
 - `bootstrap` — packs workspace tooling packages via `dependsOn` (`vp run bootstrap`; also runs automatically before `dev`
   and `ready`)
-- `dev` — depends on `bootstrap`, `db#dev:prepare`, `seed`, and `graphql#codegen`; spawns `rwsdk#dev`, `graphql#dev`,
-  and `graphql#codegen:watch` in parallel; on Ctrl+C runs `db#dev:stop` to shut down detached pgserve
+- `dev` — depends on `bootstrap`, `db#dev:prepare`, `seed`, and `graphql#codegen`; then runs
+  `rwsdk#dev`, `graphql#dev`, and `db#dev` in parallel via `vp run --parallel`. Each package handles its own
+  shutdown on Ctrl+C; `db#dev` holds the session and stops pgserve quietly when it ends
 - `seed` — runs `scripts/seed.ts`; depends on `db#migrate-deploy`
 - `ready` — format, lint, type-check, markdown lint, tests, and build across the workspace (`vp run ready`)
 
 [`apps/db/vite.config.ts`](../apps/db/vite.config.ts) owns the db task graph via `createPgserveTasks()` and
 `createPrismaTasks()`:
 
-- `setup-env`, `pgserve`, `prepare`, `dev:prepare`, `dev:stop`
+- `setup-env`, `pgserve`, `prepare`, `dev:prepare`, `dev`, `dev:stop`
 - `generate`, `migrate-deploy`
 
 Cross-package ordering uses Vite+ `package#task` notation in `dependsOn` (e.g. `db#migrate-deploy`).

@@ -1,5 +1,3 @@
-import { parseCliArgs } from "@rwgql/task-core/cli";
-
 import { loadResolvedConfigFromArgv } from "../config/loadConfig.ts";
 import {
   printPgserveReadyMarker,
@@ -10,8 +8,7 @@ import {
 } from "../local-dev/index.ts";
 
 async function main() {
-  const config = await loadResolvedConfigFromArgv();
-  const args = parseCliArgs();
+  const { config, args } = await loadResolvedConfigFromArgv();
   const { provider } = await startLocalDevPgserve(config, args, {
     emitReadyMarker: false,
   });
@@ -21,7 +18,7 @@ async function main() {
     printPgserveReadyMarker();
     console.log("pgserve connection is ready.");
     console.log("Keeping pgserve running. Press Ctrl+C to stop.");
-    await new Promise(() => undefined);
+    await new Promise<void>(() => {});
   } catch (error) {
     await stopProvider(provider);
     removeConnectionEnvFiles(config, args);
