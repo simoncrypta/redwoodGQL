@@ -67,5 +67,8 @@ regenerated.
 `db#dev:prepare` writes `apps/db/.env` with `DATABASE_URL` and `PRISMA_DATABASE_URL`. See `.env.defaults` for the
 expected shape.
 
+GraphQL service tests use an ephemeral RAM-backed Postgres instance via `@rwgql/prisma-dev/test`, so `vp test` does not
+read or write the dev database seeded by `scripts/seed.ts`.
+
 Override values by editing `.env` locally — it is gitignored. You should not need a separate install step; `pgserve` is
 already a devDependency of this package.
