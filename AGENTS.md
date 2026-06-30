@@ -40,20 +40,12 @@ The Vite+ CLI (`vp`) is pre-installed in the VM snapshot and symlinked at `/usr/
 non-login shells). The startup update script runs `vp install`. Standard commands (`vp check`, `vp test`,
 `vp run -r build`, `vp run dev`) are documented in `README.md`.
 
-### Local Postgres (pgserve) socket dir
-
-Local Postgres (`pgserve`) connects over a unix socket at `$XDG_RUNTIME_DIR/pgserve`, falling back to `/tmp/pgserve`
-when `XDG_RUNTIME_DIR` is unset (the documented pgserve behavior). `@rwgql/pgserve-dev`'s `getSocketDir()` mirrors that
-exact resolution, so the database works out of the box with no `XDG_RUNTIME_DIR` setup — in Cursor Cloud the socket
-simply lands in `/tmp/pgserve`. If you ever change socket-dir logic, keep it in lockstep with pgserve's
-`resolveSocketDir` (`pgserve/src/lib/socket-dir.js`); a mismatch makes every Prisma query fail with a connection error.
-
 ### Running the stack
 
 `vp run dev` builds packages, starts pgserve, migrates + seeds, then runs the web app and the GraphQL/auth server in
-parallel (see `README.md` for the exact ports and URLs). Run it under tmux since it is long-lived. The GraphQL `posts`
-query is public; `contacts`/`users` are behind the `requireAuth` directive, so query them only with a logged-in
-session.
+parallel (see `README.md` for the exact ports and URLs). Run it under tmux since it is long-lived. pgserve needs no
+`XDG_RUNTIME_DIR` setup — its socket lands in `/tmp/pgserve` when the var is unset. The GraphQL `posts` query is
+public; `contacts`/`users` are behind the `requireAuth` directive, so query them only with a logged-in session.
 
 ### Tests
 
@@ -66,10 +58,3 @@ node node_modules/.pnpm/playwright@*/node_modules/playwright/cli.js install chro
 
 `npx playwright ...` fails here because the repo pins pnpm via `devEngines`; invoke the CLI via `node ...` (above) or
 `pnpm`.
-
-Known pre-existing failure (not environment-related): `packages/pgserve-dev/src/config/defineDbDevConfig.test.ts`
-asserts `databaseName === "redwoodgql"`, which is derived from the repo's root directory name. In Cursor Cloud the repo
-lives at `/workspace`, so the derived name is `workspace` and that one test fails. Everything else passes.
-
-The README lists demo logins (`ada@example.com` / `password`); dbAuth's password policy rejects the short `password`,
-so to exercise the auth UI sign up a fresh account with a stronger password (e.g. `Password123!`).
