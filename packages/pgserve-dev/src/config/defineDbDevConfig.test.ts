@@ -1,6 +1,6 @@
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join, resolve } from "node:path";
+import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { describe, expect, it } from "vite-plus/test";
@@ -48,6 +48,12 @@ describe("defineDbDevConfig", () => {
     });
 
     expect(config.pgserveBinPath).toContain("pgserve/bin/pgserve-wrapper.cjs");
-    expect(config.databaseName).toBe("redwoodgql");
+    // databaseName defaults to the sanitized checkout directory name, which
+    // varies by environment (e.g. "redwoodgql" locally, "workspace" in CI),
+    // so derive the expectation from the real repo root instead of hardcoding.
+    const expectedDatabaseName = basename(repoRoot)
+      .replace(/[^a-z0-9_]/gi, "")
+      .toLowerCase();
+    expect(config.databaseName).toBe(expectedDatabaseName);
   });
 });
