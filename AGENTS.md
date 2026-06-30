@@ -40,28 +40,20 @@ The Vite+ CLI (`vp`) is pre-installed in the VM snapshot and symlinked at `/usr/
 non-login shells). The startup update script runs `vp install`. Standard commands (`vp check`, `vp test`,
 `vp run -r build`, `vp run dev`) are documented in `README.md`.
 
-### pgserve needs `XDG_RUNTIME_DIR` (most important gotcha)
+### Local Postgres (pgserve) socket dir
 
-Local Postgres (`pgserve`) places its unix socket under `$XDG_RUNTIME_DIR/pgserve`, but when `XDG_RUNTIME_DIR` is
-unset the pgserve wrapper and the connection-URL builder disagree (the wrapper falls back to `/tmp/pgserve` while the
-generated `PRISMA_DATABASE_URL` points at `/run/user/<uid>/pgserve`), so DB connections fail. Before running anything
-that touches the database (`vp run dev`, `vp run seed`, `vp run db#*`, or `vp test`), export a consistent runtime dir
-and make sure it exists:
-
-```bash
-export XDG_RUNTIME_DIR=/run/user/$(id -u)
-sudo mkdir -p "$XDG_RUNTIME_DIR" && sudo chown "$(id -u):$(id -g)" "$XDG_RUNTIME_DIR" && chmod 700 "$XDG_RUNTIME_DIR"
-```
-
-`/run` is tmpfs, so `/run/user/<uid>` is gone after every VM boot and must be recreated (the snapshot does not preserve
-it). The agent Shell does not source `~/.bashrc`, so this `export` must be re-run in each shell session.
+Local Postgres (`pgserve`) connects over a unix socket at `$XDG_RUNTIME_DIR/pgserve`, falling back to `/tmp/pgserve`
+when `XDG_RUNTIME_DIR` is unset (the documented pgserve behavior). `@rwgql/pgserve-dev`'s `getSocketDir()` mirrors that
+exact resolution, so the database works out of the box with no `XDG_RUNTIME_DIR` setup — in Cursor Cloud the socket
+simply lands in `/tmp/pgserve`. If you ever change socket-dir logic, keep it in lockstep with pgserve's
+`resolveSocketDir` (`pgserve/src/lib/socket-dir.js`); a mismatch makes every Prisma query fail with a connection error.
 
 ### Running the stack
 
-With `XDG_RUNTIME_DIR` set, `vp run dev` builds packages, starts pgserve, migrates + seeds, then runs the web app and
-the GraphQL/auth server in parallel (see `README.md` for the exact ports and URLs). Run it under tmux since it is
-long-lived. The GraphQL `posts` query is public; `contacts`/`users` are behind the `requireAuth` directive, so query
-them only with a logged-in session.
+`vp run dev` builds packages, starts pgserve, migrates + seeds, then runs the web app and the GraphQL/auth server in
+parallel (see `README.md` for the exact ports and URLs). Run it under tmux since it is long-lived. The GraphQL `posts`
+query is public; `contacts`/`users` are behind the `requireAuth` directive, so query them only with a logged-in
+session.
 
 ### Tests
 
