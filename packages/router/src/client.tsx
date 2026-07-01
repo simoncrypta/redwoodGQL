@@ -4,6 +4,7 @@ import type { AnchorHTMLAttributes, ReactNode } from "react";
 import { navigate as rwsdkNavigate } from "rwsdk/client";
 
 import { usePathname } from "./PathnameProvider.js";
+import { normalizePathname } from "./normalizePath.js";
 
 export type LinkProps = Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href"> & {
   readonly children: ReactNode;
@@ -22,7 +23,7 @@ export type NavLinkProps = LinkProps & {
 
 export const NavLink = ({ activeClassName, className, to, ...props }: NavLinkProps) => {
   const pathname = usePathname();
-  const isActive = pathname === to;
+  const isActive = pathname === normalizePathname(to);
 
   return (
     <Link className={isActive ? (activeClassName ?? className) : className} to={to} {...props} />

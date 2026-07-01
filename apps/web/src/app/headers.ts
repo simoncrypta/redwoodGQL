@@ -1,5 +1,30 @@
 import { RouteMiddleware } from "rwsdk/router";
 
+const connectSrcOrigins = (): string => {
+  const origins = new Set(["'self'"]);
+
+  const addOrigin = (url: string | undefined) => {
+    if (!url) {
+      return;
+    }
+
+    try {
+      origins.add(new URL(url).origin);
+    } catch {
+      // Ignore invalid URLs in CSP construction.
+    }
+  };
+
+  if (import.meta.env.DEV) {
+    origins.add("http://localhost:8911");
+  }
+
+  addOrigin(import.meta.env.VITE_GRAPHQL_URL);
+  addOrigin(import.meta.env.VITE_AUTH_URL);
+
+  return [...origins].join(" ");
+};
+
 export const setCommonHeaders =
   (): RouteMiddleware =>
   ({ response, rw: { nonce } }) => {
@@ -23,6 +48,6 @@ export const setCommonHeaders =
     // Defines trusted sources for content loading and script execution:
     response.headers.set(
       "Content-Security-Policy",
-      `default-src 'self'; script-src 'self' 'unsafe-eval' 'nonce-${nonce}' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; frame-ancestors 'self'; frame-src 'self' https://challenges.cloudflare.com; object-src 'none';`,
+      `default-src 'self'; connect-src ${connectSrcOrigins()}; script-src 'self' 'unsafe-eval' 'nonce-${nonce}' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; frame-ancestors 'self'; frame-src 'self' https://challenges.cloudflare.com; object-src 'none';`,
     );
   };

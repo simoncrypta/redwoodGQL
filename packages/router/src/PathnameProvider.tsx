@@ -2,6 +2,8 @@
 
 import { createContext, useContext, type ReactNode } from "react";
 
+import { normalizePathname } from "./normalizePath.js";
+
 const PathnameContext = createContext<string | undefined>(undefined);
 
 export type PathnameProviderProps = {
@@ -16,9 +18,13 @@ export const PathnameProvider = ({ children, pathname }: PathnameProviderProps) 
 export const usePathname = (): string => {
   const fromProvider = useContext(PathnameContext);
 
-  if (typeof window === "undefined") {
-    return fromProvider ?? "/";
+  if (fromProvider !== undefined) {
+    return normalizePathname(fromProvider);
   }
 
-  return window.location.pathname;
+  if (typeof window !== "undefined") {
+    return normalizePathname(window.location.pathname);
+  }
+
+  return "/";
 };

@@ -12,11 +12,29 @@ describe("usePathname", () => {
     window.history.pushState({}, "", originalPathname);
   });
 
-  it("uses window.location.pathname on the client", () => {
+  it("prefers provider pathname when set", () => {
     window.history.pushState({}, "", "/contact");
 
     render(
       <PathnameProvider pathname="/about">
+        <PathnameProbe />
+      </PathnameProvider>,
+    );
+
+    expect(screen.getByTestId("pathname")).toHaveTextContent("/about");
+  });
+
+  it("falls back to window.location when provider is undefined", () => {
+    window.history.pushState({}, "", "/contact");
+
+    render(<PathnameProbe />);
+
+    expect(screen.getByTestId("pathname")).toHaveTextContent("/contact");
+  });
+
+  it("strips trailing slashes from pathnames", () => {
+    render(
+      <PathnameProvider pathname="/contact/">
         <PathnameProbe />
       </PathnameProvider>,
     );

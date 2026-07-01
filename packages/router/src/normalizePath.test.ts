@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vite-plus/test";
 
-import { normalizeRedwoodPath } from "./normalizePath.js";
+import { normalizePathname, normalizeRedwoodPath } from "./normalizePath.js";
 
 describe("normalizeRedwoodPath", () => {
   it("converts Redwood path params to RWSdk colon params", () => {
@@ -11,5 +11,12 @@ describe("normalizeRedwoodPath", () => {
 
   it("leaves static paths unchanged", () => {
     expect(normalizeRedwoodPath("/about")).toBe("/about");
+  });
+});
+
+describe("normalizePathname", () => {
+  it("strips trailing slashes except for root", () => {
+    expect(normalizePathname("/contact/")).toBe("/contact");
+    expect(normalizePathname("/")).toBe("/");
   });
 });
