@@ -18,7 +18,13 @@ export default defineConfig({
     ignorePatterns: [".nitro/**", ".output/**", "schema.graphql", "src/types/graphql.ts"],
   },
   lint: {
-    ignorePatterns: [".nitro/**", ".output/**", "schema.graphql", "src/types/graphql.ts"],
+    ignorePatterns: [
+      ".nitro/**",
+      ".output/**",
+      "schema.graphql",
+      "src/types/graphql.ts",
+      "src/schema/generated/**",
+    ],
     options: {
       typeAware: true,
       typeCheck: true,
@@ -36,7 +42,7 @@ export default defineConfig({
       },
       dev: {
         command: "tsx scripts/dev.ts",
-        dependsOn: [...graphqlPackageBuilds],
+        dependsOn: [...graphqlPackageBuilds, "regenerate-registry"],
         cache: false,
       },
       codegen: {
@@ -52,7 +58,7 @@ export default defineConfig({
       },
       "export-schema": {
         command: "tsx scripts/export-schema.ts",
-        dependsOn: [...graphqlPackageBuilds],
+        dependsOn: ["regenerate-registry", ...graphqlPackageBuilds],
         input: [
           "scripts/export-schema.ts",
           "src/graphql/**/*.ts",
@@ -60,6 +66,18 @@ export default defineConfig({
           "src/directives/**/*.ts",
         ],
         output: ["schema.graphql"],
+      },
+      "regenerate-registry": {
+        command:
+          "tsx scripts/regenerate-registry.ts && vp fmt src/schema/generated/typeDefs.ts src/schema/generated/services.ts",
+        dependsOn: [...graphqlPackageBuilds],
+        input: [
+          "scripts/regenerate-registry.ts",
+          "src/graphql/**/*.ts",
+          "src/directives/**/*.ts",
+          "src/services/**/*.ts",
+        ],
+        output: ["src/schema/generated/typeDefs.ts", "src/schema/generated/services.ts"],
       },
     },
   },
