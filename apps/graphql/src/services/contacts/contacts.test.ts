@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from "vite-plus/test";
 import type { Contact } from "db";
 import { callService } from "@rwgql/graphql-typegen/yoga";
 
-import { resetDatabase, seedContactsFixture } from "../../test/db.ts";
+import { resetDatabase, seedContactsFixture } from "../../../testUtils/db.ts";
 import { contact, contacts, createContact, deleteContact, updateContact } from "./contacts.ts";
 
 describe("contacts", () => {

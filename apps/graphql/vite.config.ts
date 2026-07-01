@@ -11,9 +11,9 @@ export default defineConfig({
   test: {
     environment: "node",
     fileParallelism: false,
-    globalSetup: ["src/test/globalSetup.ts"],
+    globalSetup: ["testUtils/globalSetup.ts"],
     include: ["src/**/*.test.ts"],
-    setupFiles: ["src/test/setup.ts"],
+    setupFiles: ["testUtils/setup.ts"],
   },
   fmt: {
     ignorePatterns: [".nitro/**", ".output/**", "schema.graphql", "src/types/graphql.ts"],

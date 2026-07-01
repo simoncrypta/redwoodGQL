@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from "vite-plus/test";
 
 import { callService } from "@rwgql/graphql-typegen/yoga";
 
-import { resetDatabase, seedPostsFixture } from "../../test/db.ts";
+import { resetDatabase, seedPostsFixture } from "../../../testUtils/db.ts";
 import { user } from "../users/users.ts";
 import { createPost, deletePost, post, Post, posts, updatePost } from "./posts.ts";
 

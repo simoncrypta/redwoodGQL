@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vite-plus/test";
 
-import { mockValidatorDirective } from "../../test/directives.ts";
+import { mockValidatorDirective } from "../../../testUtils/directives.ts";
 import requireAuth from "./requireAuth.ts";
 
 describe("requireAuth directive", () => {
