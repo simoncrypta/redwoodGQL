@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from "vite-plus/test";
 import { callService } from "@rwgql/graphql-typegen/yoga";
 
 import { resetDatabase, seedPostsFixture } from "../../test/db.ts";
-import { posts, user } from "./users.ts";
+import { User, user } from "./users.ts";
 
 describe("users", () => {
   beforeEach(async () => {
@@ -25,7 +25,7 @@ describe("users", () => {
   it("resolves user posts", async () => {
     const fixture = await seedPostsFixture();
     const userResult = await callService(user, { id: fixture.post.one.authorId });
-    const postsResult = await callService(posts, {}, userResult!);
+    const postsResult = await callService(User.posts!, {}, userResult!);
 
     expect(postsResult.some((entry) => entry.id === fixture.post.one.id)).toBe(true);
   });

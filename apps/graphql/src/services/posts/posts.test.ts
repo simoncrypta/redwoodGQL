@@ -4,7 +4,7 @@ import { callService } from "@rwgql/graphql-typegen/yoga";
 
 import { resetDatabase, seedPostsFixture } from "../../test/db.ts";
 import { user } from "../users/users.ts";
-import { author, createPost, deletePost, post, posts, updatePost } from "./posts.ts";
+import { createPost, deletePost, post, Post, posts, updatePost } from "./posts.ts";
 
 describe("posts", () => {
   beforeEach(async () => {
@@ -28,7 +28,7 @@ describe("posts", () => {
   it("resolves post author", async () => {
     const fixture = await seedPostsFixture();
     const postResult = await callService(post, { id: fixture.post.one.id });
-    const authorResult = await callService(author, {}, postResult!);
+    const authorResult = await callService(Post.author!, {}, postResult!);
     const userResult = await callService(user, { id: fixture.post.one.authorId });
 
     expect(authorResult).toEqual(userResult);

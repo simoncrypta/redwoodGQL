@@ -2,6 +2,7 @@ import { buildSchema } from "graphql";
 import { describe, expect, it } from "vite-plus/test";
 
 import {
+  appendRelationResolverTypes,
   getRelationFields,
   shouldWrapRelationOptional,
   wrapObjectType,
@@ -93,5 +94,30 @@ export type Post = {
     expect(wrapped).not.toMatch(/export type Query = RelationOptional/);
     expect(wrapped).not.toMatch(/export type Mutation = RelationOptional/);
     expect(wrapped).toMatch(/export type Post = RelationOptional</);
+  });
+});
+
+describe("appendRelationResolverTypes", () => {
+  it("adds RelationResolvers types with only relation fields", () => {
+    const content = `export type PostResolvers = {
+  author?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+};
+
+export type UserResolvers = {
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  posts?: Resolver<Array<Maybe<ResolversTypes['Post']>>, ParentType, ContextType>;
+};
+`;
+
+    const appended = appendRelationResolverTypes(schema, content);
+
+    expect(appended).toContain(
+      "export type PostRelationResolvers<ContextType = YogaContext, ParentType extends ResolversParentTypes['Post'] = ResolversParentTypes['Post']> = Pick<PostResolvers<ContextType, ParentType>, 'author'>;",
+    );
+    expect(appended).toContain(
+      "export type UserRelationResolvers<ContextType = YogaContext, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = Pick<UserResolvers<ContextType, ParentType>, 'posts'>;",
+    );
+    expect(appended).not.toMatch(/PostRelationResolvers[\s\S]*'id'/);
   });
 });

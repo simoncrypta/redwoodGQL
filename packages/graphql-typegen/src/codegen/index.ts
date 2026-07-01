@@ -59,3 +59,14 @@ export {
   writeSchemaGraphql,
   type TypeDefSource,
 };
+
+export {
+  discoverSchemaRegistryFiles,
+  generateGetSchemaSource,
+  generateSchemaRegistrySource,
+  generateServicesRegistrySource,
+  generateTypeDefsRegistrySource,
+  writeSchemaRegistry,
+  type DiscoveredSchemaRegistryFiles,
+  type SchemaRegistryConfig,
+} from "./generateSchemaRegistry.ts";

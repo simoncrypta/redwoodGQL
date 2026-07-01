@@ -61,3 +61,30 @@ export const wrapRelationOptionalTypes = (schema: GraphQLSchema, content: string
       return declaration.endsWith("\n") ? `${wrapped}\n` : wrapped;
     })
     .join("");
+
+/** Append dedicated relation-resolver types for grouped service exports. */
+export const appendRelationResolverTypes = (schema: GraphQLSchema, content: string): string => {
+  const lines: string[] = [];
+
+  for (const typeName of Object.keys(schema.getTypeMap()).sort()) {
+    if (typeName.startsWith("__") || ROOT_OPERATION_TYPES.has(typeName)) {
+      continue;
+    }
+
+    const relationFields = getRelationFields(schema, typeName);
+    if (relationFields.length === 0) {
+      continue;
+    }
+
+    const keys = relationFields.map((field) => `'${field}'`).join(" | ");
+    lines.push(
+      `export type ${typeName}RelationResolvers<ContextType = YogaContext, ParentType extends ResolversParentTypes['${typeName}'] = ResolversParentTypes['${typeName}']> = Pick<${typeName}Resolvers<ContextType, ParentType>, ${keys}>;`,
+    );
+  }
+
+  if (lines.length === 0) {
+    return content;
+  }
+
+  return `${content.trimEnd()}\n\n${lines.join("\n")}\n`;
+};
