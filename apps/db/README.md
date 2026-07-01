@@ -6,7 +6,7 @@ Workspace package for PostgreSQL + Prisma. Other apps import the shared client:
 import { db, type User } from "db";
 ```
 
-`apps/graphql` and `scripts/seed.ts` depend on this package.
+`apps/graphql` and `apps/scripts/seed.ts` depend on this package.
 
 ## Day to day
 
@@ -44,7 +44,7 @@ Root tasks that depend on this package:
 
 ```bash
 vp run dev    # db#dev:prepare → migrate → seed → start apps
-vp run seed   # db#migrate-deploy → scripts/seed.ts
+vp run seed   # db#migrate-deploy → apps/scripts/seed.ts
 ```
 
 ## Schema changes
@@ -68,7 +68,7 @@ regenerated.
 expected shape.
 
 GraphQL service tests use an ephemeral RAM-backed Postgres instance via `@rwgql/prisma-dev/test`, so `vp test` does not
-read or write the dev database seeded by `scripts/seed.ts`.
+read or write the dev database seeded by `apps/scripts/seed.ts`.
 
 Override values by editing `.env` locally — it is gitignored. You should not need a separate install step; `pgserve` is
 already a devDependency of this package.

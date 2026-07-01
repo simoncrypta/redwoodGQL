@@ -16,7 +16,7 @@ export default defineConfig({
     options: { typeAware: true, typeCheck: true },
     overrides: [
       {
-        files: ["scripts/**"],
+        files: ["apps/scripts/**"],
         env: { node: true },
       },
     ],
@@ -43,7 +43,7 @@ export default defineConfig({
         cache: false,
       },
       seed: {
-        command: "tsx scripts/seed.ts",
+        command: "tsx apps/scripts/seed.ts",
         dependsOn: ["db#migrate-deploy"],
         cache: false,
       },
