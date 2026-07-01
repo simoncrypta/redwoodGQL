@@ -15,7 +15,7 @@
     "verbatimModuleSyntax": true,
     "skipLibCheck": true,
     "paths": {
-      "types/*": ["./src/types/*"]
+      "types/graphql": ["./src/graphql.gen.ts"]
     }
   },
   "include": ["nitro.config.ts", "server.node.ts", "src", "testUtils"]

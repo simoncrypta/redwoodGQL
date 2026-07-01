@@ -24,6 +24,12 @@ export type DiscoveredSchemaRegistryFiles = {
   services: string[];
 };
 
+export const SCHEMA_REGISTRY_FILES = {
+  getSchema: "getSchema.gen.ts",
+  services: "services.gen.ts",
+  typeDefs: "typeDefs.gen.ts",
+} as const;
+
 const GENERATED_HEADER =
   "// AUTO-GENERATED — do not edit. Run `vp run regenerate-registry` to update.\n";
 
@@ -164,8 +170,8 @@ import type { GraphQLSchema } from "graphql";
 import { applyValidatorDirectives } from "${authImport}";
 import { createServiceSchema } from "@rwgql/graphql-typegen/yoga";
 
-import { directives, typeDefs } from "./typeDefs.ts";
-import { services } from "./services.ts";
+import { directives, typeDefs } from "./typeDefs.gen.ts";
+import { services } from "./services.gen.ts";
 
 let schema: GraphQLSchema | undefined;
 
@@ -188,12 +194,15 @@ export const writeSchemaRegistry = async (config: SchemaRegistryConfig): Promise
 
   mkdirSync(config.outputDir, { recursive: true });
   writeFileSync(
-    join(config.outputDir, "typeDefs.ts"),
+    join(config.outputDir, SCHEMA_REGISTRY_FILES.typeDefs),
     generateTypeDefsRegistrySource(config, files),
   );
   writeFileSync(
-    join(config.outputDir, "services.ts"),
+    join(config.outputDir, SCHEMA_REGISTRY_FILES.services),
     generateServicesRegistrySource(config, files),
   );
-  writeFileSync(join(config.outputDir, "getSchema.ts"), generateGetSchemaSource(config));
+  writeFileSync(
+    join(config.outputDir, SCHEMA_REGISTRY_FILES.getSchema),
+    generateGetSchemaSource(config),
+  );
 };

@@ -66,6 +66,7 @@ export {
   generateSchemaRegistrySource,
   generateServicesRegistrySource,
   generateTypeDefsRegistrySource,
+  SCHEMA_REGISTRY_FILES,
   writeSchemaRegistry,
   type DiscoveredSchemaRegistryFiles,
   type SchemaRegistryConfig,

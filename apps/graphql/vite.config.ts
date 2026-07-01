@@ -16,16 +16,10 @@ export default defineConfig({
     setupFiles: ["testUtils/setup.ts"],
   },
   fmt: {
-    ignorePatterns: [".nitro/**", ".output/**", "schema.graphql", "src/types/graphql.ts"],
+    ignorePatterns: [".nitro/**", ".output/**", "schema.graphql", "src/**/*.gen.ts"],
   },
   lint: {
-    ignorePatterns: [
-      ".nitro/**",
-      ".output/**",
-      "schema.graphql",
-      "src/types/graphql.ts",
-      "src/generated/**",
-    ],
+    ignorePatterns: [".nitro/**", ".output/**", "schema.graphql", "src/**/*.gen.ts"],
     options: {
       typeAware: true,
       typeCheck: true,
@@ -55,7 +49,7 @@ export default defineConfig({
           { pattern: "apps/web/src/components/**/*.{ts,tsx}", base: "workspace" },
           { pattern: "apps/web/src/pages/**/*.{ts,tsx}", base: "workspace" },
         ],
-        output: [{ pattern: "apps/web/src/gql/**", base: "workspace" }, "src/types/graphql.ts"],
+        output: [{ pattern: "apps/web/src/gql/**", base: "workspace" }, "src/graphql.gen.ts"],
       },
       "export-schema": {
         command: "tsx scripts/export-schema.ts",
@@ -64,13 +58,13 @@ export default defineConfig({
           "scripts/export-schema.ts",
           "src/graphql/**/*.ts",
           "src/directives/**/*.ts",
-          "src/generated/**/*.ts",
+          "src/**/*.gen.ts",
         ],
         output: ["schema.graphql"],
       },
       "regenerate-registry": {
         command:
-          "tsx scripts/regenerate-registry.ts && vp fmt src/generated/typeDefs.ts src/generated/services.ts src/generated/getSchema.ts",
+          "tsx scripts/regenerate-registry.ts && vp fmt src/typeDefs.gen.ts src/services.gen.ts src/getSchema.gen.ts",
         dependsOn: [...graphqlPackageBuilds],
         input: [
           "scripts/regenerate-registry.ts",
@@ -78,11 +72,7 @@ export default defineConfig({
           "src/directives/**/*.ts",
           "src/services/**/*.ts",
         ],
-        output: [
-          "src/generated/typeDefs.ts",
-          "src/generated/services.ts",
-          "src/generated/getSchema.ts",
-        ],
+        output: ["src/typeDefs.gen.ts", "src/services.gen.ts", "src/getSchema.gen.ts"],
       },
     },
   },

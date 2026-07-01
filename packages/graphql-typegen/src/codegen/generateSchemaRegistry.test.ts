@@ -11,13 +11,14 @@ import {
   generateSchemaRegistrySource,
   generateServicesRegistrySource,
   generateTypeDefsRegistrySource,
+  SCHEMA_REGISTRY_FILES,
   writeSchemaRegistry,
 } from "./generateSchemaRegistry.ts";
 
 const graphqlAppRoot = join(dirname(fileURLToPath(import.meta.url)), "../../../../apps/graphql");
 
 const graphqlAppRegistryConfig = {
-  outputDir: join(graphqlAppRoot, "src/generated"),
+  outputDir: join(graphqlAppRoot, "src"),
   patterns: {
     directives: "src/directives/**/*.ts",
     sdl: "src/graphql/**/*.sdl.ts",
@@ -32,7 +33,6 @@ const createFixtureProject = (root: string): void => {
   mkdirSync(join(root, "src/directives/betaAuth"), { recursive: true });
   mkdirSync(join(root, "src/services/comments"), { recursive: true });
   mkdirSync(join(root, "src/services/posts"), { recursive: true });
-  mkdirSync(join(root, "src/generated"), { recursive: true });
 
   writeFileSync(
     join(root, "src/graphql/comments.sdl.ts"),
@@ -72,7 +72,7 @@ describe("generateSchemaRegistry", () => {
     createFixtureProject(root);
 
     const files = await discoverSchemaRegistryFiles({
-      outputDir: join(root, "src/generated"),
+      outputDir: join(root, "src"),
       patterns: {
         directives: "src/directives/**/*.ts",
         sdl: "src/graphql/**/*.sdl.ts",
@@ -94,7 +94,7 @@ describe("generateSchemaRegistry", () => {
 
   it("generates explicit ESM imports and exports", () => {
     const root = "/workspace/apps/graphql";
-    const outputDir = join(root, "src/generated");
+    const outputDir = join(root, "src");
 
     const source = generateSchemaRegistrySource(
       {
@@ -127,21 +127,19 @@ describe("generateSchemaRegistry", () => {
 
     expect(source).not.toContain("rootSchema");
     expect(source).toContain(
-      'import requireAuthDirective from "../directives/requireAuth/requireAuth.ts";',
+      'import requireAuthDirective from "./directives/requireAuth/requireAuth.ts";',
     );
     expect(source).toContain(
-      'import { schema as contactsSchema } from "../graphql/contacts.sdl.ts";',
+      'import { schema as contactsSchema } from "./graphql/contacts.sdl.ts";',
     );
-    expect(source).toContain(
-      'import * as contactsService from "../services/contacts/contacts.ts";',
-    );
+    expect(source).toContain('import * as contactsService from "./services/contacts/contacts.ts";');
     expect(source).toContain("contacts: contactsService,");
     expect(source).toContain("...directives.map((directive) => directive.schema),");
   });
 
   it("generates getSchema source", () => {
     const source = generateGetSchemaSource({
-      outputDir: join(graphqlAppRoot, "src/generated"),
+      outputDir: join(graphqlAppRoot, "src"),
       patterns: graphqlAppRegistryConfig.patterns,
       projectRoot: graphqlAppRoot,
     });
@@ -155,7 +153,7 @@ describe("generateSchemaRegistry", () => {
     const root = mkdtempSync(join(tmpdir(), "rwgql-registry-write-"));
     createFixtureProject(root);
 
-    const outputDir = join(root, "src/generated");
+    const outputDir = join(root, "src");
 
     await writeSchemaRegistry({
       outputDir,
@@ -167,9 +165,9 @@ describe("generateSchemaRegistry", () => {
       projectRoot: root,
     });
 
-    const services = readFileSync(join(outputDir, "services.ts"), "utf8");
-    const typeDefs = readFileSync(join(outputDir, "typeDefs.ts"), "utf8");
-    const getSchema = readFileSync(join(outputDir, "getSchema.ts"), "utf8");
+    const services = readFileSync(join(outputDir, SCHEMA_REGISTRY_FILES.services), "utf8");
+    const typeDefs = readFileSync(join(outputDir, SCHEMA_REGISTRY_FILES.typeDefs), "utf8");
+    const getSchema = readFileSync(join(outputDir, SCHEMA_REGISTRY_FILES.getSchema), "utf8");
 
     expect(services).toContain("AUTO-GENERATED");
     expect(services).toContain("comments: commentsService,");
@@ -200,16 +198,23 @@ describe("generateSchemaRegistry", () => {
     ]);
   });
 
-  it("keeps the committed generated registry in sync with discovery", async () => {
-    const files = await discoverSchemaRegistryFiles(graphqlAppRegistryConfig);
-    const typeDefs = generateTypeDefsRegistrySource(graphqlAppRegistryConfig, files);
-    const services = generateServicesRegistrySource(graphqlAppRegistryConfig, files);
-    const getSchema = generateGetSchemaSource(graphqlAppRegistryConfig);
+  it("writeSchemaRegistry output matches generate*Source for the demo app", async () => {
+    const root = mkdtempSync(join(tmpdir(), "rwgql-registry-sync-"));
+    const outputDir = join(root, "src");
+    mkdirSync(outputDir, { recursive: true });
 
-    expect(typeDefs).toBe(readFileSync(join(graphqlAppRoot, "src/generated/typeDefs.ts"), "utf8"));
-    expect(services).toBe(readFileSync(join(graphqlAppRoot, "src/generated/services.ts"), "utf8"));
-    expect(getSchema).toBe(
-      readFileSync(join(graphqlAppRoot, "src/generated/getSchema.ts"), "utf8"),
+    const files = await discoverSchemaRegistryFiles(graphqlAppRegistryConfig);
+    const config = { ...graphqlAppRegistryConfig, outputDir };
+    await writeSchemaRegistry(config);
+
+    expect(readFileSync(join(outputDir, SCHEMA_REGISTRY_FILES.typeDefs), "utf8")).toBe(
+      generateTypeDefsRegistrySource(config, files),
+    );
+    expect(readFileSync(join(outputDir, SCHEMA_REGISTRY_FILES.services), "utf8")).toBe(
+      generateServicesRegistrySource(config, files),
+    );
+    expect(readFileSync(join(outputDir, SCHEMA_REGISTRY_FILES.getSchema), "utf8")).toBe(
+      generateGetSchemaSource(config),
     );
   });
 });
