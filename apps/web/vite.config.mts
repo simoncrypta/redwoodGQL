@@ -19,10 +19,10 @@ export default defineConfig({
     tsconfigPaths: isTest,
   },
   fmt: {
-    ignorePatterns: ["src/routeDefinitions.ts"],
+    ignorePatterns: ["src/**/*.gen.ts"],
   },
   lint: {
-    ignorePatterns: ["src/routeDefinitions.ts"],
+    ignorePatterns: ["src/**/*.gen.ts"],
   },
   plugins: lazyPlugins(() =>
     isTest

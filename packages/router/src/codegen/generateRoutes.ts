@@ -4,7 +4,7 @@ import path from "node:path";
 import { extractRouteNamesFromSource, type RouteNameEntry } from "./extractRouteNamesFromSource.js";
 
 export const DEFAULT_ROUTES_FILE = "src/Routes.tsx";
-export const DEFAULT_ROUTE_DEFINITIONS_OUTPUT = "src/routeDefinitions.ts";
+export const DEFAULT_ROUTE_DEFINITIONS_OUTPUT = "src/routeDefinitions.gen.ts";
 
 export type GenerateRoutesOptions = {
   readonly root: string;

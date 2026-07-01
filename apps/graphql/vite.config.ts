@@ -16,10 +16,22 @@ export default defineConfig({
     setupFiles: ["testUtils/setup.ts"],
   },
   fmt: {
-    ignorePatterns: [".nitro/**", ".output/**", "schema.graphql", "src/**/*.gen.ts"],
+    ignorePatterns: [
+      ".nitro/**",
+      ".output/**",
+      "schema.graphql",
+      "src/**/*.gen.ts",
+      "types/graphql.d.ts",
+    ],
   },
   lint: {
-    ignorePatterns: [".nitro/**", ".output/**", "schema.graphql", "src/**/*.gen.ts"],
+    ignorePatterns: [
+      ".nitro/**",
+      ".output/**",
+      "schema.graphql",
+      "src/**/*.gen.ts",
+      "types/graphql.d.ts",
+    ],
     options: {
       typeAware: true,
       typeCheck: true,
@@ -49,7 +61,7 @@ export default defineConfig({
           { pattern: "apps/web/src/components/**/*.{ts,tsx}", base: "workspace" },
           { pattern: "apps/web/src/pages/**/*.{ts,tsx}", base: "workspace" },
         ],
-        output: [{ pattern: "apps/web/src/gql/**", base: "workspace" }, "src/graphql.gen.ts"],
+        output: [{ pattern: "apps/web/src/gql/**", base: "workspace" }, "types/graphql.d.ts"],
       },
       "export-schema": {
         command: "tsx scripts/export-schema.ts",
