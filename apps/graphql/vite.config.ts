@@ -23,7 +23,7 @@ export default defineConfig({
       ".output/**",
       "schema.graphql",
       "src/types/graphql.ts",
-      "src/schema/generated/**",
+      "src/generated/**",
     ],
     options: {
       typeAware: true,
@@ -62,14 +62,14 @@ export default defineConfig({
         input: [
           "scripts/export-schema.ts",
           "src/graphql/**/*.ts",
-          "src/schema/**/*.ts",
           "src/directives/**/*.ts",
+          "src/generated/**/*.ts",
         ],
         output: ["schema.graphql"],
       },
       "regenerate-registry": {
         command:
-          "tsx scripts/regenerate-registry.ts && vp fmt src/schema/generated/typeDefs.ts src/schema/generated/services.ts",
+          "tsx scripts/regenerate-registry.ts && vp fmt src/generated/typeDefs.ts src/generated/services.ts src/generated/getSchema.ts",
         dependsOn: [...graphqlPackageBuilds],
         input: [
           "scripts/regenerate-registry.ts",
@@ -77,7 +77,11 @@ export default defineConfig({
           "src/directives/**/*.ts",
           "src/services/**/*.ts",
         ],
-        output: ["src/schema/generated/typeDefs.ts", "src/schema/generated/services.ts"],
+        output: [
+          "src/generated/typeDefs.ts",
+          "src/generated/services.ts",
+          "src/generated/getSchema.ts",
+        ],
       },
     },
   },

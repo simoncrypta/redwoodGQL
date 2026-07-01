@@ -62,6 +62,7 @@ export {
 
 export {
   discoverSchemaRegistryFiles,
+  generateGetSchemaSource,
   generateSchemaRegistrySource,
   generateServicesRegistrySource,
   generateTypeDefsRegistrySource,

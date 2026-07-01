@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { writeSchemaRegistry } from "@rwgql/graphql-typegen/codegen";
 
 const projectRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
-const outputDir = join(projectRoot, "src/schema/generated");
+const outputDir = join(projectRoot, "src/generated");
 
 await writeSchemaRegistry({
   outputDir,
@@ -14,5 +14,4 @@ await writeSchemaRegistry({
     services: "src/services/**/*.ts",
   },
   projectRoot,
-  rootSchemaImportPath: "../root.ts",
 });

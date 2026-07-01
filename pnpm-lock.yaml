@@ -556,6 +556,9 @@ importers:
       '@graphql-tools/merge':
         specifier: ^9.1.9
         version: 9.1.9(graphql@16.14.2)
+      '@graphql-tools/schema':
+        specifier: ^10.0.33
+        version: 10.0.33(graphql@16.14.2)
     devDependencies:
       '@graphql-codegen/cli':
         specifier: ^5.0.7

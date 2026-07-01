@@ -7,15 +7,15 @@ export type SchemaRegistryConfig = {
   projectRoot: string;
   /** Absolute path for generated registry modules (a directory). */
   outputDir: string;
-  /** Import path for the root SDL, relative to the generated files. */
-  rootSchemaImportPath: string;
-  /** Binding name for the root SDL import. Defaults to `rootSchema`. */
-  rootSchemaBinding?: string;
   patterns: {
     sdl: string;
     directives: string;
     services: string;
   };
+  /** Import path for applyValidatorDirectives in generated getSchema.ts. */
+  authDirectivesImport?: string;
+  /** GraphQL types to enforce auth directives on. Defaults to Query and Mutation. */
+  authEnforceOn?: string[];
 };
 
 export type DiscoveredSchemaRegistryFiles = {
@@ -89,11 +89,9 @@ export const generateTypeDefsRegistrySource = (
   config: SchemaRegistryConfig,
   files: DiscoveredSchemaRegistryFiles,
 ): string => {
-  const rootBinding = config.rootSchemaBinding ?? "rootSchema";
   const rel = (filePath: string) => toImportPath(config.outputDir, config.projectRoot, filePath);
 
   const imports = [
-    `import { schema as ${rootBinding} } from "${config.rootSchemaImportPath}";`,
     ...files.directives.map((file) => `import ${directiveBinding(file)} from "${rel(file)}";`),
     ...files.sdl.map((file) => `import { schema as ${sdlBinding(file)} } from "${rel(file)}";`),
   ];
@@ -107,7 +105,6 @@ ${imports.join("\n")}
 export const directives = [${directiveBindings}] as const;
 
 export const typeDefs = [
-  ${rootBinding},
   ...directives.map((directive) => directive.schema),
   ${sdlBindings},
 ] as const;
@@ -155,6 +152,36 @@ export const generateSchemaRegistrySource = (
   return `${GENERATED_HEADER}${typeDefsSource.trim()}\n\n${servicesSource.trim()}\n`;
 };
 
+/** Generate executable schema factory source. */
+export const generateGetSchemaSource = (config: SchemaRegistryConfig): string => {
+  const authImport = config.authDirectivesImport ?? "@rwgql/auth/graphql";
+  const enforceOn = config.authEnforceOn ?? ["Query", "Mutation"];
+  const enforceOnLiteral = enforceOn.map((type) => `"${type}"`).join(", ");
+
+  return `${GENERATED_HEADER}
+import type { GraphQLSchema } from "graphql";
+
+import { applyValidatorDirectives } from "${authImport}";
+import { createServiceSchema } from "@rwgql/graphql-typegen/yoga";
+
+import { directives, typeDefs } from "./typeDefs.ts";
+import { services } from "./services.ts";
+
+let schema: GraphQLSchema | undefined;
+
+export const getSchema = (): GraphQLSchema => {
+  schema ??= createServiceSchema({
+    applyDirectives: (executable) =>
+      applyValidatorDirectives(directives, { enforceOn: [${enforceOnLiteral}] })(executable),
+    services,
+    typeDefs,
+  });
+
+  return schema;
+};
+`;
+};
+
 /** Discover schema modules and write generated registry files. */
 export const writeSchemaRegistry = async (config: SchemaRegistryConfig): Promise<void> => {
   const files = await discoverSchemaRegistryFiles(config);
@@ -168,4 +195,5 @@ export const writeSchemaRegistry = async (config: SchemaRegistryConfig): Promise
     join(config.outputDir, "services.ts"),
     generateServicesRegistrySource(config, files),
   );
+  writeFileSync(join(config.outputDir, "getSchema.ts"), generateGetSchemaSource(config));
 };
