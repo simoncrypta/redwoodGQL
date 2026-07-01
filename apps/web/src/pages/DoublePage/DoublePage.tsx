@@ -1,12 +1,8 @@
 "use client";
 
-import { Metadata } from "@/redwood/web";
-
 const DoublePage = () => {
   return (
     <>
-      <Metadata title="Double" description="Double page" og />
-
       <h1 className="mb-1 mt-2 text-xl font-semibold">DoublePage</h1>
       <p>
         This page exists to make sure we don&apos;t regress on{" "}

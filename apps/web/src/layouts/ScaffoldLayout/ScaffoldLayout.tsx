@@ -3,7 +3,7 @@
 import { Link } from "@rwgql/router";
 import { routes } from "@/routes";
 import type { WebRouteName } from "@/routes";
-import { Toaster } from "@/redwood/toast";
+import { Toaster } from "react-hot-toast";
 
 type ScaffoldTitleTo = Extract<WebRouteName, "contacts" | "posts">;
 type ScaffoldButtonTo = Extract<WebRouteName, "newContact" | "newPost">;

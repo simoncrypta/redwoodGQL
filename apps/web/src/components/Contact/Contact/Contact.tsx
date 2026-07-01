@@ -2,8 +2,8 @@
 
 import { Link, navigate } from "@rwgql/router";
 import { routes } from "@/routes";
-import { useMutation } from "@/redwood/web";
-import { toast } from "@/redwood/toast";
+import { useMutation } from "@apollo/client/react";
+import { toast } from "react-hot-toast";
 
 import { FindContactByIdDocument } from "@/components/Contact/ContactCell/ContactCell";
 import { timeTag } from "@/lib/formatters";

@@ -4,9 +4,9 @@ import { createCell } from "@rwgql/cell";
 
 import { navigate } from "@rwgql/router";
 import { routes } from "@/routes";
-import type { CellSuccessProps, CellFailureProps } from "@/redwood/web";
-import { useMutation } from "@/redwood/web";
-import { toast } from "@/redwood/toast";
+import type { CellSuccessProps, CellFailureProps } from "@app/types/cell";
+import { useMutation } from "@apollo/client/react";
+import { toast } from "react-hot-toast";
 
 import PostForm from "@/components/Post/PostForm/PostForm";
 import { graphql } from "@/gql";

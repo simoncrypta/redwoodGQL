@@ -2,8 +2,8 @@
 
 import { Link } from "@rwgql/router";
 import { routes } from "@/routes";
-import { useMutation } from "@/redwood/web";
-import { toast } from "@/redwood/toast";
+import { useMutation } from "@apollo/client/react";
+import { toast } from "react-hot-toast";
 
 import { FindPostsDocument, QUERY } from "@/components/Post/PostsCell/PostsCell";
 import { timeTag, truncate } from "@/lib/formatters";

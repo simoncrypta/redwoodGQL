@@ -1,7 +1,7 @@
 "use client";
 
-import type { RWGqlError } from "@/redwood/forms";
-import { Form, FormError, FieldError, Label, TextField, Submit } from "@/redwood/forms";
+import type { RWGqlError } from "@/lib/forms";
+import { Form, FormError, FieldError, Label, TextField, Submit } from "@/lib/forms";
 
 import { EditContactByIdDocument } from "@/components/Contact/EditContactCell/EditContactCell";
 import type { ResultOf } from "@graphql-typed-document-node/core";

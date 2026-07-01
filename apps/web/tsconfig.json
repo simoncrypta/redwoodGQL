@@ -21,7 +21,8 @@
       "./types/vite.d.ts"
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@app/types/*": ["./types/*"]
     },
     "plugins": [
       {

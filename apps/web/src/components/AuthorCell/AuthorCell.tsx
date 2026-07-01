@@ -2,7 +2,7 @@
 
 import { createCell } from "@rwgql/cell";
 
-import type { CellSuccessProps, CellFailureProps } from "@/redwood/web";
+import type { CellSuccessProps, CellFailureProps } from "@app/types/cell";
 
 import Author from "@/components/Author/Author";
 import { graphql } from "@/gql";

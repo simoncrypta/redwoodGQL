@@ -4,7 +4,7 @@ import { createCell } from "@rwgql/cell";
 
 import { Link } from "@rwgql/router";
 import { routes } from "@/routes";
-import type { CellSuccessProps, CellFailureProps } from "@/redwood/web";
+import type { CellSuccessProps, CellFailureProps } from "@app/types/cell";
 
 import Contacts from "@/components/Contact/Contacts/Contacts";
 import { graphql } from "@/gql";

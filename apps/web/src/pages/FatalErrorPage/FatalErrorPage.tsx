@@ -5,15 +5,12 @@
 // boundary.
 //
 // You can modify this page as you wish, but it is important to keep things simple to
-// avoid the possibility that it will cause its own error. If it does, Redwood will
-// still render a generic error page, but your users will prefer something a bit more
+// avoid the possibility that it will cause its own error. If it does, the framework
+// will still render a generic error page, but your users will prefer something a bit more
 // thoughtful :)
 
-// This import will be automatically removed when building for production
-import { DevFatalErrorPage } from "@/redwood/fatal-error";
-
-export default DevFatalErrorPage ||
-  (() => (
+export default function FatalErrorPage() {
+  return (
     <main>
       <style
         dangerouslySetInnerHTML={{
@@ -56,4 +53,5 @@ export default DevFatalErrorPage ||
         </h1>
       </section>
     </main>
-  ));
+  );
+}

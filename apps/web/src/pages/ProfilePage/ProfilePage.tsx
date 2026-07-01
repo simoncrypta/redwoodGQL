@@ -1,7 +1,5 @@
 "use client";
 
-import { Metadata } from "@/redwood/web";
-
 import { useAuth } from "@/auth";
 
 const ProfilePage = () => {
@@ -20,8 +18,6 @@ const ProfilePage = () => {
 
   return (
     <>
-      <Metadata title="Profile" description="Profile page" og />
-
       <h1 className="text-2xl">Profile</h1>
 
       <table className="rw-table">

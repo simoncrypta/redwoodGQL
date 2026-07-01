@@ -2,8 +2,8 @@
 
 import { navigate } from "@rwgql/router";
 import { routes } from "@/routes";
-import { useMutation } from "@/redwood/web";
-import { toast } from "@/redwood/toast";
+import { useMutation } from "@apollo/client/react";
+import { toast } from "react-hot-toast";
 
 import ContactForm from "@/components/Contact/ContactForm/ContactForm";
 import { graphql } from "@/gql";

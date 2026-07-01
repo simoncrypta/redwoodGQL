@@ -2,11 +2,10 @@
 
 import { useEffect, useRef } from "react";
 
-import { Form, Label, TextField, PasswordField, Submit, FieldError } from "@/redwood/forms";
+import { Form, Label, TextField, PasswordField, Submit, FieldError } from "@/lib/forms";
 import { Link, navigate } from "@rwgql/router";
 import { routes } from "@/routes";
-import { Metadata } from "@/redwood/web";
-import { toast, Toaster } from "@/redwood/toast";
+import { toast, Toaster } from "react-hot-toast";
 
 import { useAuth } from "@/auth";
 
@@ -56,8 +55,6 @@ const LoginPage = () => {
 
   return (
     <>
-      <Metadata title="Login" />
-
       <main className="rw-main">
         <Toaster toastOptions={{ className: "rw-toast", duration: 6000 }} />
         <div className="rw-scaffold rw-login-container">
