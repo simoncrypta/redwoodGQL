@@ -1,14 +1,20 @@
 "use client";
 
-import { Link, routes } from "@/app/redwood/router";
+import { Link } from "@rwgql/router";
+import { routes } from "@/app/Routes";
+import type { WebRouteName } from "@/app/Routes";
 import { Toaster } from "@/app/redwood/toast";
+
+type ScaffoldTitleTo = Extract<WebRouteName, "contacts" | "posts">;
+type ScaffoldButtonTo = Extract<WebRouteName, "newContact" | "newPost">;
 
 type LayoutProps = {
   title: string;
-  titleTo: "contacts" | "posts";
+  titleTo: ScaffoldTitleTo;
   buttonLabel: string;
-  buttonTo: "newContact" | "newPost";
-  children: React.ReactNode;
+  buttonTo: ScaffoldButtonTo;
+  children?: React.ReactNode;
+  pathname?: string;
 };
 
 const ScaffoldLayout = ({ title, titleTo, buttonLabel, buttonTo, children }: LayoutProps) => {

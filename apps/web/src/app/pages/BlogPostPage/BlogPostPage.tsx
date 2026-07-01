@@ -1,6 +1,5 @@
 "use client";
 
-// import { Link, routes } from '@/app/redwood/router'
 import { Metadata } from "@/app/redwood/web";
 
 type BlogPostPageProps = {

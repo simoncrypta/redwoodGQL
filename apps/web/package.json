@@ -24,6 +24,7 @@
     "@rwgql/auth": "workspace:*",
     "@rwgql/cell": "workspace:*",
     "@rwgql/dbauth": "workspace:*",
+    "@rwgql/router": "workspace:*",
     "@rwgql/rwsdk-apollo-client": "workspace:*",
     "graphql": "^17.0.1",
     "humanize-string": "2.1.0",

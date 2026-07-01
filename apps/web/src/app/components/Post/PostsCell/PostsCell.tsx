@@ -2,7 +2,8 @@
 
 import { createCell } from "@rwgql/cell";
 
-import { Link, routes } from "@/app/redwood/router";
+import { Link } from "@rwgql/router";
+import { routes } from "@/app/Routes";
 import type { CellSuccessProps, CellFailureProps } from "@/app/redwood/web";
 
 import Posts from "@/app/components/Post/Posts/Posts";

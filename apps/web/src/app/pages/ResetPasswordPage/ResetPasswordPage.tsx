@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 
 import { Form, Label, PasswordField, Submit, FieldError } from "@/app/redwood/forms";
-import { navigate, routes } from "@/app/redwood/router";
+import { navigate } from "@rwgql/router";
+import { routes } from "@/app/Routes";
 import { Metadata } from "@/app/redwood/web";
 import { toast, Toaster } from "@/app/redwood/toast";
 

@@ -1,6 +1,7 @@
 "use client";
 
-import { Link, routes } from "@/app/redwood/router";
+import { Link } from "@rwgql/router";
+import { routes } from "@/app/Routes";
 import { useMutation } from "@/app/redwood/web";
 import { toast } from "@/app/redwood/toast";
 

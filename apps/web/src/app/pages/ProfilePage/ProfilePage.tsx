@@ -3,7 +3,6 @@
 import { Metadata } from "@/app/redwood/web";
 
 import { useAuth } from "@/app/auth";
-// import { Link, routes } from '@/app/redwood/router'
 
 const ProfilePage = () => {
   const { currentUser, isAuthenticated, hasRole, loading } = useAuth();

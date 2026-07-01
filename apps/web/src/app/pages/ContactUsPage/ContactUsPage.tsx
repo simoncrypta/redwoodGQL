@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { Form, TextField, TextAreaField, Submit, FieldError, Label } from "@/app/redwood/forms";
-import { useBlocker } from "@/app/redwood/router";
+import { useBlocker } from "@rwgql/router";
 import { useMutation } from "@/app/redwood/web";
 import { toast, Toaster } from "@/app/redwood/toast";
 
