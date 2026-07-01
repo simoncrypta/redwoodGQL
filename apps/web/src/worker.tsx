@@ -8,7 +8,7 @@ import {
 } from "@rwgql/rwsdk-apollo-client/worker";
 import { withWorkerCompile } from "@rwgql/router/worker";
 import appRoutes from "@/app/Routes";
-import { ApolloShell } from "@/app/apollo/ApolloShell";
+import { GraphQLProvider } from "@/app/graphql/GraphQLProvider";
 import { Document } from "@/app/document";
 import { setCommonHeaders } from "@/app/headers";
 
@@ -63,13 +63,13 @@ const renderPage = async (requestInfo: AppRequestInfo, children: ReactNode) => {
   const apolloTransportId = createApolloRwsdkTransportId();
   const graphqlUrl = resolveGraphqlUrl();
   const page = (
-    <ApolloShell
-      graphqlUrl={graphqlUrl}
+    <GraphQLProvider
+      graphQLUrl={graphqlUrl}
       nonce={requestInfo.rw.nonce}
       transportId={apolloTransportId}
     >
       {children}
-    </ApolloShell>
+    </GraphQLProvider>
   );
 
   if (isRscNavigationRequest(requestInfo.request)) {

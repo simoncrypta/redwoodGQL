@@ -8,24 +8,12 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/index.browser.d.mts",
-      "default": "./dist/index.browser.mjs"
+      "types": "./dist/client.d.mts",
+      "default": "./dist/client.mjs"
     },
-    "./index": {
-      "types": "./dist/index.d.mts",
-      "default": "./dist/index.mjs"
-    },
-    "./index.browser": {
-      "types": "./dist/index.browser.d.mts",
-      "default": "./dist/index.browser.mjs"
-    },
-    "./index.rsc": {
-      "types": "./dist/index.rsc.d.mts",
-      "default": "./dist/index.rsc.mjs"
-    },
-    "./index.worker": {
-      "types": "./dist/index.worker.d.mts",
-      "default": "./dist/index.worker.mjs"
+    "./rsc": {
+      "types": "./dist/rsc.d.mts",
+      "default": "./dist/rsc.mjs"
     },
     "./worker": {
       "types": "./dist/worker.d.mts",

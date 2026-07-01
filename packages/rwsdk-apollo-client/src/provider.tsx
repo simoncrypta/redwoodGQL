@@ -5,7 +5,7 @@ import { createContext, useContext } from "react";
 import { WrapApolloProvider } from "@apollo/client-react-streaming";
 import { buildManualDataTransport } from "@apollo/client-react-streaming/manual-transport";
 
-import type { ApolloClient } from "./index.shared.js";
+import type { ApolloClient } from "./client.shared.js";
 import { getApolloRwsdkHtmlInsertion } from "./stream-context.shared.js";
 
 const ApolloRwsdkTransportIdContext = createContext<string | null>(null);

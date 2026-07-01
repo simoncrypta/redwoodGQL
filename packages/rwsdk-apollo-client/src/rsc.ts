@@ -1,4 +1,4 @@
-export * from "./index.shared.js";
+export * from "./client.shared.js";
 export { renderApolloRwsdkStream } from "./render.js";
 export type { ApolloRwsdkRenderToStreamOptions } from "./render.js";
 

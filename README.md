@@ -125,16 +125,16 @@ future extraction layer.
 
 ## Packages
 
-| Package                      | Description                                             |
-| ---------------------------- | ------------------------------------------------------- |
-| `@rwgql/auth`                | Pluggable auth — Yoga plugins, `requireAuth`/`skipAuth` |
-| `@rwgql/dbauth`              | Self-hosted dbAuth for Fastify/Yoga and RWSDK web       |
-| `@rwgql/cell`                | `createCell` — query components with Loading/Empty/etc. |
-| `@rwgql/rwsdk-apollo-client` | Apollo Client provider for RedwoodSDK                   |
-| `@rwgql/pgserve-dev`         | Local Postgres via pgserve — start, env sync, teardown  |
-| `@rwgql/prisma-dev`          | Prisma dev tasks — migrate, generate, env wiring        |
-| `@rwgql/log-formatter`       | Vite-style per-operation GraphQL logging                |
-| `@rwgql/graphql-typegen`     | Server resolver typegen from SDL + Yoga resolver wiring |
+| Package                      | Description                                                                             |
+| ---------------------------- | --------------------------------------------------------------------------------------- |
+| `@rwgql/auth`                | Pluggable auth — Yoga plugins, `requireAuth`/`skipAuth`                                 |
+| `@rwgql/dbauth`              | Self-hosted dbAuth for Fastify/Yoga and RWSDK web                                       |
+| `@rwgql/cell`                | `createCell` — query components with Loading/Empty/etc.                                 |
+| `@rwgql/rwsdk-apollo-client` | Apollo Client provider for RedwoodSDK ([setup](packages/rwsdk-apollo-client/README.md)) |
+| `@rwgql/pgserve-dev`         | Local Postgres via pgserve — start, env sync, teardown                                  |
+| `@rwgql/prisma-dev`          | Prisma dev tasks — migrate, generate, env wiring                                        |
+| `@rwgql/log-formatter`       | Vite-style per-operation GraphQL logging                                                |
+| `@rwgql/graphql-typegen`     | Server resolver typegen from SDL + Yoga resolver wiring                                 |
 
 ## Getting Started
 
