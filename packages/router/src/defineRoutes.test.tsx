@@ -6,15 +6,14 @@ import { Route, Router } from "./routeTree.js";
 const HomePage = () => null;
 
 describe("defineRoutes", () => {
-  it("derives named routes from the route tree", () => {
-    const appRoutes = defineRoutes(
+  it("returns the route tree for worker compilation", () => {
+    const routeTree = (
       <Router>
         <Route path="/login" page={HomePage} name="login" />
         <Route path="/" page={HomePage} name="home" />
-      </Router>,
+      </Router>
     );
 
-    expect(appRoutes.routes.login()).toBe("/login");
-    expect(appRoutes.routes.home()).toBe("/");
+    expect(defineRoutes(routeTree)).toEqual({ routeTree });
   });
 });

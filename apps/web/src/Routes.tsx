@@ -1,7 +1,5 @@
-import { Private, Route, Router, Set } from "@rwgql/router/routes";
-import type { DefinedRoutes } from "@rwgql/router/routes";
+import { defineRoutes, Private, Route, Router, Set } from "@rwgql/router/routes";
 
-import { routes } from "@/routes";
 import BlogLayout from "@/layouts/BlogLayout/BlogLayout";
 import ScaffoldLayout from "@/layouts/ScaffoldLayout/ScaffoldLayout";
 import AboutPage from "@/pages/AboutPage/AboutPage";
@@ -81,10 +79,6 @@ const routeTree = (
   </Router>
 );
 
-const appRoutes = { routes, routeTree } as DefinedRoutes;
+export default defineRoutes(routeTree);
 
-export default appRoutes;
-
-export { routes };
-
-export type { WebRouteName } from "@/routes";
+export { routes, type WebRouteName } from "@/routes";

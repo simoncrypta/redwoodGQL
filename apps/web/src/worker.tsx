@@ -7,7 +7,8 @@ import {
   renderApolloRwsdkStream,
 } from "@rwgql/rwsdk-apollo-client/worker";
 import { withWorkerCompile } from "@rwgql/router/worker";
-import appRoutes from "@/Routes";
+import type { NamedRoutes } from "@rwgql/router/routes";
+import appRoutes, { routes } from "@/Routes";
 import { GraphQLProvider } from "@/GraphQLProvider";
 import { Document } from "@/document";
 import { setCommonHeaders } from "@/headers";
@@ -97,7 +98,10 @@ const renderPage = async (requestInfo: AppRequestInfo, children: ReactNode) => {
 
 const routeId = (requestInfo: AppRequestInfo) => Number.parseInt(requestInfo.params.id, 10);
 
-const { workerRoutes } = withWorkerCompile(appRoutes).compile({
+const { workerRoutes } = withWorkerCompile({
+  ...appRoutes,
+  routes: routes as NamedRoutes,
+}).compile({
   isAuthenticated: ({ ctx }) => Boolean(ctx.session),
   parseRouteId: routeId,
   renderPage,

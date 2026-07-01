@@ -56,6 +56,9 @@ dist
 # Vite cache
 .vite
 
+# Generated from @rwgql/router generate-routes
+src/routeDefinitions.ts
+
 # Coverage directory used by tools like istanbul
 coverage
 

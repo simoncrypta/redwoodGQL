@@ -1,5 +1,6 @@
 import { defineConfig, lazyPlugins } from "vite-plus";
 import { playwright } from "vite-plus/test/browser-playwright";
+import { createGenerateRoutesTasks } from "@rwgql/router/tasks";
 import { redwood } from "rwsdk/vite";
 import { cloudflare } from "@cloudflare/vite-plugin";
 
@@ -10,11 +11,18 @@ const webPackageBuilds = [
   "@rwgql/dbauth#build",
   "@rwgql/rwsdk-apollo-client#build",
   "@rwgql/cell#build",
+  "@rwgql/router#build",
 ] as const;
 
 export default defineConfig({
   resolve: {
     tsconfigPaths: isTest,
+  },
+  fmt: {
+    ignorePatterns: ["src/routeDefinitions.ts"],
+  },
+  lint: {
+    ignorePatterns: ["src/routeDefinitions.ts"],
   },
   plugins: lazyPlugins(() =>
     isTest
@@ -37,17 +45,23 @@ export default defineConfig({
   },
   run: {
     tasks: {
+      ...createGenerateRoutesTasks(),
       dev: {
         command: "vp dev --port 8910",
-        dependsOn: [...webPackageBuilds],
+        dependsOn: [...webPackageBuilds, "generate-routes"],
         cache: false,
       },
       build: {
         command: "vp build",
-        dependsOn: [...webPackageBuilds],
+        dependsOn: [...webPackageBuilds, "generate-routes"],
       },
       check: {
-        command: ["vp run graphql#codegen", "vp run generate", "vp run types"],
+        command: [
+          "vp run graphql#codegen",
+          "vp run generate",
+          "vp run generate-routes",
+          "vp run types",
+        ],
         dependsOn: [...webPackageBuilds],
       },
       generate: {
