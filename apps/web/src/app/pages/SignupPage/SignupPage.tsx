@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 
 import { Form, Label, TextField, PasswordField, FieldError, Submit } from "@/app/redwood/forms";
 import { Link, navigate } from "@rwgql/router";
-import { routes } from "@/app/Routes";
+import { routes } from "@/app/routes";
 import { Metadata } from "@/app/redwood/web";
 import { toast, Toaster } from "@/app/redwood/toast";
 

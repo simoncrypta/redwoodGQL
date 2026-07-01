@@ -1,7 +1,7 @@
 "use client";
 
 import { Link } from "@rwgql/router";
-import { routes } from "@/app/Routes";
+import { routes } from "@/app/routes";
 
 import Author from "@/app/components/Author/Author";
 import type { ResultOf } from "@graphql-typed-document-node/core";

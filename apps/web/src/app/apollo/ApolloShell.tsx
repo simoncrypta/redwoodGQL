@@ -6,7 +6,7 @@ import {
   ApolloRwsdkProvider,
   InMemoryCache,
   SSRMultipartLink,
-} from "@rwgql/rwsdk-apollo-client";
+} from "@rwgql/rwsdk-apollo-client/index.browser";
 import type { ReactNode } from "react";
 import { useMemo } from "react";
 

@@ -3,7 +3,7 @@
 import { createCell } from "@rwgql/cell";
 
 import { navigate } from "@rwgql/router";
-import { routes } from "@/app/Routes";
+import { routes } from "@/app/routes";
 import type { CellSuccessProps, CellFailureProps } from "@/app/redwood/web";
 import { useMutation } from "@/app/redwood/web";
 import { toast } from "@/app/redwood/toast";

@@ -1,8 +1,8 @@
 "use client";
 
 import { Link } from "@rwgql/router";
-import { routes } from "@/app/Routes";
-import type { WebRouteName } from "@/app/Routes";
+import { routes } from "@/app/routes";
+import type { WebRouteName } from "@/app/routes";
 import { Toaster } from "@/app/redwood/toast";
 
 type ScaffoldTitleTo = Extract<WebRouteName, "contacts" | "posts">;

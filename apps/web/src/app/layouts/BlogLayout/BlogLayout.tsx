@@ -1,7 +1,7 @@
 "use client";
 
 import { Link, NavLink, PathnameProvider } from "@rwgql/router";
-import { routes } from "@/app/Routes";
+import { routes } from "@/app/routes";
 
 import { useAuth } from "@/app/auth";
 

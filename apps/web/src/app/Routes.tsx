@@ -1,5 +1,7 @@
-import { defineRoutes, Private, Route, Router, Set } from "@rwgql/router/routes";
+import { Private, Route, Router, Set } from "@rwgql/router/routes";
+import type { DefinedRoutes } from "@rwgql/router/routes";
 
+import { routes } from "@/app/routes";
 import BlogLayout from "@/app/layouts/BlogLayout/BlogLayout";
 import ScaffoldLayout from "@/app/layouts/ScaffoldLayout/ScaffoldLayout";
 import AboutPage from "@/app/pages/AboutPage/AboutPage";
@@ -23,7 +25,7 @@ import ResetPasswordPage from "@/app/pages/ResetPasswordPage/ResetPasswordPage";
 import SignupPage from "@/app/pages/SignupPage/SignupPage";
 import WaterfallPage from "@/app/pages/WaterfallPage/WaterfallPage";
 
-const appRoutes = defineRoutes(
+const routeTree = (
   <Router>
     <Route path="/double" page={DoublePage} name="double" />
     <Route path="/login" page={LoginPage} name="login" />
@@ -76,11 +78,13 @@ const appRoutes = defineRoutes(
       <Route path="/" page={HomePage} name="home" />
       <Route notfound page={NotFoundPage} />
     </Set>
-  </Router>,
+  </Router>
 );
+
+const appRoutes = { routes, routeTree } as DefinedRoutes;
 
 export default appRoutes;
 
-export const routes = appRoutes.routes;
+export { routes };
 
-export type WebRouteName = keyof typeof routes;
+export type { WebRouteName } from "@/app/routes";

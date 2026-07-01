@@ -8,6 +8,10 @@
   "type": "module",
   "exports": {
     ".": {
+      "types": "./dist/index.browser.d.mts",
+      "default": "./dist/index.browser.mjs"
+    },
+    "./index": {
       "types": "./dist/index.d.mts",
       "default": "./dist/index.mjs"
     },
