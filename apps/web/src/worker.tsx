@@ -7,10 +7,10 @@ import {
   renderApolloRwsdkStream,
 } from "@rwgql/rwsdk-apollo-client/worker";
 import { withWorkerCompile } from "@rwgql/router/worker";
-import appRoutes from "@/app/Routes";
-import { GraphQLProvider } from "@/app/graphql/GraphQLProvider";
-import { Document } from "@/app/document";
-import { setCommonHeaders } from "@/app/headers";
+import appRoutes from "@/Routes";
+import { GraphQLProvider } from "@/GraphQLProvider";
+import { Document } from "@/document";
+import { setCommonHeaders } from "@/headers";
 
 export type Session = {
   readonly id: number;
@@ -26,7 +26,7 @@ type IdParams = {
 
 type AppRequestInfo = RequestInfo<IdParams, AppContext>;
 
-// Must match the dbAuth cookie name configured in apps/graphql (src/lib/auth.ts).
+// Must match the dbAuth cookie name configured in apps/graphql (src/auth/auth.ts).
 const cookieName = "session_8911";
 
 const authDecoder = createAuthDecoder({

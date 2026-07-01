@@ -1,6 +1,6 @@
 # @rwgql/rwsdk-apollo-client
 
-Apollo Client + RWSDK SSR streaming. Demo wiring: `apps/web/src/worker.tsx`, `apps/web/src/app/graphql/GraphQLProvider.tsx`.
+Apollo Client + RWSDK SSR streaming. Demo wiring: `apps/web/src/worker.tsx`, `apps/web/src/GraphQLProvider.tsx`.
 
 ## Cedar imports
 

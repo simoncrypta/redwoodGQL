@@ -17,7 +17,7 @@ vi.mock("@apollo/client/react", async (importOriginal) => {
   };
 });
 
-vi.mock("@/app/auth", () => ({
+vi.mock("@/auth", () => ({
   AuthProvider: ({ children }: { children: React.ReactNode }) => children,
   useAuth: vi.fn(() => ({
     currentUser: null,

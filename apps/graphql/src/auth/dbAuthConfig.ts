@@ -1,7 +1,7 @@
 import { db } from "db";
 import type { DbAuthHandlerOptions } from "@rwgql/dbauth/server";
 
-import { cookieName } from "../lib/auth.ts";
+import { cookieName } from "./auth.ts";
 
 const oneDay = 60 * 60 * 24;
 const invalidCredentials = "Invalid username or password";

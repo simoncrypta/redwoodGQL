@@ -13,7 +13,7 @@ export type RedwoodResolverCodegenOptions = {
   /** Output path for generated resolver types. */
   output?: string;
   /**
-   * Override the default context import (`../functions/graphql.ts#YogaContext` relative to output).
+   * Override the default context import (`../graphql.ts#YogaContext` relative to output).
    * Required when your Yoga context module is not at the default path.
    */
   contextType?: string;

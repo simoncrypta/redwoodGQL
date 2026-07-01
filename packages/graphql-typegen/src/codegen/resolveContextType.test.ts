@@ -5,14 +5,12 @@ import { DEFAULT_RESOLVER_TYPES_OUTPUT, resolveContextType } from "./resolveCont
 
 describe("resolveContextType", () => {
   it("resolves the Yoga context import relative to the generated graphql.ts path", () => {
-    expect(resolveContextType("./src/types/graphql.ts")).toBe(
-      "../functions/graphql.ts#YogaContext",
-    );
+    expect(resolveContextType("./src/types/graphql.ts")).toBe("../graphql.ts#YogaContext");
   });
 
   it("supports a custom context export name", () => {
     expect(resolveContextType("./src/types/graphql.ts", "GraphQLContext")).toBe(
-      "../functions/graphql.ts#GraphQLContext",
+      "../graphql.ts#GraphQLContext",
     );
   });
 });
@@ -25,7 +23,7 @@ describe("createRedwoodResolverGenerateEntry", () => {
     expect(Object.keys(entry)).toEqual([DEFAULT_RESOLVER_TYPES_OUTPUT]);
     expect(generated).toMatchObject({
       config: {
-        contextType: "../functions/graphql.ts#YogaContext",
+        contextType: "../graphql.ts#YogaContext",
       },
     });
   });

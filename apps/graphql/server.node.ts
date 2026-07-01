@@ -3,7 +3,7 @@ import Fastify, { type FastifyReply, type FastifyRequest } from "fastify";
 import { registerDbAuthRoutes } from "@rwgql/dbauth/server";
 
 import { dbAuthOptions } from "./src/auth/dbAuthConfig.ts";
-import { createGraphqlYoga } from "./src/functions/graphql.ts";
+import { createGraphqlYoga } from "./src/graphql.ts";
 import { db } from "db";
 
 const isDev = process.env.NODE_ENV !== "production";

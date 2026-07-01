@@ -8,14 +8,14 @@ export const DEFAULT_CONTEXT_EXPORT = "YogaContext";
 
 /**
  * Resolve the graphql-codegen `contextType` import for a generated `graphql.ts` file.
- * Convention: context lives at `../functions/graphql.ts` relative to the types output.
+ * Convention: context lives at `../graphql.ts` relative to the types output.
  */
 export const resolveContextType = (
   outputPath: string,
   contextExport: string = DEFAULT_CONTEXT_EXPORT,
 ): string => {
   const outputDir = path.dirname(outputPath);
-  const contextModule = path.normalize(path.join(outputDir, "../functions/graphql.ts"));
+  const contextModule = path.normalize(path.join(outputDir, "../graphql.ts"));
   const relativeModule = path.relative(outputDir, contextModule).replace(/\\/g, "/");
   const importPath = relativeModule.startsWith(".") ? relativeModule : `./${relativeModule}`;
 

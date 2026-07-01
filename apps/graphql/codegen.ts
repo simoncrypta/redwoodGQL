@@ -5,7 +5,7 @@ const schemaPath = "./schema.graphql";
 
 const config: CodegenConfig = {
   schema: schemaPath,
-  documents: ["../web/src/app/components/**/*.{ts,tsx}", "../web/src/app/pages/**/*.{ts,tsx}"],
+  documents: ["../web/src/components/**/*.{ts,tsx}", "../web/src/pages/**/*.{ts,tsx}"],
   ignoreNoDocuments: true,
   generates: {
     "../web/src/gql/": {

@@ -52,8 +52,8 @@ export default defineConfig({
         input: [
           "codegen.ts",
           "schema.graphql",
-          { pattern: "apps/web/src/app/components/**/*.{ts,tsx}", base: "workspace" },
-          { pattern: "apps/web/src/app/pages/**/*.{ts,tsx}", base: "workspace" },
+          { pattern: "apps/web/src/components/**/*.{ts,tsx}", base: "workspace" },
+          { pattern: "apps/web/src/pages/**/*.{ts,tsx}", base: "workspace" },
         ],
         output: [{ pattern: "apps/web/src/gql/**", base: "workspace" }, "src/types/graphql.ts"],
       },
