@@ -63,8 +63,8 @@ the same value on Cloudflare.
 
 ### Migrations and seed
 
-`scripts/render-start.sh` runs `prisma generate` and `prisma migrate deploy` on each API start (Render free tier has no
-`preDeployCommand`). The build also runs `prisma generate` so the client exists before Nitro bundles the server.
+`scripts/render-start.sh` runs `pnpm --filter db exec prisma generate` and `migrate deploy` on each API start. The build
+runs the same generate step so the client exists before Nitro bundles the server.
 
 Optional one-time seed (Render shell or local with external DB URL):
 
