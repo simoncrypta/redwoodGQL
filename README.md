@@ -233,6 +233,11 @@ Coming from a classic RedwoodJS (Cedar) app? The step-by-step guide in
 package with `@rwgql/*`, RedwoodSDK, and Vite+ — using `test-project/` (before) and `apps/` (after) as the working
 reference for each step.
 
+## Production deployment
+
+Web on **Cloudflare Workers**, API and PostgreSQL on **Render**. See [docs/deployment.md](docs/deployment.md) for
+env vars, Blueprint setup, and smoke tests.
+
 ## Further Reading
 
 - [RedwoodSDK Documentation](https://docs.rwsdk.com/)

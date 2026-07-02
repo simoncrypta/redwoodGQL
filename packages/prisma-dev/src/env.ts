@@ -15,6 +15,11 @@ export function ensurePrismaDatabaseUrl(
     return;
   }
 
+  if (process.env.DATABASE_URL) {
+    process.env.PRISMA_DATABASE_URL = process.env.DATABASE_URL;
+    return;
+  }
+
   const levelsUp = options.levelsUp ?? 1;
   const packageRoot = resolve(
     dirname(fileURLToPath(moduleUrl)),

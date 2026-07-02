@@ -8,6 +8,22 @@ const invalidCredentials = "Invalid username or password";
 const forgotPasswordMessage =
   "If an account exists for that email, password reset instructions have been sent.";
 
+const productionCookieAttributes = (): Record<string, boolean | number | string> => {
+  const attributes: Record<string, boolean | number | string> = {
+    HttpOnly: true,
+    Path: "/",
+    SameSite: process.env.DB_AUTH_COOKIE_SAMESITE === "None" ? "None" : "Lax",
+    Secure: process.env.NODE_ENV === "production",
+  };
+
+  const domain = process.env.DB_AUTH_COOKIE_DOMAIN?.trim();
+  if (domain) {
+    attributes.Domain = domain;
+  }
+
+  return attributes;
+};
+
 const validatePassword = (password: string) => {
   if (password.length < 12) {
     return false;
@@ -32,13 +48,7 @@ export const dbAuthOptions: DbAuthHandlerOptions = {
   },
   authModelAccessor: "user",
   cookie: {
-    attributes: {
-      HttpOnly: true,
-      Path: "/",
-      // Cross-site web/API deployments should use SameSite=None with Secure.
-      SameSite: "Lax",
-      Secure: process.env.NODE_ENV === "production",
-    },
+    attributes: productionCookieAttributes(),
     name: cookieName,
   },
   db: db as unknown as DbAuthHandlerOptions["db"],
@@ -49,15 +59,14 @@ export const dbAuthOptions: DbAuthHandlerOptions = {
     },
     expires: oneDay,
     handler: (user, resetToken) => {
-      if (process.env.NODE_ENV === "production") {
-        throw new Error("Forgot password delivery is not configured");
+      if (process.env.NODE_ENV !== "production") {
+        console.info("Development password reset token", {
+          email: user.email,
+          resetToken,
+        });
       }
 
-      console.info("Development password reset token", {
-        email: user.email,
-        resetToken,
-      });
-
+      // Production: generic response only until transactional email is wired.
       return { message: forgotPasswordMessage };
     },
   },
