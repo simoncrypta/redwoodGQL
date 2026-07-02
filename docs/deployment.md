@@ -27,7 +27,7 @@ Local development is unchanged: `vp run dev` uses pgserve and does not touch pro
 2. Set the bearer token in `~/.cursor/mcp.json` under the `Render` server `Authorization` header.
 3. Restart Cursor.
 4. Ask the agent to run `list_workspaces()` and `select_workspace(ownerID)` for **Simon Gagnon's Workspace**
-   (`tea-csptbf0gph6c73b7b12g`) — not LeftLane.
+   (`tea-csptbf0gph6c73b7b12g`).
 
 **PoC resources (Simon Gagnon's Workspace):**
 
