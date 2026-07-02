@@ -63,8 +63,8 @@ the same value on Cloudflare.
 
 ### Migrations and seed
 
-`scripts/render-start.sh` runs `pnpm exec vp run db#migrate-deploy` on each API start (Render free tier has no
-`preDeployCommand`). Prisma reads `DATABASE_URL` via `@rwgql/prisma-dev` when `PRISMA_DATABASE_URL` is unset.
+`scripts/render-start.sh` runs `prisma generate` and `prisma migrate deploy` on each API start (Render free tier has no
+`preDeployCommand`). The build also runs `prisma generate` so the client exists before Nitro bundles the server.
 
 Optional one-time seed (Render shell or local with external DB URL):
 

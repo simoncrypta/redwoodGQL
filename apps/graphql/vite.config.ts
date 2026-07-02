@@ -41,7 +41,7 @@ export default defineConfig({
     tasks: {
       build: {
         command: "nitro build",
-        dependsOn: [...graphqlPackageBuilds, "codegen"],
+        dependsOn: [...graphqlPackageBuilds, "codegen", "db#generate"],
       },
       check: {
         command: "vp check",
