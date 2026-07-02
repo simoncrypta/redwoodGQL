@@ -2,9 +2,11 @@
 set -euo pipefail
 
 pnpm install
-pnpm exec vp run bootstrap
+# Fresh Render clones have no dist/ artifacts; vp script cache replays logs without
+# restoring output files unless output globs are configured per package.
+pnpm exec vp run --no-cache bootstrap
 pnpm --filter db exec prisma generate
-pnpm exec vp run graphql#build
+pnpm exec vp run --no-cache graphql#build
 
 for file in \
   packages/auth/dist/graphql.mjs \
