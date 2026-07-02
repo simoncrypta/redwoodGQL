@@ -34,8 +34,8 @@ Local development is unchanged: `vp run dev` uses pgserve and does not touch pro
 | Resource            | URL / ID                                                               |
 | ------------------- | ---------------------------------------------------------------------- |
 | Postgres `rwgql-db` | [Dashboard](https://dashboard.render.com/d/dpg-d92sm04vikkc73b2tkag-a) |
-| API `rwgql-api`     | <https://rwgql-api.onrender.com>                                       |
-| Web Worker          | <https://rwgql-rwsdk.hello-091.workers.dev>                            |
+| API `rwgql-api`     | <https://rwgql-api.simoncrypta.dev>                                    |
+| Web Worker          | <https://rwgql.simoncrypta.dev>                                        |
 
 Without a valid API key, use the Render Dashboard and [`render.yaml`](../render.yaml) Blueprint instead.
 
@@ -51,10 +51,10 @@ Without a valid API key, use the Render Dashboard and [`render.yaml`](../render.
 
 After the Blueprint is created, set these on the **rwgql-api** service (they are `sync: false` in the Blueprint):
 
-| Variable                | Example                   | Purpose                                          |
-| ----------------------- | ------------------------- | ------------------------------------------------ |
-| `WEB_ORIGIN`            | `https://app.example.com` | CORS allowlist for the Cloudflare web app        |
-| `DB_AUTH_COOKIE_DOMAIN` | `.example.com`            | Shared session cookie across `app.*` and `api.*` |
+| Variable                | Example                         | Purpose                                             |
+| ----------------------- | ------------------------------- | --------------------------------------------------- |
+| `WEB_ORIGIN`            | `https://rwgql.simoncrypta.dev` | CORS allowlist for the Cloudflare web app           |
+| `DB_AUTH_COOKIE_DOMAIN` | `.simoncrypta.dev`              | Shared session cookie across web and API subdomains |
 
 `DATABASE_URL` is wired automatically from the linked Postgres instance (internal URL).
 
