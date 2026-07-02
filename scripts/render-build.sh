@@ -8,6 +8,9 @@ pnpm exec vp run --no-cache bootstrap
 pnpm --filter db exec prisma generate
 pnpm exec vp run --no-cache graphql#build
 
+# Dev-only db env files must not ship into the runtime image.
+rm -f apps/db/.env apps/db/connection.env
+
 for file in \
   packages/auth/dist/graphql.mjs \
   packages/dbauth/dist/server.mjs \

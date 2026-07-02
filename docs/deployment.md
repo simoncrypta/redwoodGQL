@@ -67,10 +67,19 @@ the same value on Cloudflare.
 uses `scripts/render-build.sh` (`vp run bootstrap`, Prisma generate, `graphql#build`) and Nitro inlines `@rwgql/*` and
 `db` so the server output does not depend on `node_modules` dist paths at runtime.
 
-Optional one-time seed (Render shell or local with external DB URL):
+Optional one-time seed (Render shell — `DATABASE_URL` is already set; use the external URL only when seeding from your laptop):
 
 ```bash
-DATABASE_URL="<render-external-url>" pnpm exec vp run seed
+rm -f apps/db/.env apps/db/connection.env
+pnpm --filter db exec prisma generate
+pnpm exec tsx apps/scripts/seed.ts
+```
+
+From your machine with the external connection string from the `rwgql-db` dashboard:
+
+```bash
+DATABASE_URL="postgresql://..." pnpm --filter db exec prisma generate
+DATABASE_URL="postgresql://..." pnpm exec tsx apps/scripts/seed.ts
 ```
 
 ### Custom domain (API)
@@ -159,11 +168,12 @@ After both services are live:
 
 ## Troubleshooting
 
-| Symptom                           | Check                                                                                                    |
-| --------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| CORS errors                       | `WEB_ORIGIN` matches exact web URL (scheme + host, no trailing slash)                                    |
-| SSR always logged out             | `DB_AUTH_COOKIE_DOMAIN`, `DB_AUTH_SECRET` match on both sides                                            |
-| Prisma engine error on Render     | `binaryTargets` includes `debian-openssl-3.0.x` in schema                                                |
-| Build fails on Render             | Node ≥ 22, `bash scripts/render-build.sh` logs, workspace `packages/*/dist` present                      |
-| `ERR_MODULE_NOT_FOUND` `@rwgql/*` | Rebuild after `noExternals` in `apps/graphql/nitro.config.ts`; ensure `render-build.sh` runs `bootstrap` |
-| MCP unauthorized                  | Personal Render API key in `~/.cursor/mcp.json`, restart Cursor                                          |
+| Symptom                                    | Check                                                                                                          |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
+| CORS errors                                | `WEB_ORIGIN` matches exact web URL (scheme + host, no trailing slash)                                          |
+| SSR always logged out                      | `DB_AUTH_COOKIE_DOMAIN`, `DB_AUTH_SECRET` match on both sides                                                  |
+| Prisma engine error on Render              | `binaryTargets` includes `debian-openssl-3.0.x` in schema                                                      |
+| Build fails on Render                      | Node ≥ 22, `bash scripts/render-build.sh` logs, workspace `packages/*/dist` present                            |
+| Empty posts but seed says "already seeded" | API was using `apps/db/.env` from build (localhost pgserve); redeploy after fix; seed targets `rwgql-db`       |
+| `getToken` 401 on `/auth`                  | Normal when logged out; cross-origin cookies need `DB_AUTH_COOKIE_SAMESITE=None` + custom domains for SSR auth |
+| MCP unauthorized                           | Personal Render API key in `~/.cursor/mcp.json`, restart Cursor                                                |
