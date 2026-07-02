@@ -63,14 +63,15 @@ the same value on Cloudflare.
 
 ### Migrations and seed
 
-`scripts/render-start.sh` runs `pnpm --filter db exec prisma generate` and `migrate deploy` on each API start. The build
-uses `scripts/render-build.sh` (`vp run bootstrap`, Prisma generate, `graphql#build`) and Nitro inlines `@rwgql/*` and
-`db` so the server output does not depend on `node_modules` dist paths at runtime.
+`scripts/render-start.sh` runs `prisma generate`, `migrate deploy`, and demo seed (`FORCE_DEMO_SEED=1`) on each start, then
+launches Nitro with `DATABASE_URL` pinned. No Render shell required.
 
-Optional one-time seed (Render shell — `DATABASE_URL` is already set; use the external URL only when seeding from your laptop):
+The build uses `scripts/render-build.sh` and Nitro inlines `@rwgql/*` and `db` so runtime does not depend on
+`node_modules` dist paths.
+
+Optional manual seed (only if you disable `FORCE_DEMO_SEED` on the API service):
 
 ```bash
-rm -f apps/db/.env apps/db/connection.env
 pnpm --filter db exec prisma generate
 pnpm exec tsx apps/scripts/seed.ts
 ```

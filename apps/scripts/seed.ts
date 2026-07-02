@@ -3,6 +3,11 @@ import { db } from "db";
 
 const demoPassword = "password";
 
+if (process.env.FORCE_DEMO_SEED === "1") {
+  await db.$executeRawUnsafe(`TRUNCATE "Contact", "Post", "User" RESTART IDENTITY CASCADE`);
+  console.info("Cleared demo tables (FORCE_DEMO_SEED)");
+}
+
 const seedUsers = async () => {
   const adaPassword = hashPassword(demoPassword);
   const gracePassword = hashPassword(demoPassword);

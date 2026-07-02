@@ -6,6 +6,7 @@ pnpm install
 # restoring output files unless output globs are configured per package.
 pnpm exec vp run --no-cache bootstrap
 pnpm --filter db exec prisma generate
+rm -rf apps/graphql/.output
 pnpm exec vp run --no-cache graphql#build
 
 # Dev-only db env files must not ship into the runtime image.
