@@ -21,7 +21,7 @@ services:
     plan: free
     repo: https://github.com/simoncrypta/redwoodGQL
     branch: main
-    buildCommand: pnpm install && pnpm exec vp run bootstrap && pnpm --filter db exec prisma generate && pnpm exec vp run graphql#build
+    buildCommand: bash scripts/render-build.sh
     startCommand: bash scripts/render-start.sh
     healthCheckPath: /graphql/health
     envVars:
