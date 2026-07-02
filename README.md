@@ -200,8 +200,9 @@ may still change.
 
 - **Dev workflow** — `vp run dev` starts Postgres (pgserve), migrates, seeds, and runs web +
   GraphQL in parallel
-- **Web app** — RedwoodSDK + Apollo Client; scaffold pages (Posts, Contacts, Blog) using Cells
-  and typed GraphQL codegen
+- **Web app** — RedwoodSDK + Apollo Client; scaffold pages (Posts, Contacts) use Cells; cached public
+  blog routes use server-side GraphQL via `createServerGraphql` (see `@rwgql/rwsdk-apollo-client`
+  README)
 - **GraphQL API** — Yoga on Fastify with SDL, resolvers, Prisma services, auth directives,
   and generated resolver types via `@rwgql/graphql-typegen`
 - **Auth** — `@rwgql/dbauth` (login, signup, logout, forgot/reset password), session cookies,
@@ -211,6 +212,13 @@ may still change.
   `@rwgql/log-formatter`, `@rwgql/graphql-typegen`
 
 ### Parity vs `test-project/`
+
+The legacy Cedar app in `test-project/` still uses Cells for blog pages (`BlogPostsCell`,
+`BlogPostCell`, etc.). In `apps/web`, **cached public blog routes** (`/`, `/blog-post/:id`,
+`/waterfall/:id`, `/about`, …) intentionally use **Worker SSR + `renderGraphqlPage`** with colocated
+queries and `@rwgql/router` `cache` headers — not client Cells. Auth and scaffold routes (Posts,
+Contacts) still use Cells. See `test-project/` for the Cedar reference and `packages/router/README.md`
+for edge caching.
 
 Compared to the classic RedwoodJS GraphQL scaffold in `test-project/`, remaining work is tracked on GitHub:
 

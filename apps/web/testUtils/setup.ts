@@ -3,8 +3,16 @@ import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@testing-library/react";
 import { afterEach, vi } from "vite-plus/test";
 
+import { createMockAuthState, mockUseAuth } from "./mockAuth";
+
 vi.mock("rwsdk/client", () => ({
   navigate: vi.fn(),
+}));
+
+vi.mock("rwsdk/worker", () => ({
+  getRequestInfo: vi.fn(() => ({
+    request: new Request("http://localhost/"),
+  })),
 }));
 
 vi.mock("@apollo/client/react", async (importOriginal) => {
@@ -17,25 +25,8 @@ vi.mock("@apollo/client/react", async (importOriginal) => {
   };
 });
 
-vi.mock("@/auth", () => ({
-  AuthProvider: ({ children }: { children: React.ReactNode }) => children,
-  useAuth: vi.fn(() => ({
-    currentUser: null,
-    forgotPassword: vi.fn(),
-    getToken: vi.fn(),
-    hasRole: () => false,
-    isAuthenticated: false,
-    loading: false,
-    logIn: vi.fn(),
-    logOut: vi.fn(),
-    reauthenticate: vi.fn(),
-    resetPassword: vi.fn(),
-    signUp: vi.fn(),
-    validateResetToken: vi.fn(),
-  })),
-}));
-
 afterEach(() => {
   cleanup();
-  vi.clearAllMocks();
+  mockUseAuth.mockReset();
+  mockUseAuth.mockImplementation(createMockAuthState);
 });

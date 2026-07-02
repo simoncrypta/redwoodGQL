@@ -8,6 +8,7 @@ import {
 import type { RequestInfo } from "rwsdk/worker";
 
 import type { RouteDefinition } from "./compileRoutes.js";
+import { resolveRouteCacheControl } from "./cacheControl.js";
 import { normalizeRedwoodPath } from "./normalizePath.js";
 import {
   Private,
@@ -22,6 +23,7 @@ import {
 import { withLayout, type LayoutWithPathnameProps } from "./withLayout.js";
 
 type RouteTreeContext = {
+  readonly cacheControl?: string;
   readonly layoutWrapper?: ReturnType<typeof withLayout>;
   readonly private?: boolean;
   readonly unauthenticated?: string;
@@ -43,17 +45,23 @@ const resolveRouteDefinition = <T extends RequestInfo>(
   props: RouteProps<T>,
   context: RouteTreeContext,
 ): RouteDefinition<T> => {
+  const isPrivate = props.private ?? context.private;
+  const cacheControl = isPrivate
+    ? undefined
+    : resolveRouteCacheControl(props.cache, context.cacheControl);
+
   if (props.notfound) {
     if (!props.page && !props.render) {
       throw new Error("@rwgql/router: <Route notfound> requires page or render");
     }
 
     return {
+      cacheControl,
       layoutWrapper: context.layoutWrapper,
       name: props.name ?? "notFound",
       page: props.page,
       path: "/*",
-      private: props.private ?? context.private,
+      private: isPrivate,
       render: props.render,
       unauthenticated: context.unauthenticated,
     };
@@ -74,11 +82,12 @@ const resolveRouteDefinition = <T extends RequestInfo>(
   }
 
   return {
+    cacheControl,
     layoutWrapper: context.layoutWrapper,
     name: props.name,
     page: props.page,
     path: normalizeRedwoodPath(props.path),
-    private: props.private ?? context.private,
+    private: isPrivate,
     render: props.render,
     unauthenticated: context.unauthenticated,
   };
@@ -100,11 +109,14 @@ const walkRouteTree = <T extends RequestInfo>(
     }
 
     if (isSetElement(child)) {
-      const { children, wrap, ...layoutProps } = child.props;
+      const { cache, children, wrap, ...layoutProps } = child.props;
+      const cacheControl = resolveRouteCacheControl(cache, context.cacheControl);
+
       walkRouteTree(
         children,
         {
           ...context,
+          cacheControl,
           layoutWrapper: withLayout(
             wrap as ComponentType<Record<string, unknown> & LayoutWithPathnameProps>,
             layoutProps,
@@ -120,6 +132,7 @@ const walkRouteTree = <T extends RequestInfo>(
         child.props.children,
         {
           ...context,
+          cacheControl: undefined,
           private: true,
           unauthenticated: child.props.unauthenticated,
         },

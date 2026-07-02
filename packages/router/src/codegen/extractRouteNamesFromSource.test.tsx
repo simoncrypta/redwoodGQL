@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 import { describe, expect, it } from "vite-plus/test";
@@ -10,6 +10,22 @@ import {
 import { routeNamesFromTree, Private, Route, Router, Set } from "../routeTree.js";
 
 const HomePage = () => null;
+
+const findRoutesFile = () => {
+  const relativePath = path.join("apps", "web", "src", "Routes.tsx");
+  const candidates = [
+    path.resolve(process.cwd(), relativePath),
+    path.resolve(process.cwd(), "..", "..", relativePath),
+  ];
+
+  for (const candidate of candidates) {
+    if (existsSync(candidate)) {
+      return candidate;
+    }
+  }
+
+  throw new Error(`Could not find ${relativePath} from ${process.cwd()}`);
+};
 
 describe("extractRouteNamesFromSource", () => {
   it("matches routeNamesFromTree for a Redwood-style route tree", () => {
@@ -41,13 +57,13 @@ describe("extractRouteNamesFromSource", () => {
       );
     `;
 
-    expect(extractRouteNamesFromSource(source)).toEqual(
+    expect(extractRouteNamesFromSource(source).map(({ name, path }) => ({ name, path }))).toEqual(
       routeNameEntriesFromTree(routeNamesFromTree(routeTree)),
     );
   });
 
   it("matches routeNamesFromTree for apps/web Routes.tsx", () => {
-    const routesFile = path.resolve(process.cwd(), "../../apps/web/src/Routes.tsx");
+    const routesFile = findRoutesFile();
     const source = readFileSync(routesFile, "utf8");
 
     expect(extractRouteNamesFromSource(source, routesFile).map(({ name }) => name)).toEqual([

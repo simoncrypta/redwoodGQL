@@ -4,7 +4,6 @@ import { createCell } from "@rwgql/cell";
 
 import type { CellSuccessProps, CellFailureProps } from "@app/types/cell";
 
-import Author from "@/components/Author/Author";
 import { graphql } from "@/gql";
 import type { ResultOf, VariablesOf } from "@graphql-typed-document-node/core";
 
@@ -41,7 +40,7 @@ export const Success = ({
 
   return (
     <span className="author-cell">
-      <Author author={author} />
+      {author.fullName} ({author.email})
     </span>
   );
 };

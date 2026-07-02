@@ -12,6 +12,7 @@ import appRoutes, { routes } from "@/Routes";
 import { GraphQLProvider } from "@/GraphQLProvider";
 import { Document } from "@/document";
 import { setCommonHeaders } from "@/headers";
+import { resolveGraphqlUrl } from "@/graphql.server";
 
 export type Session = {
   readonly id: number;
@@ -37,22 +38,6 @@ const authDecoder = createAuthDecoder({
 
 const sessionMiddleware = ({ ctx, request }: RequestInfo<IdParams, AppContext>) => {
   ctx.session = authDecoder(request);
-};
-
-const defaultDevGraphqlUrl = "http://localhost:8911/graphql";
-
-const resolveGraphqlUrl = () => {
-  if (import.meta.env.VITE_GRAPHQL_URL) {
-    return import.meta.env.VITE_GRAPHQL_URL;
-  }
-
-  if (import.meta.env.DEV) {
-    return defaultDevGraphqlUrl;
-  }
-
-  throw new Error(
-    "VITE_GRAPHQL_URL must point at the apps/graphql endpoint (for example https://api.example.com/graphql).",
-  );
 };
 
 const isRscNavigationRequest = (request: Request) => {

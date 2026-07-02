@@ -8,10 +8,12 @@ import {
 import type { RequestInfo } from "rwsdk/worker";
 
 import { normalizeRedwoodPath } from "./normalizePath.js";
+import type { CacheOption } from "./cacheControl.js";
 
 export type RouteRender<T extends RequestInfo = RequestInfo> = (requestInfo: T) => ReactNode;
 
 export type RouteProps<T extends RequestInfo = RequestInfo> = {
+  readonly cache?: CacheOption;
   readonly children?: never;
   readonly name?: string;
   readonly notfound?: boolean;
@@ -22,6 +24,7 @@ export type RouteProps<T extends RequestInfo = RequestInfo> = {
 };
 
 export type SetProps = {
+  readonly cache?: CacheOption;
   readonly children: ReactNode;
   readonly wrap: ComponentType<any>;
   readonly [prop: string]: unknown;

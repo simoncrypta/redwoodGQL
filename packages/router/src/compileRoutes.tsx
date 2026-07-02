@@ -4,9 +4,11 @@ import type { RequestInfo } from "rwsdk/worker";
 
 import { pathHasRouteId } from "./buildPath.js";
 import type { NamedRoutes } from "./buildPath.js";
+import { createCacheControl } from "./createCacheControl.js";
 import type { LayoutWrapper } from "./withLayout.js";
 
 export type RouteDefinition<T extends RequestInfo = RequestInfo> = {
+  readonly cacheControl?: string;
   readonly name: string;
   readonly path: string;
   readonly layoutWrapper?: LayoutWrapper;
@@ -99,11 +101,16 @@ export const compileRoutes = <
       return options.renderPage(requestInfo, wrapped);
     };
 
-    if (entry.private) {
-      return route(entry.path, [entry.requireAuth!, handler]);
+    const routeMiddleware: RouteMiddleware<T>[] = [
+      ...(entry.cacheControl ? [createCacheControl<T>(entry.cacheControl)] : []),
+      ...(entry.private ? [entry.requireAuth!] : []),
+    ];
+
+    if (routeMiddleware.length === 0) {
+      return route(entry.path, handler);
     }
 
-    return route(entry.path, handler);
+    return route(entry.path, [...routeMiddleware, handler]);
   });
 
   return { routes: options.routes, workerRoutes };

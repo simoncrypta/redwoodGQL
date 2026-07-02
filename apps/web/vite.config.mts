@@ -1,3 +1,5 @@
+import { fileURLToPath } from "node:url";
+
 import { defineConfig, lazyPlugins } from "vite-plus";
 import { playwright } from "vite-plus/test/browser-playwright";
 import { createGenerateRoutesTasks } from "@rwgql/router/tasks";
@@ -16,6 +18,11 @@ const webPackageBuilds = [
 
 export default defineConfig({
   resolve: {
+    alias: isTest
+      ? {
+          "@/auth": fileURLToPath(new URL("./testUtils/mockAuth.ts", import.meta.url)),
+        }
+      : undefined,
     tsconfigPaths: isTest,
   },
   fmt: {

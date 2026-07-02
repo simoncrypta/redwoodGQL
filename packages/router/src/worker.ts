@@ -1,4 +1,11 @@
 export { compileAppRoutes } from "./compileAppRoutes.js";
+export {
+  DEFAULT_CACHE_CONTROL,
+  resolveCacheControl,
+  resolveRouteCacheControl,
+} from "./cacheControl.js";
+export type { CacheOption } from "./cacheControl.js";
+export { createCacheControl } from "./createCacheControl.js";
 export { withWorkerCompile } from "./withWorkerCompile.js";
 export type { WorkerDefinedRoutes } from "./withWorkerCompile.js";
 export { compileFromDefinitions } from "./compileFromDefinitions.js";

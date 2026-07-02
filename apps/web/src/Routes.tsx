@@ -25,7 +25,7 @@ import WaterfallPage from "@/pages/WaterfallPage/WaterfallPage";
 
 const routeTree = (
   <Router>
-    <Route path="/double" page={DoublePage} name="double" />
+    <Route path="/double" page={DoublePage} name="double" cache />
     <Route path="/login" page={LoginPage} name="login" />
     <Route path="/signup" page={SignupPage} name="signup" />
     <Route path="/forgot-password" page={ForgotPasswordPage} name="forgotPassword" />
@@ -65,13 +65,13 @@ const routeTree = (
         <Route path="/posts" page={PostsPage} name="posts" />
       </Private>
     </Set>
-    <Set wrap={BlogLayout}>
+    <Set wrap={BlogLayout} cache>
       <Route path="/waterfall/{id:Int}" page={WaterfallPage} name="waterfall" />
       <Private unauthenticated="login">
         <Route path="/profile" page={ProfilePage} name="profile" />
       </Private>
       <Route path="/blog-post/{id:Int}" page={BlogPostPage} name="blogPost" />
-      <Route path="/contact" page={ContactUsPage} name="contactUs" />
+      <Route path="/contact" page={ContactUsPage} name="contactUs" cache={false} />
       <Route path="/about" page={AboutPage} name="about" />
       <Route path="/" page={HomePage} name="home" />
       <Route notfound page={NotFoundPage} />

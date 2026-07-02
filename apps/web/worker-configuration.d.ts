@@ -5,7 +5,6 @@ declare namespace Cloudflare {
     mainModule: typeof import("./src/worker");
   }
   interface Env {
-    ASSETS: Fetcher;
+    ASSETS: import("@cloudflare/workers-types").Fetcher;
   }
 }
-interface Env extends Cloudflare.Env {}

@@ -1,5 +1,3 @@
-"use client";
-
 const AboutPage = () => {
   return (
     <p className="font-light">

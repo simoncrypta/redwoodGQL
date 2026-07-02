@@ -4,6 +4,8 @@ import type { Prisma } from "db";
 import type { MutationResolvers, PostRelationResolvers, QueryResolvers } from "types/graphql";
 import type { ServiceResolver } from "@rwgql/graphql-typegen";
 
+import { userPublicSelect } from "../users/userPublicSelect.ts";
+
 export const posts: ServiceResolver<QueryResolvers["posts"]> = () => db.post.findMany();
 
 export const post: ServiceResolver<QueryResolvers["post"]> = ({ id }) =>
@@ -29,7 +31,14 @@ export const deletePost: ServiceResolver<MutationResolvers["deletePost"]> = ({ i
 
 export const Post: PostRelationResolvers = {
   author: async (_args, { root }) => {
-    const author = await db.post.findUnique({ where: { id: root.id } }).author();
+    if (!root.authorId) {
+      throw new Error(`Post ${root.id} is missing author`);
+    }
+
+    const author = await db.user.findUnique({
+      select: userPublicSelect,
+      where: { id: root.authorId },
+    });
 
     if (!author) {
       throw new Error(`Post ${root.id} is missing author`);

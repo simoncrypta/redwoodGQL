@@ -1,13 +1,31 @@
-"use client";
+import BlogArticle, { BlogArticlePostFragment } from "@/components/BlogArticle/BlogArticle";
+import { getFragmentData, graphql } from "@/gql";
+import { renderGraphqlPage } from "@/graphql.server";
 
-import BlogPostCell from "@/components/BlogPostCell/BlogPostCell";
+const FindBlogPostQueryDocument = graphql(`
+  query FindBlogPostQuery($id: Int!) {
+    blogPost: post(id: $id) {
+      ...BlogArticlePost
+    }
+  }
+`);
 
 type BlogPostPageProps = {
-  id: number;
+  readonly id: number;
 };
 
-const BlogPostPage = ({ id }: BlogPostPageProps) => {
-  return <BlogPostCell id={id} />;
-};
+const BlogPostPage = async ({ id }: BlogPostPageProps) =>
+  renderGraphqlPage(
+    FindBlogPostQueryDocument,
+    { id },
+    ({ blogPost }) => {
+      const post = getFragmentData(BlogArticlePostFragment, blogPost);
+
+      return post ? <BlogArticle post={post} /> : null;
+    },
+    {
+      isEmpty: ({ blogPost }) => !blogPost,
+    },
+  );
 
 export default BlogPostPage;

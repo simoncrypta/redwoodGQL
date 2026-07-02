@@ -1,4 +1,10 @@
 export { buildPath, pathHasRouteId } from "./buildPath.js";
+export {
+  DEFAULT_CACHE_CONTROL,
+  resolveCacheControl,
+  resolveRouteCacheControl,
+} from "./cacheControl.js";
+export type { CacheOption } from "./cacheControl.js";
 export { createNamedRoutes } from "./namedRoutes.js";
 export { defineRoutes } from "./defineRoutes.js";
 export { normalizeRedwoodPath } from "./normalizePath.js";
