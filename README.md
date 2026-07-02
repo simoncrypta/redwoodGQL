@@ -226,6 +226,13 @@ Compared to the classic RedwoodJS GraphQL scaffold in `test-project/`, remaining
 - [Parity issues](https://github.com/simoncrypta/redwoodGQL/issues?q=is%3Aissue+is%3Aopen+label%3Aparity)
 - [Roadmap milestones](https://github.com/simoncrypta/redwoodGQL/milestones) — High, Medium, and Lower priority / by design
 
+## Migrating from RedwoodJS
+
+Coming from a classic RedwoodJS (Cedar) app? The step-by-step guide in
+[docs/migrating-from-redwoodjs.md](docs/migrating-from-redwoodjs.md) walks through replacing every `@redwoodjs/*`
+package with `@rwgql/*`, RedwoodSDK, and Vite+ — using `test-project/` (before) and `apps/` (after) as the working
+reference for each step.
+
 ## Further Reading
 
 - [RedwoodSDK Documentation](https://docs.rwsdk.com/)
